@@ -52,7 +52,7 @@ Requires any C++17 compiler (`g++`, `clang++`). Nothing else.
 | SIM 5 | 32-bit multi-block carry propagation (200K trials) | Zero errors; BER consistent with single-block analysis |
 | SIM 6 | Constant-interaction model, μ(N) for N = 1–16 | All Δμ/k_BT ≥ 19.3 at 300 K — 16 charge states thermally distinguishable |
 
-### Chip-Level System Simulations (`SIM 7`–`SIM 10`)
+### Chip-Level System Simulations (`SIM 7`–`SIM 11`)
 
 | SIM | Method | Key result |
 |-----|--------|-----------|
@@ -60,6 +60,7 @@ Requires any C++17 compiler (`g++`, `clang++`). Nothing else.
 | SIM 8 | Process variation Monte Carlo — 10,000 blocks, Gaussian spread in t, E_C, Γ | 92.5% parametric yield; 87.9% combined with 5% hard defects; E_C is critical parameter |
 | SIM 9 | 256×256 intra-zone crossbar contention (4 access patterns) | Row-broadcast: 2,351 GOPS/zone; random: 147 GOPS/zone; 3.0 × 10⁵ TOPS chip-wide worst-case |
 | SIM 10 | ARM/FIRE/CONFIRM/SLINGSHOT/BRANCH micro-instruction execution trace | Vector-add (16 elem): 1,184 cyc / 129 ns; dot-product: 5,315 cyc / 579 ns; branch: 98 cyc / 10.7 ns |
+| SIM 11 | Room-temperature chip stability — epoch-based MC, M4-sized die (3 cm²) | Without refresh: 100% dead by 10×τ_ret. With refresh every 79 μs: **96.4% compute utilisation**, 3.6% overhead, zero data loss — **stable at 300 K indefinitely** |
 
 ---
 
@@ -115,7 +116,7 @@ H-Si(100) surface
 ## Files
 
 ```
-FEA_Chip_sim.cpp    complete simulation (~2,100 lines, pure C++17)
+FEA_Chip_sim.cpp    complete simulation (~2,200 lines, pure C++17)
 Makefile            build: make && ./fea_sim
 README.md           this file
 LICENSE             MIT
