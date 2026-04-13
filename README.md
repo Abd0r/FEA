@@ -1,137 +1,139 @@
-# Free Electron Absorption (FEA) Architecture — Simulation Suite
+# FEA — Free Electron Absorption Architecture
 
-[![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+**A transistor-free computing architecture on hydrogen-passivated silicon.**
 
-Self-contained C++17 simulation of the **Free Electron Absorption (FEA)** architecture — a transistor-free computing paradigm on hydrogen-passivated Si(100).
+Electrons travel freely along dangling bond wires on H–Si(100) and are selectively absorbed by 5-atom cross-shaped dangling-bond clusters via Breit–Wigner resonance under gate-voltage control. No transistors switch in the data plane. Each Fusion Block = 1 bit. 64 Fusion Blocks = 1 64-bit Word. The CMOS control plane is an address sequencer — it never touches operand data.
 
-Electrons propagate freely through **dangling-bond wire (DBW)** pathways. Computation is performed by **16-atom (4×4) Fusion Blocks** that absorb passing electrons via Breit–Wigner resonance on gate-voltage command. No transistors exist in the data plane.
-
-All quantitative results in the accompanying paper are reproduced by `FEA_Chip_sim.cpp` — **one file, no external dependencies**.
-
----
-
-## Build & Run
-
-```bash
-git clone https://github.com/Abd0r/FEA.git
-cd FEA
-make
-./fea_sim
-```
-
-Requires any C++17 compiler (`g++`, `clang++`). Nothing else.
-
----
-
-## What the Simulation Does
-
-### Original Analysis (`[1]`–`[10]`)
-
-| Section | What it computes |
-|---------|-----------------|
-| `[1]` | Physical constants — tight-binding dispersion, Breit–Wigner, Kramers escape |
-| `[2]` | 16-atom ALU: AND, OR, XOR, SHL, SHR, ADD (16-bit), MUL (16-bit), FP16 MUL |
-| `[3]` | ALU statistical verification — 100,000 random trials, **zero errors** |
-| `[4]` | Thermal BER — Kramers escape MC, BER vs E_C sensitivity table |
-| `[5]` | Timing cycle — ARM + FIRE + CONFIRM → **9.18 GHz** system clock |
-| `[6]` | Power breakdown — transit bias, absorption, gate switching → **26.47 mW cm⁻²** |
-| `[7]` | Density comparison — vs 2 nm CMOS, Apple M4 GPU, NVIDIA H100 |
-| `[8]` | Slingshot inter-block protocol — BER per hop, Hamming protection, 64-hop chains |
-| `[9]` | Full-chip scenarios — dense, sparse (90% sparsity), neural inference, slingshot stress |
-| `[10]` | Summary table of all key numbers |
-
-### Physics Verification Suite (`SIM 1`–`SIM 6`)
-
-| SIM | Method | Key result |
-|-----|--------|-----------|
-| SIM 1 | Jacobi diagonalisation of 16×16 Hamiltonian + gate sweep | 8 bonding + 8 antibonding states; B-sublattice shifts 300 meV vs 51 meV for A — independent gate control confirmed |
-| SIM 2 | NEGF transmission T(E) via retarded Green's function G^r = [EI − H − Σ_L − Σ_R]⁻¹ | Multi-resonance structure confirmed; T(E_F) ≈ 0 at resonance — validates Breit–Wigner |
-| SIM 3 | Crank–Nicolson wavepacket propagation on 500-site tight-binding chain | v_g = 2.24 × 10⁴ m/s — 96% of analytical 2ta/ħ |
-| SIM 4 | DRAM-like refresh overhead model | 95.5% compute utilisation at τ_ret = 157.9 μs |
-| SIM 5 | 32-bit multi-block carry propagation (200K trials) | Zero errors; BER consistent with single-block analysis |
-| SIM 6 | Constant-interaction model, μ(N) for N = 1–16 | All Δμ/k_BT ≥ 19.3 at 300 K — 16 charge states thermally distinguishable |
-
-### Chip-Level System Simulations (`SIM 7`–`SIM 11`)
-
-| SIM | Method | Key result |
-|-----|--------|-----------|
-| SIM 7 | 2D steady-state heat diffusion (50×50 Jacobi, uniform + 10× hot-spot) | ΔT < 0.001 K; τ_ret degradation < 1%; passive cooling suffices |
-| SIM 8 | Process variation Monte Carlo — 10,000 blocks, Gaussian spread in t, E_C, Γ | 92.5% parametric yield; 87.9% combined with 5% hard defects; E_C is critical parameter |
-| SIM 9 | 256×256 intra-zone crossbar contention (4 access patterns) | Row-broadcast: 2,351 GOPS/zone; random: 147 GOPS/zone; 3.0 × 10⁵ TOPS chip-wide worst-case |
-| SIM 10 | ARM/FIRE/CONFIRM/SLINGSHOT/BRANCH micro-instruction execution trace | Vector-add (16 elem): 1,184 cyc / 129 ns; dot-product: 5,315 cyc / 579 ns; branch: 98 cyc / 10.7 ns |
-| SIM 11 | Room-temperature chip stability — epoch-based MC, M4-sized die (3 cm²) | Without refresh: 100% dead by 10×τ_ret. With refresh every 79 μs: **96.4% compute utilisation**, 3.6% overhead, zero data loss — **stable at 300 K indefinitely** |
+> **Paper:** [`Paper/FEA-architecture.pdf`](Paper/FEA-architecture.pdf) — 17 pages, full theoretical and simulation treatment.
 
 ---
 
 ## Key Numbers
 
-| Metric | Value |
-|--------|-------|
-| System clock | **9.18 GHz** |
-| Cycle time | **108.9 ps** (ARM 33 + FIRE 42.9 + CONFIRM 33 ps) |
-| Data-plane power density | **26.47 mW cm⁻²** (~3,800× lower than 2 nm CMOS) |
-| Fusion Block density (practical) | **2.16 × 10¹² cm⁻²** |
-| In-situ memory density | **4,325 GB cm⁻²** (volatile, 16 bits/block) |
-| State retention at 300 K | **τ_ret = 157.9 μs** (E_C = 0.5 eV, Kramers model) |
-| Thermal BER per operation | **6.89 × 10⁻⁷** (MC: 6.44 × 10⁻⁷, within Poisson uncertainty) |
-| FP16 multiply | **111 cycles, 12.09 ns, ±2 ULP** |
-| FP16 efficiency | **~10,300 TOPS W⁻¹** at 100% pathway utilisation |
-| Slingshot hop latency | **1.96 ns** (18 cycles) |
-| Slingshot BER per hop | **1.24 × 10⁻⁵** (Hamming-recoverable) |
+| | Value |
+|---|---|
+| Physical primitive | 5-atom cross DB cluster on H-Si(100) |
+| 1 Fusion Block | 1 bit (absorbed or not absorbed) |
+| 1 Word | 64 Fusion Blocks = 64-bit register |
+| Practical block density | **3.77 × 10¹³ cm⁻²** |
+| System clock (T_cycle = 108.85 ps) | **9.19 GHz** |
+| Data-plane power density | 26.47 mW/cm² |
+| Charging energy E_C | 0.65 eV |
+| State retention τ_ret at 300 K | **52.2 ms** |
+| Refresh overhead | **0.011%** (compute utilisation 99.99%) |
+| ADD_64 (carry-lookahead) | **0.87 ns** (8 cycles) |
+| MUL_64 (Wallace tree + CLA) | **2.18 ns** (20 cycles) |
+| Slingshot hop (8-lane parallel) | **1.09 ns** |
+| M4-Max-sized die (3 cm²) | **14.1 TB in-situ memory, 79.4 mW** |
+
+**Comparison to Apple M4 Max on the same 3 cm² die area:** 110× more memory at 0.2% of the power.
 
 ---
 
-## Architecture in Brief
+## Simulation Suite — 13 Simulations
 
-```
-H-Si(100) surface
-│
-├── Dangling Bond Wire (DBW) pathways
-│     Electrons tunnel between adjacent DB atoms — no metal wires, no doping
-│     Tight-binding group velocity: v_g = 2ta/ħ = 2.33 × 10⁴ m/s
-│
-├── 16-Atom Fusion Block  (4×4 grid, footprint 4.72 nm²)
-│     A-sublattice (8 atoms, perimeter-weight) ← G_ctrl address gate
-│     B-sublattice (8 atoms, interior-weight)  ← G_NE resonance gate
-│     │
-│     ├── State 0 (idle):    E_NE = E_F + 300 meV → T ≈ 0.9993 (transparent)
-│     ├── State 1 (absorb):  E_NE = E_F           → T = 0 (quantum mirror)
-│     └── Stored electron held by Coulomb blockade, E_C = 0.5 eV
-│
-├── ARM / FIRE / CONFIRM cycle
-│     ARM    (33.0 ps)  — CMOS decoder selects zone via O(√K) crossbar
-│     FIRE   (42.9 ps)  — electron injected, propagates at v_g
-│     CONFIRM (33.0 ps) — AC reflectometry reads charge occupancy
-│
-├── O(√K) crossbar  —  256×256 intra-zone, 512 select lines per zone
-│
-└── Slingshot protocol  —  asynchronous DBW-native 16-bit messaging
-      18 cycles/hop = 1 SOF + 16 data bits + 1 EOF
-      No CMOS control-plane involvement for block-to-block data movement
-```
+A self-contained C++17 simulation (`FEA_sim.cpp`, ~2,100 lines, no external dependencies) verifies the architecture end-to-end.
+
+| # | Name | Description |
+|---|------|-------------|
+| 1 | 5-atom Hamiltonian + gate sweep | Jacobi diagonalisation of the 5×5 tight-binding Hamiltonian; bonding/antibonding eigenvalues vs V_NE |
+| 2 | Breit–Wigner transmission | Absorption probability A(E) on/off resonance + thermal averaging |
+| 3 | Kramers state retention at 300 K | τ_ret = 52.2 ms for the 5-atom cluster (E_C = 0.65 eV) |
+| 4 | DBW wavepacket propagation | Crank–Nicolson on 500-site chain; v_g within 4% of analytical 2ta/ℏ |
+| 5 | 64-bit ALU verification | 100,000 random trials on AND/OR/XOR/NOT/SHL/SHR/ADD/SUB/MUL — zero functional errors |
+| 6 | ARM/FIRE/CONFIRM timing | 33 + 42.9 + 33 = 108.85 ps cycle |
+| 7 | Thermal BER + MC verification | BER/block/cycle = 2.09 × 10⁻⁹ at E_C = 0.65 eV |
+| 8 | Density, memory & power | 14.1 TB / 79.4 mW on 3 cm² die |
+| 9 | Thermal map + yield MC | ΔT < 3 mK; combined yield 95% |
+| 10 | General-purpose execution | Vector add, dot product, conditional branch — instruction traces |
+| 11 | Room-temperature full-chip stability | M4-die epoch-based MC, 99.99% compute utilisation |
+| 12 | Crossbar contention | 2,352 GOPS/zone best, 147 GOPS/zone random |
+| 13 | Slingshot stress test | 64-hop chain BER 8.5 × 10⁻⁵ (below SECDED threshold) |
 
 ---
 
-## Files
+## Build & Run
 
+Requires any C++17 compiler (clang, gcc). No external libraries.
+
+```bash
+make          # builds FEA_sim
+./FEA_sim     # runs all 13 simulations
 ```
-FEA_Chip_sim.cpp    complete simulation (~2,200 lines, pure C++17)
-Makefile            build: make && ./fea_sim
-README.md           this file
-LICENSE             MIT
+
+Or in one line:
+```bash
+c++ -std=c++17 -O2 -o FEA_sim FEA_sim.cpp && ./FEA_sim
 ```
+
+A captured reference output from a single run is in [`FEA_sim_output.txt`](FEA_sim_output.txt) (520 lines).
 
 ---
 
-## Paper
+## Architecture Overview
 
-*Free Electron Absorption: A Transistor-Free Computing Architecture on Hydrogen-Passivated Silicon*  
-Syed Abdur Rehman Ali — April 2026  
-ORCID: [0009-0004-6611-2918](https://orcid.org/0009-0004-6611-2918)
+```
+  1 Fusion Block  =  1 bit    (5-atom cross DB cluster)
+  64 Fusion Blocks =  1 Word   (64-bit parallel register)
+  1024 Words       =  1 Zone   (256×256 = 65,536 blocks)
+  ~10⁹ Zones       =  1 Chip   (3 cm² M4-Max die)
+```
+
+**Instruction set (5 micro-ops, issued by CMOS control plane):**
+
+- `ARM`       — address target Word within a Zone  (1 cycle)
+- `FIRE`      — execute 64-bit ALU op on armed Word  (1–20 cycles)
+- `CONFIRM`   — read back result via AC charge sensing  (1 cycle)
+- `SLINGSHOT` — transfer 64-bit value between Words, 8-lane parallel  (10 cycles)
+- `BRANCH`    — conditional jump  (1 cycle, no speculation)
+
+---
+
+## Key Results
+
+**Physics.**
+The 5-atom cross cluster has a smaller self-capacitance than the 16-atom 4×4 clusters used in prior work, giving E_C = 0.65 eV (vs 0.5 eV) and E_C/k_B T = 25.1 at 300 K. Kramers escape is exponentially suppressed, yielding τ_ret = 52.2 ms — approximately 330× longer retention than prior designs — which eliminates refresh overhead (<10⁻⁴).
+
+**Arithmetic.**
+Carry-lookahead adders and Wallace-tree multipliers, implemented natively on parallel Fusion Blocks, achieve 64-bit ADD in 0.87 ns and 64-bit MUL in 2.18 ns — competitive with or faster than pipelined 3 GHz CMOS.
+
+**General-purpose execution.**
+The ARM/FIRE/CONFIRM + SLINGSHOT + BRANCH instruction set is Turing-complete. Vector addition, dot product, and conditional branches are demonstrated with direct instruction traces. A compiler is future work.
+
+**Chip scale.**
+A 3 cm² M4-Max-sized die hosts 1.13 × 10¹⁴ Fusion Blocks, 14.1 TB of in-situ memory, and dissipates 79.4 mW data-plane power — roughly 504× lower power than an M4 Max GPU on the same die area. Monte Carlo simulation on the full die confirms 99.99% compute utilisation under periodic refresh at 300 K.
+
+---
+
+## Limitations
+
+- **Room-temperature DB retention has not been experimentally measured.** All retention figures are Kramers-model extrapolations from cryogenic (4 K) STM measurements. This is the principal unvalidated assumption and the open experimental question.
+- **No compiler.** Instruction traces in SIM 10 are hand-compiled. An LLVM backend targeting the FEA ISA is future work.
+- **Fabrication.** Writing single 5-atom clusters with STM is within current capabilities; scaling to 10¹⁴ clusters on a 3 cm² die requires parallel atomic-precision patterning (directed self-assembly or template-assisted placement).
+
+The paper describes these in detail. Experimental collaborators with atomic-precision silicon capabilities are welcome.
+
+---
+
+## Citation
+
+```bibtex
+@misc{ali2026fea,
+  author       = {Syed Abdur Rehman Ali},
+  title        = {Free Electron Absorption: A Bit-Level Transistor-Free Computing
+                  Architecture on Hydrogen-Passivated Silicon},
+  year         = 2026,
+  howpublished = {\url{https://github.com/Abd0r/FEA}},
+}
+```
 
 ---
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+Code: MIT — see [LICENSE](LICENSE).
+
+---
+
+**Author:** Syed Abdur Rehman Ali — Independent Researcher
+[ORCID: 0009-0004-6611-2918](https://orcid.org/0009-0004-6611-2918)

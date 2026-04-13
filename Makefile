@@ -1,15 +1,18 @@
 CXX      ?= c++
 CXXFLAGS ?= -std=c++17 -O2 -Wall
 
-TARGET   := fea_sim
-SRC      := FEA_Chip_sim.cpp
+TARGET   := FEA_sim
+SRC      := FEA_sim.cpp
 
-.PHONY: all clean
+.PHONY: all clean run
 
 all: $(TARGET)
 
 $(TARGET): $(SRC)
 	$(CXX) $(CXXFLAGS) -o $@ $<
+
+run: $(TARGET)
+	./$(TARGET)
 
 clean:
 	rm -f $(TARGET)
