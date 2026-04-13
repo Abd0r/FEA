@@ -8,7 +8,6 @@ Electrons travel freely along dangling bond wires on H–Si(100) and are selecti
 >
 > - **Zenodo (canonical, citable):** [https://doi.org/10.5281/zenodo.19559255](https://doi.org/10.5281/zenodo.19559255)
 > - **Local copy:** [`Paper/FEA-architecture.pdf`](Paper/FEA-architecture.pdf) — 22 pages, 8 figures, 14 simulations, 13 references.
-> - **arXiv (cs.ET):** pending endorsement.
 
 ---
 
