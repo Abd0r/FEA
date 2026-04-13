@@ -485,6 +485,39 @@ Hops      BER (cumulative)    Latency(ns)     Status
     Multi-block operations remain reliable across the full chip.
 
 ================================================================================
+  [SIM 14] FUSION MEMORY ACCESS HOP-DISTANCE HISTOGRAM
+================================================================================
+
+  Die:           3.00 cm²
+  Total zones:   1.725e+09
+  Grid layout:   41529 × 41529 zones
+  Routing model: hierarchical fat-tree
+                 hops = ⌈log2(Δx)⌉ + ⌈log2(Δy)⌉ + 2
+  Samples:       100000 random Word pairs
+
+  ------------------------------------------------------------------------------
+  Hop-Distance Distribution
+  ------------------------------------------------------------------------------
+  Percentile  Hops        Latency
+  --------------------------------------
+  50.0 %       30          32.66 ns
+  90.0 %       32          34.83 ns
+  95.0 %       32          34.83 ns
+  99.0 %       33          35.92 ns
+  99.9 %       34          37.01 ns
+  100.0%       34          37.01 ns
+
+  Mean hops:                29.36
+  Mean latency:             31.95 ns
+  95th percentile latency:  34.83 ns
+  Max (100th percentile):   37.01 ns
+
+  ✓ 95% of cross-die Fusion Memory accesses complete in 35 ns or less.
+    Even worst-case cross-die access stays within
+    sub-microsecond latency — no DRAM-class delays exist
+    anywhere on the chip.
+
+================================================================================
   [SUMMARY] FEA 5-ATOM CROSS CLUSTER — KEY METRICS
 ================================================================================
 
