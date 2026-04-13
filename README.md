@@ -4,7 +4,11 @@
 
 Electrons travel freely along dangling bond wires on H–Si(100) and are selectively absorbed by 5-atom cross-shaped dangling-bond clusters via Breit–Wigner resonance under gate-voltage control. No transistors switch in the data plane. Each Fusion Block = 1 bit. 64 Fusion Blocks = 1 64-bit Word. The CMOS control plane is an address sequencer — it never touches operand data.
 
-> **Paper:** [`Paper/FEA-architecture.pdf`](Paper/FEA-architecture.pdf) — 17 pages, full theoretical and simulation treatment.
+> **Preprint:** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19559255.svg)](https://doi.org/10.5281/zenodo.19559255)
+>
+> - **Zenodo (canonical, citable):** [https://doi.org/10.5281/zenodo.19559255](https://doi.org/10.5281/zenodo.19559255)
+> - **Local copy:** [`Paper/FEA-architecture.pdf`](Paper/FEA-architecture.pdf) — 22 pages, 8 figures, 14 simulations, 13 references.
+> - **arXiv (cs.ET):** pending endorsement.
 
 ---
 
@@ -30,9 +34,9 @@ Electrons travel freely along dangling bond wires on H–Si(100) and are selecti
 
 ---
 
-## Simulation Suite — 13 Simulations
+## Simulation Suite — 14 Simulations
 
-A self-contained C++17 simulation (`FEA_sim.cpp`, ~2,100 lines, no external dependencies) verifies the architecture end-to-end.
+A self-contained C++17 simulation (`FEA_sim.cpp`, ~1,200 lines, no external dependencies) verifies the architecture end-to-end.
 
 | # | Name | Description |
 |---|------|-------------|
@@ -49,6 +53,7 @@ A self-contained C++17 simulation (`FEA_sim.cpp`, ~2,100 lines, no external depe
 | 11 | Room-temperature full-chip stability | M4-die epoch-based MC, 99.99% compute utilisation |
 | 12 | Crossbar contention | 2,352 GOPS/zone best, 147 GOPS/zone random |
 | 13 | Slingshot stress test | 64-hop chain BER 8.5 × 10⁻⁵ (below SECDED threshold) |
+| 14 | Fusion Memory cross-die access | Hierarchical fat-tree routing on 10⁵ random Word pairs: 95th percentile 32 hops (34.83 ns), worst case 34 hops (37.01 ns) |
 
 ---
 
@@ -58,7 +63,7 @@ Requires any C++17 compiler (clang, gcc). No external libraries.
 
 ```bash
 make          # builds FEA_sim
-./FEA_sim     # runs all 13 simulations
+./FEA_sim     # runs all 14 simulations
 ```
 
 Or in one line:
@@ -117,15 +122,25 @@ The paper describes these in detail. Experimental collaborators with atomic-prec
 
 ## Citation
 
+Please cite via the Zenodo DOI — it's the canonical, citable reference:
+
 ```bibtex
 @misc{ali2026fea,
-  author       = {Syed Abdur Rehman Ali},
+  author       = {Ali, Syed Abdur Rehman},
   title        = {Free Electron Absorption: A Bit-Level Transistor-Free Computing
                   Architecture on Hydrogen-Passivated Silicon},
   year         = 2026,
-  howpublished = {\url{https://github.com/Abd0r/FEA}},
+  month        = apr,
+  publisher    = {Zenodo},
+  version      = {v1.0},
+  doi          = {10.5281/zenodo.19559255},
+  url          = {https://doi.org/10.5281/zenodo.19559255},
 }
 ```
+
+Plain-text form:
+
+> Ali, S. A. R. (2026). *Free Electron Absorption: A Bit-Level Transistor-Free Computing Architecture on Hydrogen-Passivated Silicon* (v1.0). Zenodo. https://doi.org/10.5281/zenodo.19559255
 
 ---
 
