@@ -8,6 +8,16 @@ Electrons travel freely along dangling bond wires on H–Si(100) and are selecti
 >
 > - **Zenodo (canonical, citable):** [https://doi.org/10.5281/zenodo.19559255](https://doi.org/10.5281/zenodo.19559255)
 > - **Local copy:** [`Paper/FEA-architecture.pdf`](Paper/FEA-architecture.pdf) — 22 pages, 8 figures, 14 simulations, 13 references.
+>
+> **Note on simulation versions.** The Zenodo preprint reports numbers from
+> `FEA_sim_v1.cpp` (archived in [`simulations/`](simulations/) for
+> reproducibility). The current reference implementation is
+> [`FEA_sim_v2.cpp`](simulations/FEA_sim_v2.cpp), which adds first-principles
+> Γ derivation, a real 2D thermal solver, contention-model crossbar, and a
+> self-consistent multi-FIRE write-fidelity model. Numbers below are the
+> v2 values; deltas from v1 are noted where they differ materially. The
+> Zenodo preprint will be updated to v2 after editorial decision on the
+> accompanying Nature Electronics submission.
 
 ---
 
@@ -20,39 +30,46 @@ Electrons travel freely along dangling bond wires on H–Si(100) and are selecti
 | 1 Word | 64 Fusion Blocks = 64-bit register |
 | Practical block density | **3.77 × 10¹³ cm⁻²** |
 | System clock (T_cycle = 108.85 ps) | **9.19 GHz** |
-| Data-plane power density | 26.47 mW/cm² |
+| Resonance broadening Γ (derived from leads) | **45 meV** (v1 used 8 meV hardcoded) |
+| Data-plane power density (P_transit + P_absorb) | 26.47 mW/cm² |
 | Charging energy E_C | 0.65 eV |
 | State retention τ_ret at 300 K | **52.2 ms** |
 | Refresh overhead | **0.011%** (compute utilisation 99.99%) |
-| ADD_64 (carry-lookahead) | **0.87 ns** (8 cycles) |
-| MUL_64 (Wallace tree + CLA) | **2.18 ns** (20 cycles) |
+| ADD_64, single-FIRE ideal | 0.87 ns (8 cycles) |
+| ADD_64, multi-FIRE (N_FIRE = 18, 99.9% write fidelity) | **2.72 ns** (25 cycles) |
+| MUL_64, single-FIRE ideal | 2.18 ns (20 cycles) |
+| MUL_64, multi-FIRE | **~4.03 ns** (37 cycles) |
 | Slingshot hop (8-lane parallel) | **1.09 ns** |
-| M4-Max-sized die (3 cm²) | **14.1 TB in-situ memory, 79.4 mW** |
+| M4-Max-sized die (3 cm²) data-plane | **14.1 TB in-situ memory, 79.4 mW** |
+| M4-Max-sized die total chip power (incl. CMOS control plane) | **~3.8 W** |
 
-**Comparison to Apple M4 Max on the same 3 cm² die area:** 110× more memory at 0.2% of the power.
+**Comparison to Apple M4 Max on the same 3 cm² die area:**
+110× more memory at ~10× lower total chip power (3.8 W vs 40 W).
+The data plane alone is ~500× lower power; the CMOS control plane
+dominates the total and is the primary target for future optimisation.
 
 ---
 
-## Simulation Suite — 14 Simulations
+## Simulation Suite — 14 Simulations (v2)
 
-A self-contained C++17 simulation (`FEA_sim.cpp`, ~1,200 lines, no external dependencies) verifies the architecture end-to-end.
+The current simulation — [`simulations/FEA_sim_v2.cpp`](simulations/FEA_sim_v2.cpp) (~1,370 lines C++17, no external dependencies) — verifies the architecture end-to-end. v1 values in parentheses where they differ.
 
 | # | Name | Description |
 |---|------|-------------|
-| 1 | 5-atom Hamiltonian + gate sweep | Jacobi diagonalisation of the 5×5 tight-binding Hamiltonian; bonding/antibonding eigenvalues vs V_NE |
-| 2 | Breit–Wigner transmission | Absorption probability A(E) on/off resonance + thermal averaging |
-| 3 | Kramers state retention at 300 K | τ_ret = 52.2 ms for the 5-atom cluster (E_C = 0.65 eV) |
-| 4 | DBW wavepacket propagation | Crank–Nicolson on 500-site chain; v_g within 4% of analytical 2ta/ℏ |
-| 5 | 64-bit ALU verification | 100,000 random trials on AND/OR/XOR/NOT/SHL/SHR/ADD/SUB/MUL — zero functional errors |
+| 1 | 5-atom Hamiltonian + lead self-energy | Jacobi diagonalisation of the 5×5 tight-binding Hamiltonian; bonding/antibonding eigenvalues vs V_NE; **Γ derived from lead self-energy: 45 meV** (v1: 8 meV hardcoded) |
+| 2 | Transmission: Green's function vs Breit–Wigner | T(E) from full Green's function compared against single-pole BW approximation; injection-averaged capture probability |
+| 3 | Kramers retention + Langevin MC cross-check | τ_ret = 52.2 ms; first-passage distribution confirmed exponential (Kramers-consistent) |
+| 4 | DBW wavepacket with embedded cluster | Crank–Nicolson on 500-site chain with 5-atom cluster at site 250; measured on/off absorption contrast ~1,066× |
+| 5 | 64-bit CLA ADD with multi-FIRE redundancy | Block-level model; automatic N_FIRE search; **N_FIRE = 18 → 0/1,000 functional failures → 2.72 ns effective ADD_64** |
 | 6 | ARM/FIRE/CONFIRM timing | 33 + 42.9 + 33 = 108.85 ps cycle |
-| 7 | Thermal BER + MC verification | BER/block/cycle = 2.09 × 10⁻⁹ at E_C = 0.65 eV |
-| 8 | Density, memory & power | 14.1 TB / 79.4 mW on 3 cm² die |
-| 9 | Thermal map + yield MC | ΔT < 3 mK; combined yield 95% |
-| 10 | General-purpose execution | Vector add, dot product, conditional branch — instruction traces |
-| 11 | Room-temperature full-chip stability | M4-die epoch-based MC, 99.99% compute utilisation |
-| 12 | Crossbar contention | 2,352 GOPS/zone best, 147 GOPS/zone random |
-| 13 | Slingshot stress test | 64-hop chain BER 8.5 × 10⁻⁵ (below SECDED threshold) |
-| 14 | Fusion Memory cross-die access | Hierarchical fat-tree routing on 10⁵ random Word pairs: 95th percentile 32 hops (34.83 ns), worst case 34 hops (37.01 ns) |
+| 8 | Density, memory & derived power breakdown | 14.1 TB; P_transit + P_absorb + P_gate with explicit activity-factor sensitivity |
+| 9 | 2D steady-state thermal (SOR solver) | **ΔT_max ≈ 1.07 K at central hot spot with CMOS control plane** (data-plane only: < 3 mK) |
+| 10 | FEA VM — three programs, 100-run MC | Vector add 96% full-pass, dot product 98% match, conditional branch 98% match (all with multi-FIRE + thermal escape) |
+| 11 | Room-temperature full-chip stability | M4-die epoch-based MC: 99.99% compute utilisation under τ/2 refresh |
+| 12 | Crossbar contention (real arbitration) | **Row-broadcast/sequential: 147 / random: 133 / worst-case strided: 9 GOPS/zone** (v1 idealized: 2,352/147) |
+| 14 | Fusion Memory cross-die access | Hierarchical fat-tree routing on 10⁵ random Word pairs: 95th percentile 32 hops (34.8 ns), worst case 34 hops (37.0 ns) |
+
+SIM 7 (Bernoulli self-check) and SIM 13 (multi-hop dice-rolling) from v1 were tautologies and have been removed; the physical content is covered by SIM 3's Langevin cross-check and SIM 5's block-level CLA simulation. See [`simulations/README.md`](simulations/README.md) for the full v1 → v2 change log.
 
 ---
 
@@ -112,16 +129,16 @@ and
 ## Key Results
 
 **Physics.**
-The 5-atom cross cluster has a smaller self-capacitance than the 16-atom 4×4 clusters used in prior work, giving E_C = 0.65 eV (vs 0.5 eV) and E_C/k_B T = 25.1 at 300 K. Kramers escape is exponentially suppressed, yielding τ_ret = 52.2 ms — approximately 330× longer retention than prior designs — which eliminates refresh overhead (<10⁻⁴).
+The 5-atom cross cluster has a smaller self-capacitance than the 16-atom 4×4 clusters used in prior work, giving E_C = 0.65 eV and E_C/k_B T = 25.1 at 300 K. Kramers escape is exponentially suppressed, yielding τ_ret = 52.2 ms. The resonance broadening Γ ≈ 45 meV is derived from the lead self-energy (rather than hardcoded).
 
 **Arithmetic.**
-Carry-lookahead adders and Wallace-tree multipliers, implemented natively on parallel Fusion Blocks, achieve 64-bit ADD in 0.87 ns and 64-bit MUL in 2.18 ns — competitive with or faster than pipelined 3 GHz CMOS.
+Carry-lookahead adders and Wallace-tree multipliers, implemented natively on parallel Fusion Blocks, give 64-bit ADD in 0.87 ns and MUL in 2.18 ns under the single-FIRE ideal. When the measured per-electron absorption from SIM 4 (0.46) is taken as the physical write probability, the simulation shows that **N_FIRE = 18 multi-FIRE writes** are required to reach 99.9% per-op fidelity, raising effective latencies to **~2.72 ns (ADD)** and **~4.03 ns (MUL)**. Chained programs add standard SECDED ECC on top.
 
 **General-purpose execution.**
-The ARM/FIRE/CONFIRM + SLINGSHOT + BRANCH instruction set is Turing-complete. Vector addition, dot product, and conditional branches are demonstrated with direct instruction traces. A compiler is future work.
+The ARM/FIRE/CONFIRM + SLINGSHOT + BRANCH instruction set supports arithmetic, unbounded memory addressing, and conditional control flow on 64-bit Words — the three ingredients for Turing-completeness. SIM 10 runs three example programs (vector add, dot product, conditional branch) 100 times each under the multi-FIRE + thermal-noise model and reports 96–98% full-program success. A compiler is future work.
 
 **Chip scale.**
-A 3 cm² M4-Max-sized die hosts 1.13 × 10¹⁴ Fusion Blocks, 14.1 TB of in-situ memory, and dissipates 79.4 mW data-plane power — roughly 504× lower power than an M4 Max GPU on the same die area. Monte Carlo simulation on the full die confirms 99.99% compute utilisation under periodic refresh at 300 K.
+A 3 cm² M4-Max-sized die hosts 1.13 × 10¹⁴ Fusion Blocks and 14.1 TB of in-situ memory. The data plane alone dissipates 79.4 mW (approximately 500× lower than an M4 Max GPU on the same die area); total chip power including the CMOS control-plane estimate is **~3.8 W (approximately 10× lower than M4 Max)**. Monte Carlo simulation on the full die confirms 99.99% compute utilisation under periodic refresh at 300 K. The 2D thermal solver shows ΔT ≈ 1 K at worst-case hot spots with CMOS power included.
 
 ---
 
