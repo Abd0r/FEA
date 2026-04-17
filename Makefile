@@ -1,18 +1,32 @@
 CXX      ?= c++
 CXXFLAGS ?= -std=c++17 -O2 -Wall
 
-TARGET   := FEA_sim
-SRC      := FEA_sim.cpp
+SIMDIR   := simulations
+V1_SRC   := $(SIMDIR)/FEA_sim_v1.cpp
+V2_SRC   := $(SIMDIR)/FEA_sim_v2.cpp
+V1_BIN   := FEA_sim_v1
+V2_BIN   := FEA_sim_v2
 
-.PHONY: all clean run
+.PHONY: all clean run run-v1 run-v2 v1 v2
 
-all: $(TARGET)
+all: $(V2_BIN)
 
-$(TARGET): $(SRC)
+v1: $(V1_BIN)
+v2: $(V2_BIN)
+
+$(V1_BIN): $(V1_SRC)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
-run: $(TARGET)
-	./$(TARGET)
+$(V2_BIN): $(V2_SRC)
+	$(CXX) $(CXXFLAGS) -o $@ $<
+
+run: run-v2
+
+run-v1: $(V1_BIN)
+	./$(V1_BIN)
+
+run-v2: $(V2_BIN)
+	./$(V2_BIN)
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(V1_BIN) $(V2_BIN)

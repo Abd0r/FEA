@@ -60,17 +60,33 @@ A self-contained C++17 simulation (`FEA_sim.cpp`, ~1,200 lines, no external depe
 
 Requires any C++17 compiler (clang, gcc). No external libraries.
 
+Source lives in [`simulations/`](simulations/). Two versions are
+kept for transparency:
+
+- [`simulations/FEA_sim_v2.cpp`](simulations/FEA_sim_v2.cpp) —
+  **current**, matches the NE manuscript. First-principles Γ, real
+  2D thermal solver, contention-model crossbar, multi-FIRE write
+  model with SIM 5 / SIM 10 self-consistent.
+- [`simulations/FEA_sim_v1.cpp`](simulations/FEA_sim_v1.cpp) —
+  archived, matches the Zenodo preprint (DOI 10.5281/zenodo.19559255).
+  Known limitations documented in
+  [`simulations/README.md`](simulations/README.md).
+
 ```bash
-make          # builds FEA_sim
-./FEA_sim     # runs all 14 simulations
+make          # builds FEA_sim_v2 (the current one)
+make run      # builds and runs v2
+make v1       # builds the archived v1
 ```
 
 Or in one line:
 ```bash
-c++ -std=c++17 -O2 -o FEA_sim FEA_sim.cpp && ./FEA_sim
+c++ -std=c++17 -O2 -o FEA_sim_v2 simulations/FEA_sim_v2.cpp && ./FEA_sim_v2
 ```
 
-A captured reference output from a single run is in [`FEA_sim_output.txt`](FEA_sim_output.txt) (520 lines).
+Captured reference outputs live alongside the source:
+[`simulations/FEA_sim_v2_output.txt`](simulations/FEA_sim_v2_output.txt)
+and
+[`simulations/FEA_sim_v1_output.txt`](simulations/FEA_sim_v1_output.txt).
 
 ---
 
