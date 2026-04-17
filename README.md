@@ -4,6 +4,12 @@
 
 Electrons travel freely along dangling bond wires on H–Si(100) and are selectively absorbed by 5-atom cross-shaped dangling-bond clusters via Breit–Wigner resonance under gate-voltage control. No transistors switch in the data plane. Each Fusion Block = 1 bit. 64 Fusion Blocks = 1 64-bit Word. The CMOS control plane is an address sequencer — it never touches operand data.
 
+<p align="center">
+  <img src="docs/img/fusion_block_hierarchy.png" width="90%" alt="Architectural hierarchy: 5-atom Fusion Block, 64-bit Word, and 256×256-block Zone on H-Si(100)">
+</p>
+
+<p align="center"><em>Architectural hierarchy: 5-atom Fusion Block (a), 64-bit Word (b), and 256×256-block Zone (c). A 3 cm² die contains ~1.7 × 10⁹ Zones.</em></p>
+
 > **Preprint:** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19559255.svg)](https://doi.org/10.5281/zenodo.19559255)
 >
 > - **Zenodo (canonical, citable):** [https://doi.org/10.5281/zenodo.19559255](https://doi.org/10.5281/zenodo.19559255)
@@ -116,6 +122,12 @@ and
   ~10⁹ Zones       =  1 Chip   (3 cm² M4-Max die)
 ```
 
+<p align="center">
+  <img src="docs/img/cim_pim_fea.png" width="95%" alt="Compute-memory integration: CIM, PIM, and FEA compared">
+</p>
+
+<p align="center"><em>Compute–memory integration. (a) Compute-in-memory preserves the array/processor boundary and needs ADCs, accumulators, and a separate decoder. (b) Processing-in-memory keeps the fetch–execute boundary within each bank. (c) FEA Fusion Memory: every Fusion Block is simultaneously the memory cell and the compute unit — no peripheral circuitry, no data converter in the compute path.</em></p>
+
 **Instruction set (5 micro-ops, issued by CMOS control plane):**
 
 - `ARM`       — address target Word within a Zone  (1 cycle)
@@ -139,6 +151,15 @@ The ARM/FIRE/CONFIRM + SLINGSHOT + BRANCH instruction set supports arithmetic, u
 
 **Chip scale.**
 A 3 cm² M4-Max-sized die hosts 1.13 × 10¹⁴ Fusion Blocks and 14.1 TB of in-situ memory. The data plane alone dissipates 79.4 mW (approximately 500× lower than an M4 Max GPU on the same die area); total chip power including the CMOS control-plane estimate is **~3.8 W (approximately 10× lower than M4 Max)**. Monte Carlo simulation on the full die confirms 99.99% compute utilisation under periodic refresh at 300 K. The 2D thermal solver shows ΔT ≈ 1 K at worst-case hot spots with CMOS power included.
+
+**Sparse workloads.**
+Because only addressed pathways consume active power, FEA has no dark-silicon floor in the data plane. A 95%-sparse transformer dissipates approximately 4 mW on the full 3 cm² die — a regime in which CMOS cannot exploit workload sparsity for power reduction because its clock network and cache leakage impose a fixed floor.
+
+<p align="center">
+  <img src="docs/img/power_vs_sparsity.png" width="75%" alt="Total chip power vs activation fraction; FEA scales linearly while CMOS and the human brain are flat">
+</p>
+
+<p align="center"><em>Total chip power vs pathway utilisation / activation fraction (3 cm² die, log–log). FEA data-plane power scales linearly; Apple M4 Max (dashed red) and the human brain (dotted orange) are flat references at ~40 W and ~20 W respectively.</em></p>
 
 ---
 
