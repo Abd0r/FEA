@@ -152,14 +152,22 @@ The ARM/FIRE/CONFIRM + SLINGSHOT + BRANCH instruction set supports arithmetic, u
 **Chip scale.**
 A 3 cm² M4-Max-sized die hosts 1.13 × 10¹⁴ Fusion Blocks and 14.1 TB of in-situ memory. The data plane alone dissipates 79.4 mW (approximately 500× lower than an M4 Max GPU on the same die area); total chip power including the CMOS control-plane estimate is **~3.8 W (approximately 10× lower than M4 Max)**. Monte Carlo simulation on the full die confirms 99.99% compute utilisation under periodic refresh at 300 K. The 2D thermal solver shows ΔT ≈ 1 K at worst-case hot spots with CMOS power included.
 
-**Sparse workloads.**
-Because only addressed pathways consume active power, FEA has no dark-silicon floor in the data plane. A 95%-sparse transformer dissipates approximately 4 mW on the full 3 cm² die — a regime in which CMOS cannot exploit workload sparsity for power reduction because its clock network and cache leakage impose a fixed floor.
+**Sparse workloads — full-chip honesty.**
+The data plane has no dark-silicon floor: a 95%-sparse transformer dissipates only ~4 mW in the data plane on a full 3 cm² die. **But that is only the data-plane number.** At the full-chip level, the CMOS control-plane estimate (~3.8 W, dominated by PLL distribution) dominates unless it is actively duty-cycled. The three relevant numbers at 5% activation are:
+
+| Measurement | Power at 5% activation |
+|---|---|
+| Data plane only (green curve below) | **~4 mW** |
+| Full chip, static CMOS (blue curve) | **~3.81 W** |
+| Full chip, duty-cycled CMOS, 100 mW floor (purple curve) | **~0.29 W** |
+
+In all scenarios, the data-plane itself is ~500× more energy-efficient than CMOS equivalents for sparse compute. Capturing that advantage at the chip level is a control-plane engineering problem, not a physics limitation.
 
 <p align="center">
-  <img src="docs/img/power_vs_sparsity.png" width="75%" alt="Total chip power vs activation fraction; FEA scales linearly while CMOS and the human brain are flat">
+  <img src="docs/img/power_vs_sparsity.png" width="85%" alt="Full-chip power vs activation fraction, three FEA curves plus CMOS and brain references">
 </p>
 
-<p align="center"><em>Total chip power vs pathway utilisation / activation fraction (3 cm² die, log–log). FEA data-plane power scales linearly; Apple M4 Max (dashed red) and the human brain (dotted orange) are flat references at ~40 W and ~20 W respectively.</em></p>
+<p align="center"><em>Full-chip power vs pathway utilisation / activation fraction (3 cm² die, log–log). Three FEA curves: data plane only (green, linear), total chip with static CMOS (blue, 3.8 W floor), total chip with duty-cycled CMOS (purple, 100 mW floor). Apple M4 Max and the human brain are flat references.</em></p>
 
 ---
 
