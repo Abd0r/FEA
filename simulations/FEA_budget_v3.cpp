@@ -597,6 +597,68 @@ static void scenario_parallelism_power() {
     std::cout << "current, so activity becomes derived rather than assumed.\n";
 }
 
+// SCENARIO: data-plane power as a function of active fraction
+//
+// The paper plots the data plane as linear in utilisation (0.66 mW at 5%)
+// but no module derived that curve: the plotter hard-coded it and the budget
+// term is a constant. The archived V2 program goes further and labels the
+// term "fixed, always on", which is the opposite claim.
+//
+// The two are reconcilable only under a stated assumption: the transit bias
+// is applied to a pathway only while that pathway carries an active FIRE.
+// A biased conductance dissipates V^2/R; an unbiased one dissipates nothing,
+// so an idle Block in state 0 draws no transit power. Under that assumption
+// the data-plane term scales with the active fraction, which is what the
+// figure claims. This derives the curve instead of asserting it.
+// =============================================================================
+static void scenario_activity_gated_power() {
+    std::cout << "\n[SCENARIO 10] data-plane power scales with the active fraction\n";
+
+    const double area = fea::params().control.data_plane_area_cm2;
+    const double declared_mW_cm2 = fea::params().control.data_plane_mW_per_cm2;
+    const double declared_full_mW = declared_mW_cm2 * area;
+
+    // pathway route, as SCENARIO 9 computes it, for an independent cross-check
+    const double e = 1.60218e-19;
+    const double hbar = 1.05457e-34;
+    const double G0 = 2.0 * e * e / (2.0 * M_PI * hbar);
+    const double V = fea::params().io.v_bias_V;
+    const double n_path_cm2 = 3.3e6;
+    const double T_cycle = 104.83e-12;
+    const double f_sys = 1.0 / T_cycle;
+    const double P_transit_W = V * (G0 * V) * n_path_cm2;
+    const double P_absorb_W = n_path_cm2 * f_sys * 0.5166 * e * V;
+    const double pathway_full_mW = (P_transit_W + P_absorb_W) * area * 1e3;
+
+    const double act = 0.05;
+    const double declared_at_act = declared_full_mW * act;
+    const double pathway_at_act = pathway_full_mW * act;
+
+    std::cout << std::fixed << std::setprecision(4);
+    std::cout << "  assumption: the transit bias is applied only to pathways\n";
+    std::cout << "              carrying an active FIRE; an idle Block draws none.\n\n";
+    std::cout << "  full activity, declared basis  : " << declared_full_mW << " mW\n";
+    std::cout << "  full activity, pathway route   : " << pathway_full_mW << " mW\n";
+    std::cout << "  at 5% active, declared basis   : " << declared_at_act << " mW\n";
+    std::cout << "  at 5% active, pathway route    : " << pathway_at_act << " mW\n";
+    std::cout << "  plotted callout in the paper   : 0.6600 mW\n";
+    std::cout << "  at 0% active                   : 0.0000 mW\n\n";
+
+    fea::require(std::fabs(declared_at_act - 0.66) < 0.01,
+            "data-plane power at 5% activity must reproduce the figure callout "
+            "of 0.66 mW, or the plotted curve is not sourced from this suite");
+    fea::require(std::fabs(declared_full_mW - 13.2) < 0.05,
+            "full-activity data-plane power must reproduce the stated 13.2 mW");
+    fea::require(declared_at_act < declared_full_mW,
+            "activity-gated power must be strictly below the full figure, or "
+            "the gating assumption is not doing anything");
+
+    std::cout << "  LABEL: derived under the activity-gated bias assumption. "
+                 "The archived V2 label 'fixed, always on' is superseded.\n";
+    std::cout << "  NEXT EVIDENCE GATE: measure the bias-gating behaviour of an "
+                 "idle pathway, so the scaling is observed rather than assumed.\n";
+}
+
 int main() {
     using namespace budget;
     try {
@@ -611,6 +673,7 @@ int main() {
         scenario_v3_control_budget();
         scenario_power_economics();
         scenario_parallelism_power();
+        scenario_activity_gated_power();
         std::cout << "\nPASS: V2 control-plane arithmetic reconciled and unit-checked.\n";
         std::cout << "LABEL: derived arithmetic, estimated device parameters, proposed control migration.\n";
         std::cout << "NEXT EVIDENCE GATE: size boundary CMOS, I-O, PDN, and clock-distribution power explicitly.\n";

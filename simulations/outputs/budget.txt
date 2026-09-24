@@ -134,6 +134,20 @@ All terms computed from fea_params.h. Not a tape-out estimate.
 NEXT EVIDENCE GATE: a measured pathway density and per-Zone
 current, so activity becomes derived rather than assumed.
 
+[SCENARIO 10] data-plane power scales with the active fraction
+  assumption: the transit bias is applied only to pathways
+              carrying an active FIRE; an idle Block draws none.
+
+  full activity, declared basis  : 13.2350 mW
+  full activity, pathway route   : 12.7975 mW
+  at 5% active, declared basis   : 0.6618 mW
+  at 5% active, pathway route    : 0.6399 mW
+  plotted callout in the paper   : 0.6600 mW
+  at 0% active                   : 0.0000 mW
+
+  LABEL: derived under the activity-gated bias assumption. The archived V2 label 'fixed, always on' is superseded.
+  NEXT EVIDENCE GATE: measure the bias-gating behaviour of an idle pathway, so the scaling is observed rather than assumed.
+
 PASS: V2 control-plane arithmetic reconciled and unit-checked.
 LABEL: derived arithmetic, estimated device parameters, proposed control migration.
 NEXT EVIDENCE GATE: size boundary CMOS, I-O, PDN, and clock-distribution power explicitly.
