@@ -498,6 +498,105 @@ static void scenario_power_economics() {
 
 } // namespace budget
 
+// =============================================================================
+// SCENARIO: parallelism, current and power must agree (external review, Tier B)
+//
+// The paper claims 2.86e8 Zones issuing independent operations at a data-plane
+// power of 13.2 mW. Those two statements had only ever been shown separately.
+// This derives, from stated constants, the chain the review asked for:
+//
+//   active-zone fraction -> operations/s -> path current -> power
+//
+// Three quantities come from independent routes and are compared: transit and
+// absorption power from the pathway density; the electron flux that per-Zone
+// full-rate firing demands; and the current the stated pathway density can
+// deliver. The activity fraction at which the last two agree is the honest
+// ceiling on how many Zones may fire per cycle.
+// =============================================================================
+static void scenario_parallelism_power() {
+    std::cout << "\n[SCENARIO 9] parallelism, path current and power must agree\n";
+
+    const double e   = 1.60218e-19;
+    const double hbar = 1.05457e-34;
+    const double G0  = 2.0 * e * e / (2.0 * M_PI * hbar);
+    const double V   = fea::params().io.v_bias_V;
+    const double n_path_cm2 = 3.3e6;                       // FEA_sim_v2 Phys
+    const double area = fea::params().control.data_plane_area_cm2;
+    const double zones = fea::design_zone_count();
+    const double word_bits = fea::params().arch.word_bits;
+    const double T_cycle = 104.83e-12;                     // M9 local cycle
+    const double f_sys = 1.0 / T_cycle;
+
+    const double I_path = G0 * V;
+    const double P_transit_W = V * I_path * n_path_cm2;
+    const double A_thermal = 0.5166;                        // M3 at Gamma = 45 meV
+    const double P_absorb_W = n_path_cm2 * f_sys * A_thermal * e * V;
+    const double derived_mW_cm2 = (P_transit_W + P_absorb_W) * 1e3;
+    const double declared_mW_cm2 = fea::params().control.data_plane_mW_per_cm2;
+
+    const double flux_full = zones * word_bits * f_sys;
+    const double I_required_full = flux_full * e;
+    const double I_available = I_path * n_path_cm2 * area;
+    const double activity_max = I_available / I_required_full;
+    const double ops_per_s_at_cap = zones * f_sys * activity_max;
+
+    std::cout << std::scientific << std::setprecision(4);
+    std::cout << "  G0 = " << G0 << " S,  I_path = G0 x V = " << I_path << " A\n";
+    std::cout << "  n_path = " << n_path_cm2 << " /cm^2 over " << area << " cm^2\n";
+    std::cout << "  zones = " << zones << ",  word = " << word_bits << " bits\n";
+    std::cout << "  local cycle T = " << T_cycle * 1e12 << " ps,  f_sys = "
+              << f_sys / 1e9 << " GHz\n\n";
+
+    std::cout << "  (1) power from the pathway route\n";
+    std::cout << "      P_transit = V x G0 x V x n_path = " << P_transit_W * 1e3
+              << " mW/cm^2\n";
+    std::cout << "      P_absorb  = n_path x f_sys x <A> x e x V = "
+              << P_absorb_W * 1e3 << " mW/cm^2  (<A> = " << A_thermal << " from M3)\n";
+    std::cout << "      derived   = " << derived_mW_cm2 << " mW/cm^2\n";
+    std::cout << "      declared  = " << declared_mW_cm2 << " mW/cm^2\n";
+    std::cout << "      ratio     = " << derived_mW_cm2 / declared_mW_cm2 << "\n\n";
+
+    std::cout << "  (2) flux demanded by every Zone firing every cycle\n";
+    std::cout << "      " << flux_full << " electrons/s = " << I_required_full
+              << " A\n";
+    std::cout << "  (3) current the stated pathway density delivers\n";
+    std::cout << "      " << I_available << " A\n";
+    std::cout << "      deficit  = " << I_required_full / I_available << "x\n\n";
+
+    std::cout << std::fixed << std::setprecision(4);
+    std::cout << "  sustainable active-zone fraction = " << activity_max * 100.0
+              << " %\n";
+    std::cout << "  -> " << ops_per_s_at_cap / 1e12
+              << " Tops/s across the die at that fraction\n";
+    std::cout << "  -> per-Zone rates must be read as a per-Zone figure times the\n";
+    std::cout << "     ACTIVE Zones, not times " << zones << "\n\n";
+
+    // Found while negative-testing this scenario: zone count is derived from
+    // zone_data_blocks() = words_per_zone x word_bits, while arch.blocks_per_zone
+    // is a SEPARATE literal that M2 and M16 read. Perturbing one therefore leaves
+    // the other unchanged -- two independent definitions of65,536 Blocks per Zone,
+    // the same defect class as zone_fzc_blocks() being a literal. Bind them.
+    fea::require(static_cast<double>(fea::params().arch.blocks_per_zone) ==
+                     fea::zone_data_blocks(),
+                 "arch.blocks_per_zone must equal the derived zone_data_blocks(), "
+                 "or two modules compute the Zone from different numbers");
+
+    fea::require(std::fabs(derived_mW_cm2 / declared_mW_cm2 - 1.0) < 0.10,
+            "the pathway-derived data-plane power must match the declared figure "
+            "to within 10%, or one route has a unit or constant error");
+    fea::require(activity_max < 1.0,
+            "the stated pathway density must NOT serve every Zone firing every "
+            "cycle -- that is the consistency question the review raised");
+    fea::require(activity_max > 0.0 && activity_max < 0.5,
+            "the sustainable activity fraction must be a real fraction below half, "
+            "otherwise parallelism and power are trivially compatible and this "
+            "analysis has measured nothing");
+    std::cout << "  label: ARITHMETIC from declared constants. n_path and G0 are\n";
+    std::cout << "  inputs, not measurements of this device.\n";
+    std::cout << "NEXT EVIDENCE GATE: a measured pathway density and per-Zone\n";
+    std::cout << "current, so activity becomes derived rather than assumed.\n";
+}
+
 int main() {
     using namespace budget;
     try {
@@ -511,6 +610,7 @@ int main() {
         scenario_total_power();
         scenario_v3_control_budget();
         scenario_power_economics();
+        scenario_parallelism_power();
         std::cout << "\nPASS: V2 control-plane arithmetic reconciled and unit-checked.\n";
         std::cout << "LABEL: derived arithmetic, estimated device parameters, proposed control migration.\n";
         std::cout << "NEXT EVIDENCE GATE: size boundary CMOS, I-O, PDN, and clock-distribution power explicitly.\n";

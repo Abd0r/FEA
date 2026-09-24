@@ -105,6 +105,35 @@ All terms computed from fea_params.h. Not a tape-out estimate.
   label: arithmetic derived; bandwidth and ring clock CITED; SSD pJ, fabric
   clock share, boundary density and PDN fraction DECLARED, not measured.
 
+[SCENARIO 9] parallelism, path current and power must agree
+  G0 = 7.7481e-05 S,  I_path = G0 x V = 7.7481e-07 A
+  n_path = 3.3000e+06 /cm^2 over 5.0000e-01 cm^2
+  zones = 2.8611e+08,  word = 6.4000e+01 bits
+  local cycle T = 1.0483e+02 ps,  f_sys = 9.5393e+00 GHz
+
+  (1) power from the pathway route
+      P_transit = V x G0 x V x n_path = 2.5569e+01 mW/cm^2
+      P_absorb  = n_path x f_sys x <A> x e x V = 2.6055e-02 mW/cm^2  (<A> = 5.1660e-01 from M3)
+      derived   = 2.5595e+01 mW/cm^2
+      declared  = 2.6470e+01 mW/cm^2
+      ratio     = 9.6694e-01
+
+  (2) flux demanded by every Zone firing every cycle
+      1.7467e+20 electrons/s = 2.7986e+01 A
+  (3) current the stated pathway density delivers
+      1.2784e+00 A
+      deficit  = 2.1891e+01x
+
+  sustainable active-zone fraction = 4.5682 %
+  -> 124678.0471 Tops/s across the die at that fraction
+  -> per-Zone rates must be read as a per-Zone figure times the
+     ACTIVE Zones, not times 286110270.5032
+
+  label: ARITHMETIC from declared constants. n_path and G0 are
+  inputs, not measurements of this device.
+NEXT EVIDENCE GATE: a measured pathway density and per-Zone
+current, so activity becomes derived rather than assumed.
+
 PASS: V2 control-plane arithmetic reconciled and unit-checked.
 LABEL: derived arithmetic, estimated device parameters, proposed control migration.
 NEXT EVIDENCE GATE: size boundary CMOS, I-O, PDN, and clock-distribution power explicitly.
