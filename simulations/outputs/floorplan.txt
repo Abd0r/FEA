@@ -1,0 +1,53 @@
+c++ -std=c++17 -O2 -Wall -Isimulations -o FEA_floorplan_v3 simulations/FEA_floorplan_v3.cpp
+./FEA_floorplan_v3
+FEA V3 M2 die-area floorplan
+Area claims are checked against V2's 3 cm^2 die. Our design point is 0.5 cm^2. Not a drawn layout.
+
+[SCENARIO 1] a per-Zone CMOS floorplan does not fit the die
+  decoder                 204.00 cm^2   1.7e9 x 12 um^2
+  sensing               13926.40 cm^2   200k transistors/Zone at decoder density
+  pll                       0.07 cm^2   1 um^2 per shared PLL, declared
+  sequencer                34.00 cm^2   500 transistors/Zone at decoder density
+  interconnect x10         13.26 cm^2   V2 stated ~10x routing overhead
+  power delivery            0.30 cm^2   declared 10% PDN fraction
+  TOTAL                 14178.03 cm^2   vs die 3.00 cm^2
+  overcommit 4726x -> per-Zone control cannot be floorplanned into V2's die
+
+[SCENARIO 2] capacity must come from usable footprint, not raw pitch
+  raw cell footprint: 1.47 cm^2 for the cells alone
+  raw bit density at 1.15 nm pitch: 75.61e12 bits/cm^2 (before any overhead)
+  after V2's stated 2x routing: 37.81e12 bits/cm^2, reproducing V2's 3.77e13.
+  note: V2 describes a Block as storing ONE bit, which is what makes 1.13e14
+  Blocks equal 14.1 TB. A 16-bit Block would be 226 TB, which V2 never claims.
+  usable footprint after routing and PDN: -10.56 cm^2 -> capacity claim cannot be made from raw pitch
+  V2 reported 14.1 TB from cell-only count. That number has no floorplan behind it.
+
+[SCENARIO 3] V3 boundary CMOS is not free
+  declared boundary CMOS ring: 0.06 cm^2 (12% of die), die edge 0.014 m
+  this replaces per-Zone control but must still be added to the power budget in M1.
+  label: proposed. The ring fraction is a declared design choice, not a layout.
+
+[SCENARIO 4] V3 floorplan with per-Zone CMOS removed still needs headroom
+  raw density                : 7.56e13 blocks/cm^2
+  V2 practical density       : 3.77e13 blocks/cm^2 (line 116: after 2x routing)
+  implied overhead factor    : 2.01x
+  older architecture paper   : 10x routing (conflicts with V2's 2x)
+
+  cells                       : 1.473 cm^2
+  routing (V2 2x)             : 1.482 cm^2
+  FZC control (535/Zone) : 0.012 cm^2
+  power delivery (10%)        : 0.300 cm^2
+  boundary CMOS ring (5%)     : 0.150 cm^2
+  per-Zone CMOS               : 0.000 cm^2 (eliminated by FZC)
+  TOTAL under V2 2x routing   : 3.418 cm^2  vs die 3.000 cm^2
+  TOTAL under 10x routing     : 15.197 cm^2  vs die 3.000 cm^2
+
+  cells + V2 routing consumes ~99% of the die.
+  FZC + PDN + boundary then push the floorplan 13.9% past the die.
+  finding: eliminating per-Zone CMOS is necessary but not sufficient. V2's own
+  practical density leaves no headroom for FZC, power delivery, or boundary I-O.
+  label: derived from declared pitch and V2's stated 2x overhead; not a layout.
+
+PASS: floorplan ceiling and usable-footprint gates held.
+LABEL: derived arithmetic, estimated overheads, proposed boundary control.
+NEXT EVIDENCE GATE: replace declared overhead fractions with a drawn layout and pitch.

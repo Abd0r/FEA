@@ -1,0 +1,111 @@
+c++ -std=c++17 -O2 -Wall -Isimulations -o FEA_compare_v3 simulations/FEA_compare_v3.cpp
+./FEA_compare_v3
+FEA V3 M11 normalized comparison
+FEA side derived from V3 modules. Reference side partly sourced, boundaries unmatched.
+
+[SCENARIO 1] FEA's own normalized metrics, derived from V3 modules
+  energy per bit stored   : 3.688e-17 J/bit
+  area per bit            : 2.667e-14 cm^2/bit
+  energy per confirmed op : 3.016e-12 J/op
+  energy per transported b: 3.770e-13 J/bit
+  corrected clock (M9)    : 9.539 GHz
+
+  these four numbers are the only defensible way to compare FEA with anything.
+  all four come from V3 modules: data plane, M7 multi-FIRE, M9 clock, M13 retention.
+
+[SCENARIO 2] the M4 Max comparison mixes two different boundaries
+  FEA, as V2 compared        0.013 W   data plane only
+  FEA, V2's stated total     3.800 W   data plane + partial control, omits I/O, PDN, clock
+  FEA, V3 floor              0.023 W   open terms counted from params
+  Apple M4 Max              40.000 W   whole SoC: CPU, GPU, NPU, memory controller
+
+  Reviewer 4 point 3 is correct: these rows do not share a boundary.
+  comparing 0.013 W of array-only
+  against 40.000 W of complete SoC is not a like-for-like result.
+  the V3 floor is worse still as a comparison input, because 4 of 8 terms are
+  still unsized. A ratio computed from it would be invented precision.
+  finding: the 10x power and 110x memory headline cannot be restated from V3.
+
+[SCENARIO 3] V2's Table 1 columns and whether their boundaries match
+metric                      FEA         ref 2     ref 3     boundary issue
+  Block density (cm^-2)     3.77e13     7e12      ~1e10     raw pitch vs practical pitch unclear
+  Data-plane power (mW/cm^2)26.5        ~1e5      ~1e3      FEA excludes control, refs include it
+  System clock (GHz)        9.19 (V2)   ~3        N/A       M9 revises FEA to 9.539
+  Total chip power (W)      3.8         40        ---       M4 Max is whole SoC; FEA omits I/O, PDN, clock
+
+  V2's own table compares differently-bounded quantities row by row.
+  none of the reference columns cites a matched-boundary source in the table.
+  label: values transcribed from V2 Table 1, not independently sourced here.
+  that transcription gap is itself the finding: V3 cannot fix V2's comparison
+  without first sourcing every reference cell from DRAM/HBM/CIM/PIM/RC literature.
+
+[SCENARIO 4] what distinguishes FEA from PIM, CIM, RC, and what does not
+class stores              computes                      distinction
+  PIM separate array      logic near or in array        FEA has no separate logic block
+  CIM separate array      analogue op inside array      FEA computes during capture itself
+  RC  separate array      crossbar physics              FEA DBW transport, not RC resistance
+  FEA state IS the result capture event IS write+compute+storesame physical entity
+
+  the conceptual distinction is real: in FEA compute and memory are one
+  physical entity, so there is no load, store, or data bus.
+  what that distinction does NOT establish, and Reviewer 3 point 2 requires:
+    - that FEA is faster than RC hardware
+    - that FEA is more energy-efficient per confirmed operation
+    - that either architecture is preferable for a given workload
+  those need the matched-boundary numbers in SCENARIO 1 against sourced
+  references. Until then the honest claim is architectural, not performance.
+  label: conceptual comparison only. No superiority is asserted.
+
+[SCENARIO 5] the module must refuse to declare a winner without sourced references
+  reference row   energy/bit   area/bit   boundary
+  DRAM              YES      no     UNMATCHED   energy=1.120e-13 J/bit
+      metric: Chatterjee HPCA 2017 row activate, 1.8 nJ per 2KB row, open access
+  HBM               no       YES    UNMATCHED
+      metric: stored energy NOT FOUND; O'Connor MICRO 2017 gives 3.97 pJ/bit ACCESS, a different metric. Area from a 107 mm^2 16 Gb die in a grade-C preprint
+  CIM               YES      YES    UNMATCHED   energy=2.000e-09 J/bit
+      metric: arXiv 2406.08413 Tbl II ReRAM cell write 2 nJ/bit (cell, not macro); area from a 2.37 Mb/mm^2 RRAM macro, Frontiers 2025 citing ISSCC 2022
+  PIM               no       no     UNMATCHED
+      metric: energy and absolute area NOT FOUND; only relative density penalties are published (UPMEM 25-50%, AiM 75%, FIMDRAM 50%)
+  RC                YES      no     UNMATCHED   energy=6.000e-15 J/bit
+      metric: Frontiers in Neuroscience 2015, full write of one resistive cell 6 fJ; matched-boundary stored energy NOT FOUND
+  FEA boundary for comparison      : whole-die power sustained for one
+                                   retention lifetime, per bit
+
+  FEA-side normalized metrics computed : 4 of 4
+  energy-per-bit cells sourced         : 3 of 5
+  area-per-bit cells sourced           : 2 of 5
+  reference rows boundary-matched      : 0 of 5
+  comparison allowed                  : NO
+
+  RESULT: comparison INCOMPLETE. No winner declared.
+  this refusal is driven by the table above, so it flips the moment all 5 rows
+  are sourced AND every boundary is matched. It is not a hardcoded refusal.
+  what must happen before any headline comparison can be restated:
+    1. source energy-per-bit-stored for DRAM, HBM, CIM, PIM and RC from citations
+    2. source area-per-bit for the same set
+    3. close the four OPEN power terms so FEA has a total, not a floor
+    4. state one boundary for every row: data plane, core, or full SoC
+  until all four hold, V2's 10x power and 110x memory claims must be withdrawn,
+  not re-estimated. label: OPEN, driven by an unsourced reference table.
+
+[SCENARIO 6] a sourced DRAM cell exists, and the ratio is still not claimable
+  DRAM row activate, Chatterjee HPCA 2017 : 1.120e-13 J/bit
+  DRAM prior work, 5-6 nJ per 2KB row      : 3.052e-13 to 3.662e-13 J/bit
+  HBM column access, same paper            : 1.500e-12 to 5.700e-12 J/bit
+  FEA, data plane only                     : 3.688e-17 J/bit
+
+  naive ratio DRAM/FEA                     : 3037x
+  FEA boundary : data plane only, 4 of 8 power terms OPEN
+  DRAM boundary: complete DRAM die row activation
+
+  RATIO NOT CLAIMABLE. The 3037x above compares a data-plane-only number against a
+  whole-DRAM-die number, so it cannot be quoted as an efficiency claim.
+  it becomes claimable only when all four OPEN terms are sized AND one
+  boundary is stated for every row. That is what SCENARIO 5 waits on.
+  label: reference cells are partly sourced from open access; boundaries stay
+  UNMATCHED and 4 of 4 power terms are still unsourced, so the ratio is withheld: provenance
+  held, claim refused.
+
+PASS: FEA metrics derived, boundaries exposed, comparison refused.
+LABEL: derived FEA metrics, transcribed V2 table, DRAM sourced, boundaries unmatched, OPEN.
+NEXT EVIDENCE GATE: sourced DRAM/HBM/CIM/PIM/RC figures under one stated boundary.

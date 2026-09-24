@@ -1,0 +1,47 @@
+c++ -std=c++17 -O2 -Wall -Isimulations -o FEA_retention_v3 simulations/FEA_retention_v3.cpp
+./FEA_retention_v3
+FEA V3 M4 retention sensitivity
+Kramers formula recomputed from Ec, attempt frequency, and temperature.
+
+[SCENARIO 1] reproduce V2's 300 K figure and the reviewer's 330 K recomputation
+  Ec = 0.6500 eV, nu0 = 1.59 THz
+  tau(300 K) = 52.2543 ms   (V2 claimed 52.2 ms)
+  tau(330 K) = 5.3142 ms   (reviewer claimed ~5.31 ms, V2 claimed 2.1 ms)
+  V2's 330 K figure is off by a factor of 2.5 against its own stated Ec and nu0.
+  reviewer 5.31 ms reproduces; V2's 2.1 ms does not.
+
+[SCENARIO 2] local-mode attempt frequency is the dominant uncertainty
+  nu0 x 0.5 -> tau = 104.509 ms
+  nu0 x 1.0 -> tau = 52.254 ms
+  nu0 x 2.0 -> tau = 26.127 ms
+  nu0 x 3.0 -> tau = 17.418 ms
+  span 17.4 to 104.5 ms. V2 called this a 2-3x effect; it is multiplicative on tau.
+
+[SCENARIO 3] retention versus charging energy at 300 K
+  Ec = 0.3 eV -> tau = 0.0001 ms
+  Ec = 0.4000 eV -> tau = 0.0033 ms
+  Ec = 0.5000 eV -> tau = 0.1578 ms
+  Ec = 0.6500 eV -> tau = 52.2543 ms
+  Ec = 0.7000 eV -> tau = 361.4809 ms
+  Ec=0.3 eV collapses retention by orders of magnitude. The design point is a cliff,
+  not a plateau. V2's single-point claim hides that.
+
+[SCENARIO 4] retention sets the refresh contract the system must pay
+  tau = 52.2543 ms -> refresh interval 26.1272 ms -> 38 passes/s
+  moving 0e14 bits (data + FZC) every 26.1272 ms is 90440.314 GB/s of refresh traffic alone.
+  array size is 2362.9 GB.
+  to clear it once per 26.1272 ms the fabric must sustain 90440 GB/s of refresh traffic alone.
+  V2 called refresh overhead < 1e-4. That assumed a pass much cheaper than
+  clearing 2362.9 GB inside 26.1 ms. This traffic must be charged to M1 power
+  and to M9/M10 bandwidth, and it shares Slingshot with real work.
+
+[SCENARIO 5] the Kramers prefactor is an assumption, not a measurement
+  nominal nu0 (bulk optical phonon) : 52.25 ms
+  nu0 x 10 (faster local mode)      : 5.23 ms
+  nu0 / 10 (slower local mode)      : 522.54 ms
+  No local-mode measurement exists for the 5-atom cluster, so retention at 300 K
+  stays an open experimental question. This module bounds it; it does not close it.
+  label: derived formula, estimated inputs, open physical validation.
+
+PASS: reviewer figure reproduced, V2 figure rejected, sensitivity exposed.
+NEXT EVIDENCE GATE: local-mode phonon spectrum or an ab initio/kMC stability study at 300 K.

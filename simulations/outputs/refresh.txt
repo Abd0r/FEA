@@ -1,0 +1,100 @@
+FEA V3 M13 refresh power
+Energy per rewritten bit is declared, not measured. The range is the result.
+
+[SCENARIO 1] retention sets the refresh traffic
+  tau (300 K)                 : 52.2543 ms
+  refresh interval (tau/2, V2) : 26.1272 ms
+  full passes per second       : 38.3
+  payload (data only)          : 18.8e12 bits = 2.3 TB
+  plus FZC control state       : 0.2e12 bits (535/Zone)
+  TOTAL a pass must rewrite    : 18.9e12 bits = 2.4 TB
+  refresh traffic              : 90440 GB/s
+  V2 reported refresh overhead as 1.1e-4. That is an event ratio, not a
+  bandwidth. This GB/s figure is the STATE MAINTAINED per second; it does not
+  cross the chip port. See SCENARIO 4, where the local duty cycle is derived.
+
+[SCENARIO 2] refresh power is a range until energy per bit is measured
+  energy/bit(J)  basis          refresh power(W)
+       1.0e-19  optimistic           7.2e-05
+       1.0e-18  declared             7.2e-04
+       1.0e-17  conservative         7.2e-03
+       1.0e-16  pessimistic          7.2e-02
+  range: 0.000 W to 0.072 W  (span 1000.0x)
+  at the declared 1e-18 J the refresh term is 7.2352e-04 W.
+  label: energy per bit is UNMEASURED. This term cannot be closed by
+  arithmetic alone, and it must not be reported as a point value.
+
+[SCENARIO 3] refresh power compared with the data plane
+  data plane (V2)              : 0.013235 W
+  restoration endpoints (M6)   : 0.009431 W
+  refresh (declared energy)    : 0.000724 W
+  per-Zone CMOS after FZC      : 0.000000 W
+  refresh is 5.5% of the data plane at the declared energy.
+  label: one of these three is V2's own figure, two are declared.
+
+[SCENARIO 4] tighter retention margin multiplies refresh power
+  interval = tau/N   interval(s)    refresh power(W)   basis
+  N = 2.0e+00          2.6e-02          7.2e-04   V2 design (line 373)
+  N = 3.0e+00          1.7e-02          1.1e-03   conservative
+  N = 1.0e+00          5.2e-02          3.6e-04   refresh at tau
+  N = 5.0e-01          1.0e-01          1.8e-04   slack
+  V2's tau/2 costs 2.0x tau/1; the conservative tau/3 costs 1.5x V2's policy.
+  so the divisor, the refresh margin and the energy per bit are all load-bearing
+  and all stated. That is why V3 reports a range, not V2's 1.1e-4.
+
+[SCENARIO 5] charging energy: local feasibility floor, and energy as the lever
+  one local Zone refresh takes  : 9.623e-08 s
+  smallest feasible interval    : 1.925e-07 s (must exceed that)
+  Ec floor for local refresh    : 0.3265 eV
+  V2 design point               : 0.6500 eV, which is 1.99x above the floor
+
+  Ec(eV)   tau        interval     local duty   bit-writes/s   refresh power
+   0.400    3.30e-06     1.65e-06    5.83e-02       1.14e+19      1.14e+01 W
+   0.500    1.58e-04     7.89e-05    1.22e-03       2.38e+17      2.38e-01 W
+   0.550    1.09e-03     5.46e-04    1.76e-04       3.43e+16      3.43e-02 W
+   0.600    7.55e-03     3.78e-03    2.55e-05       4.96e+15      4.96e-03 W
+   0.650    5.23e-02     2.61e-02    3.68e-06       7.18e+14      7.18e-04 W  <- V2 design
+   0.700    3.61e-01     1.81e-01    5.32e-07       1.04e+14      1.04e-04 W
+   0.820    3.75e+01     1.87e+01    5.13e-09       1.00e+12      1.00e-06 W
+
+  at V2's design point: local duty 3.6832e-06, refresh power 7.1766e-04 W at the declared energy.
+  WITHDRAWN: an earlier revision solved for Ec = 0.82 eV to fit refresh under
+  V2's advertised port. That target was an artifact of assuming refresh crosses
+  shared routing, which M10 scenario 4 has withdrawn. There is no port constraint.
+
+  so raising Ec is not about feasibility, it is about ENERGY. Each 0.05 eV
+  cuts refresh work by roughly exp(0.05/kT) = 6.9x.
+  from 0.65 to 0.70 eV, refresh power falls about 7x for 0.05 eV of extra barrier.
+  two levers V2 does not discuss: refresh only the active region instead of the
+  whole array, or relax tau/2 to tau/1 for 2x less work at 2x the risk.
+  none of this repairs a desorbed atom. Refresh restores charge, not structure.
+  separate finding: FEA-architecture.pdf lists tau = 362 s at Ec = 0.70 eV while
+  its own f_K = 2.76 /s implies 0.362 s. That preprint row has a 1000x slip.
+  label: floor and energy derived from V2's Kramers formula. Ec UNMEASURED.
+
+[SCENARIO 6] who refreshes the FZC: the controller maintains itself
+  FZC Blocks to maintain        : 535
+  grouped into Words            : 9 groups of 64, one group per FIRE
+  expected FIRE latency         : 93.1573 ps
+  time for one full rotation    : 0.8384 ns
+  refresh interval (tau/2)      : 26.1272 ms
+  FZC rotation duty             : 3.209e-08
+  tau (retention)               : 52.2543 ms
+  longest possible staleness    : one rotation, 1.604e-08 of tau
+  full pass incl. FZC           : 96.2315 ns
+  answer: the FZC SCHEDULES refresh, a local FIRE primitive PERFORMS it,
+  and the FZC's own Blocks are part of that same maintenance pass, rotated
+  in 9 groups so the controller never vanishes.
+  critical state is triple-replicated by the ledger, so no single group
+  ever holds the only copy of Zone ID, routing state or the refresh pointer.
+  the infinite regress stops because staleness is bounded by a ROTATION,
+  not by an interval: 1.604e-08 of tau worst case.
+  at power-on, before any FZC state exists, the boundary boot controller
+  initialises it; after that the fabric maintains itself locally.
+  label: grouping and duty DERIVED from the ledger and M9 latency; the
+  schedule-vs-primitive split is PROPOSED; the heartbeat source for a
+  cold Zone with no valid FZC is OPEN.
+
+PASS: refresh power bounded, local feasibility floor and Ec energy lever derived.
+LABEL: derived cadence and traffic, declared energy per bit, open measurement.
+NEXT EVIDENCE GATE: measured write energy per bit for a Fusion Block at 300 K.

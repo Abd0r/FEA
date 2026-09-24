@@ -1,0 +1,85 @@
+FEA V3 M18 rescue path: where the recovery receiver's area lives
+Same 0.5 cm^2 design array and the same 535-Block FZC ledger as M2 and M15.
+
+[SCENARIO 1] the FZC ledger, the grid, and the available area
+  ledger: 7 groups x 8 bits x 2 rails x 3 replicas = 336 state
+         + 130 command + 16 port + 4 pathway + 49 spare = 535 Blocks
+  zone_fzc_blocks() reports   : 535
+
+  Zones on the die           : 2.8611e+08
+  grid side                  : 16915 x 16915
+  die edge                   : 7071.07 um
+  cell share (array)         : 0.25 cm^2
+  routing share (available)  : 0.25 cm^2
+  port Blocks already counted: 16 per Zone (inside the 535)
+  label: ARITHMETIC from design_zone_count() and the declared 2x overhead.
+
+[SCENARIO 2] option B: a CMOS decoder at every Zone
+  V2 decoder site            : 12.000000 um^2, 3000 transistors
+  implied per transistor      : 0.004000 um^2
+  one transistor at every Zone: 0.011444 cm^2 = 2.288882 % of the die
+  option B total             : 34.333232 cm^2 = 68.666465x the 0.500000 cm^2 die
+  verdict: FAILS by 137.332930x against the routing budget.
+  label: ARITHMETIC, using V2's own declared decoder site.
+
+[SCENARIO 3] option A: a dedicated row and column tree from the edge
+  lines required             : 33830.000000 (16915.000000 rows + 16915.000000 columns)
+  total wire length          : 239214224.075409 um
+  pitch that exactly fills it: 0.104509 um (104.508836 nm)
+
+  pitch                tree area    share of routing      fits
+  1.000000 um           2.392142        956.856896 %        NO
+  0.100000 um           0.239214         95.685690 %       yes
+  0.010000 um           0.023921          9.568569 %       yes
+  0.001000 um           0.002392          0.956857 %       yes
+
+  verdict: viable only below 104.508836 nm, and at that
+  threshold it consumes 100% of the routing budget, leaving nothing for
+  Slingshot itself. So A is pitch-limited and structurally awkward.
+  label: SWEPT wire pitch. No PDK supplies this number.
+
+[SCENARIO 4] option C: a tag detector on the existing neighbour link
+  per-transistor area         : 0.004000 um^2 (from V2's decoder)
+
+  width (tx)           site um^2      total cm^2      share of routing      fits
+  1.000000              0.004000        0.011444            4.577764 %       yes
+  5.000000              0.020000        0.057222           22.888822 %       yes
+  20.000000             0.080000        0.228888           91.555287 %       yes
+  100.000000            0.400000        1.144441          457.776433 %        NO
+
+  at a 5% routing budget a CMOS detector may be at most 1.092236 transistors per Zone
+  the DECLARED width is       20.000000 transistors
+
+  at the declared width the rescue path leaves 0.021112 cm^2 for ALL of Slingshot
+  which is 8.444713 % of the routing budget, i.e. 0.007379 um^2 per Zone
+  for every link, buffer and arbiter that must reach 286110270.503241 Zones.
+
+  verdict: no CMOS detector fits, so the receiver must be in-fabric.
+  an in-fabric port occupies port Blocks the 535 already contains: 16.000000 per Zone.
+  incremental area           : 0.000000 cm^2 (counted in the 535, not added)
+  cheapest CMOS option, one transistor per Zone : 0.011444 cm^2 vs 0 cm^2 in-fabric
+  label: SWEPT widths, ARITHMETIC totals, mechanism NOT DEMONSTRATED.
+
+[SCENARIO 5] what M18 deliberately does not claim
+  routing budget under test  : 0.250000 cm^2
+
+  none of the following is established here:
+  - no power figure is produced. Rescue activity has no model, so this
+    module adds nothing to M1's budget and the four declared terms stay
+    unsourced.
+  - wire pitch and per-transistor area are both DECLARED. There is no
+    public 2 nm PDK, so every threshold here is swept, not sourced.
+  - how a stateless port Block tells a rescue tag from ordinary traffic
+    without retained state is UNVALIDATED DEVICE PHYSICS. This module
+    shows where such a receiver could be PAID FOR, not that it works.
+  - L1 still depends on the neighbour link being alive. The peer set,
+    quorum and L2/L3 ladder cover that, but no tier was timed here.
+  label: area ARITHMETIC and SWEPT, mechanism NOT DEMONSTRATED.
+  NEXT EVIDENCE GATE: a device model for stateless tag detection, and a
+  power estimate for rescue activity before it enters M1.
+
+PASS: the rescue path fits, by reusing the neighbour link rather than
+      adding a second access tree or a per-Zone decoder.
+LABEL: area arithmetic on swept geometry, mechanism not demonstrated.
+NEXT EVIDENCE GATE: device model for stateless tag detection, and a
+power estimate before rescue activity enters M1.

@@ -1,0 +1,18 @@
+FEA V3 FZC block-budget ledger
+Counts are declared Block allocations, not a physical floorplan or density claim.
+
+[SCENARIO 1] a budget with no pathways or per-Zone CMOS is invalid
+  omitted pathways rejected; per-Zone CMOS rejected
+
+[SCENARIO 2] declared default allocation exceeds the provisional 512
+  state=336 commands=130 ports=16 pathways=4 spares=49 fzc=535
+  edge pathways=512 usable=64489 of 65536
+
+[SCENARIO 3] fewer declared state bits can fit, which shows the target is conditional
+  4 bits/group fzc=350 fits in 512; this is not a drawn layout
+
+[SCENARIO 4] shared edge pathways can exceed the FZC itself
+  width=4 edge pathways=2048 fzc=535 usable=62953
+
+PASS: block-budget gates held.
+NEXT EVIDENCE GATE: replace declared widths with a drawn layout and fabrication pitch.

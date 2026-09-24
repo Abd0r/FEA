@@ -1,0 +1,81 @@
+c++ -std=c++17 -O2 -Wall -Isimulations -o FEA_clock_v3 simulations/FEA_clock_v3.cpp
+./FEA_clock_v3
+FEA V3 M9 system clock derivation
+All phases computed. No hardcoded 9.19 GHz anywhere in this file.
+
+[SCENARIO 1] V2's 9.19 GHz does not follow from V2's own phase formula
+  group velocity vg = 2ta/hbar : 23335.9480 m/s   (V2 quoted 2.33e4)
+  t_FIRE  (1 um / vg)          : 42.8523 ps   (V2: 42.9 ps)  OK
+
+  ARM candidate
+    V2 printed                 : 33.0000 ps
+    V2 formula 0.1mm/(0.1c)    : 3.3356 ps
+    actual Zone width geometry : 0.00982 ps   (256 x 1.15 nm = 294.4 nm wide)
+
+  cycle using V2's printed phases : 108.852 ps -> 9.187 GHz   (V2 headline: 9.19 GHz)
+  cycle using V2's own formula    : 49.524 ps -> 20.192 GHz
+  finding: V2's FIRE transit is right, but its ARM and CONFIRM phases are
+  10x larger than its own formula and 3360x larger than the Zone geometry implies.
+  9.19 GHz is reproduced only by the printed phases, not by the stated physics.
+
+[SCENARIO 2] which timescale actually sets the clock (Reviewer 4 #10)
+  resonance width timescale hbar/Gamma : 1.463e-14 s
+  FIRE electron transit                 : 4.285e-11 s
+  control plane (ARM + CONFIRM)         : 6.671e-12 s
+  transit is 2929.7x longer than the resonance timescale
+  answer to Reviewer 4 #10: 9.19 GHz is NOT limited by resonance width.
+  Gamma = 45 meV implies a 14.6 fs lifetime, three orders faster than any phase.
+  the clock is set by control-plane latency plus FIRE transit. Neither the
+  resonance nor the electron is the bottleneck; the crossbar and the readout are.
+
+[SCENARIO 3] V2's clock assumes every write succeeds on the first FIRE
+  P_abs (V2 wavepacket)                : 0.460
+  expected FIRE attempts               : 2.174
+  t_FIRE ideal (1 attempt)             : 42.852 ps
+  t_FIRE expected (1/p attempts)       : 93.157 ps
+  cycle, V2's assumption               : 49.524 ps -> 20.192 GHz
+  cycle, expected write                : 99.829 ps -> 10.017 GHz
+  derating factor                      : 2.02x
+  finding: 9.19 GHz prices a write that succeeds first try, but P_abs = 0.46
+  says most do not. The defensible clock from the same phases is 10.02 GHz.
+
+[SCENARIO 4] two opposite-sign errors partly cancel, which is why 9.19 looks right
+  stages, each correcting one thing:
+    1. V2 as printed                     108.852 ps ->  9.187 GHz
+    2. ARM/CONFIRM from V2's formula      49.524 ps -> 20.192 GHz   (ARM fix, speeds up)
+    3. plus expected multi-FIRE (M7)      99.829 ps -> 10.017 GHz   (FIRE fix, slows down)
+    4. plus SECDED (M8)                  104.829 ps ->  9.539 GHz
+
+  the two corrections have OPPOSITE signs and similar size:
+    ARM/CONFIRM over-stated by 29.7 ps x2  -> pushes frequency UP
+    multi-FIRE penalty omitted       50.3 ps    -> pushes frequency DOWN
+
+  corrected final: 9.539 GHz vs V2 headline 9.187 GHz, only 3.8% apart.
+  finding: the agreement is COINCIDENTAL. V2 reached 9.19 GHz from two
+  errors that happen to cancel, not from correct physics. Each error alone
+  moves the answer by more than 50%, so the headline is not robust.
+  the number to quote is 9.54 GHz, with both corrections shown.
+  label: phases derived, SECDED delay declared, P_abs from V2.
+
+[SCENARIO 5] a cross-die path is not clocked at the local rate
+  corrected local cycle     : 104.829 ps -> 9.539 GHz
+  endpoints per die edge    : 3071
+  relay latency per edge    : 15355.0 ps  (declared 5.0 ps per relay)
+  cross-die path cycle      : 15459.8 ps -> 0.0647 GHz
+  so 9.19 GHz is a local same-Block figure at best. It is not a die-wide clock,
+  and it cannot be quoted as a chip-wide operating frequency.
+  label: relay delay declared, endpoint count from the shared M6 helper.
+
+[SCENARIO 6] the clock number feeds the open clock-distribution power term
+  corrected f_sys (M9 quote)   : 9.539 GHz
+  V2 reference                 : 9.190 GHz
+  linear scale                 : 1.038x
+  per-Zone clock term          : 1.453e-07 W/Zone (declared basis: V2's 1.4e-7 W)
+  label: BOUND only. FZC removes per-Zone clock generation, so this term
+  belongs to the boundary ring, which M1 still records as OPEN.
+  what M9 closes: the clock VALUE and its physical basis. What it does not
+  close: the boundary ring's absolute power.
+
+PASS: V2's clock reproduced, its limit identified, and its inputs corrected.
+LABEL: phases derived from stated parameters, SECDED and relay delays declared.
+NEXT EVIDENCE GATE: measured P_abs and a real relay delay, then boundary clock power.

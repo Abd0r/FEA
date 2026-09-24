@@ -1,0 +1,56 @@
+c++ -std=c++17 -O2 -Wall -Isimulations -o FEA_multifire_v3 simulations/FEA_multifire_v3.cpp
+./FEA_multifire_v3
+FEA V3 M7 multi-FIRE reliability
+Independent Bernoulli reproduced first, then a declared common-mode fraction added.
+
+[SCENARIO 1] ideal absorption and simulated single-pass capture disagree
+  ideal A(E_F)              : 1.000
+  wavepacket single pass    : 0.460
+  unexplained gap           : 0.540 (217.4% of ideal)
+  V2 attributed this to unspecified finite-pulse effects with no mechanism.
+  label: both values are V2's own. The gap stays open until a finite-pulse
+  calculation derives 0.46 from the same Hamiltonian that gives A(E_F) = 1.
+
+[SCENARIO 2] independent-Bernoulli redundancy reproduces V2's 18-fire figure
+  P_abs = 0.460000, target 0.999900
+  minimum fires for target     : 15
+  success at 18 fires          : 0.999985
+  success at 1 fire            : 0.460000
+  V2's 18 fires reach 1.0000, which covers its 99.99% claim.
+  but 15 fires already suffice, so 18 is conservative or came from a different target.
+  either way the whole result rests on the independence assumption.
+
+[SCENARIO 3] a common-mode block fraction puts a hard ceiling on fidelity
+  common-mode fraction 0.00  ->  ceiling 1.0000   99.99% reachable in 15 fires
+  common-mode fraction 0.01  ->  ceiling 0.9900   99.99% UNREACHABLE at any fire count
+  common-mode fraction 0.02  ->  ceiling 0.9800   99.99% UNREACHABLE at any fire count
+  common-mode fraction 0.05  ->  ceiling 0.9500   99.99% UNREACHABLE at any fire count
+  common-mode fraction 0.10  ->  ceiling 0.9000   99.99% UNREACHABLE at any fire count
+  a 5% shared failure fraction caps fidelity at 95.0%, and no number of retries crosses it.
+  V2's 99.99% claim is therefore conditional on exactly zero correlation,
+  which has not been measured for the 5-atom cluster.
+
+[SCENARIO 4] program pass rate must follow from the capture model
+  V2 program pass: 96% vector-add, 98% dot-product, both 16 elements
+  implied per-op success for 96% over 16 ops : 0.99745
+  implied per-op success for 98% over 16 ops : 0.99874
+  model per-op success at 18 fires, independent : 0.99998
+  model per-op success at 18 fires, 2% correlated: 0.97999
+  program pass at 16 ops, independent            : 0.9998
+  program pass at 16 ops, 2% correlated           : 0.7236
+  finding: V2's reported 96-98% program rates are far WORSE than its own
+  18-fire independent model predicts, yet the paper never links the two.
+  either the program runs use fewer fires than 18, or another error source
+  exists that the capture model does not contain. Reviewer 6 #7 is correct:
+  program success and SECDED are asserted, not derived from one model.
+
+[SCENARIO 5] multi-FIRE latency is not a single FIRE latency
+  single-pass latency (1 FIRE)      : 42.90 ps
+  expected fires to first success   : 2.17
+  expected write latency            : 93.26 ps
+  V2 headline single-FIRE 0.87 ns figure is the idealised case only.
+  the cycle time in M9 must use the expected latency, not the ideal one.
+
+PASS: independence reproduced, correlation ceiling exposed, program rates unreconciled.
+LABEL: derived from V2's own numbers, estimated correlation, open physical validation.
+NEXT EVIDENCE GATE: measure attempt-to-attempt correlation for repeated FIRE on one Block.

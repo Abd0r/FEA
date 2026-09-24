@@ -1,0 +1,19 @@
+c++ -std=c++17 -O2 -Wall -o FEA_fzc_selector_v3 simulations/FEA_fzc_selector_v3.cpp
+./FEA_fzc_selector_v3
+FEA V3 stated four-DB selector model
+Lattice units, rates, clock amplitude, and sensor error are declared parameters.
+
+[SCENARIO 1] stated geometry: separation changes selector bias
+  d=1 upper bias=0.993606, lower bias=-0.993606, d=6 bias=0.00114377
+
+[SCENARIO 2] valid rail plus falling clock can store; invalid rail cannot
+  valid stored=0.782755 reservoir_energy=0.78841 invalid stored=0
+
+[SCENARIO 3] the same valid geometry stores nothing without clock energy
+  clock amplitude=0 stored=0 transmitted=0.0135827
+
+[SCENARIO 4] sensor flip can change CONFIRM; far geometry fails storage
+  hot theta=8 stored=0.787444, far d=6 stored=0
+
+PASS: geometry, clock, and sensor gates held for this parameter set.
+NEXT EVIDENCE GATE: map lattice units to a screened Si geometry and replace 1/r rates with a calibrated Hamiltonian.

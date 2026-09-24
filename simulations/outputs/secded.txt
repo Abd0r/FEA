@@ -1,0 +1,61 @@
+FEA V3 M8 SECDED overhead and limits
+Code derived from the Hamming bound for the stated Word width.
+
+[SCENARIO 1] SECDED code derived from the Hamming bound for a 64-bit Word
+  data bits                  : 64
+  Hamming parity (2^r>=k+r+1): 7  (2^7 = 128 >= 72)
+  overall parity (double det): 1
+  total parity bits          : 8
+  codeword length            : 72 bits
+  overhead ratio             : 1.1250x
+  capability: corrects exactly 1 bit, detects 2, cannot correct 2.
+
+[SCENARIO 2] V2's ~2-3x SECDED overhead does not match a 64-bit Word
+  Word width   codeword   overhead
+      64           72      1.125x
+       8           13      1.625x
+       4            8      2.000x
+  V2 states ~2-3x overhead at the Word level, but its Words are 64-bit.
+  the derived cost is 1.125x. A factor of 2 only appears at a 4-bit Word.
+  finding: either V2 means a different code, a different Word width, or the
+  factor is wrong. Reviewer 6 is correct that this was asserted, not simulated.
+
+[SCENARIO 3] SECDED overhead must be charged to capacity and area
+  payload bits (unchanged)   : 18.751e12
+  physical bits with parity  : 21.094e12
+  parity bits added          : 2.344e12
+  payload capacity           : 2.344 TB
+  physical capacity          : 2.637 TB
+  physical bits occupy       : 1.1250x the cell area
+  payload does NOT grow: parity buys correction, not storage. Physical
+  occupancy does grow, and that is what must be charged to the floorplan.
+  at V2's practical density the cells already fill ~99% of the die (M2).
+  adding 12.50% more physical bits makes the floorplan worse, not neutral.
+  SECDED area must be added inside the FZC Block budget, not assumed free.
+
+[SCENARIO 4] SECDED adds parity generation, syndrome, and correction latency
+  parity bits in syndrome     : 8
+  energy per parity XOR       : 5.000e-18 J (declared)
+  syndrome energy per Word    : 4.000e-17 J
+  added latency per Word      : 1 cycle
+  label: the per-XOR energy is a declared scale, not a measured CMOS figure.
+  what matters structurally: correction is on the critical path, so it enters
+  M9 cycle time, and it consumes energy, so it enters M1.
+
+[SCENARIO 5] SECDED exercised for real: single corrected, double detected, bursts unsafe
+  clean codeword             : decoded clean
+  single-bit positions tested: 72, corrected to original: 72
+  double-bit pairs tested    : 2556, detected: 2556, wrongly corrected: 0
+  three-bit bursts tested    : 59640
+    detected, not corrected  : 14336
+    miscorrected silently    : 45304  <- UNSAFE
+    landed back on original  : 0
+  miscorrect rate at 3 bits  : 0.7596 of 59640 combinations
+  finding: SECDED is verified correct for 1 bit and verified refusing for 2,
+  but a 3+ bit common-mode burst is silently miscorrected about 76.0% of the time.
+  M7's 5% common-mode ceiling is a fault class SECDED cannot cover, because
+  shared causes produce bursts rather than isolated flips.
+  label: codec properties computed by encoding and decoding, not asserted.
+
+PASS: SECDED cost derived, V2's factor challenged, burst limit exposed.
+NEXT EVIDENCE GATE: measure the actual fault class (independent vs correlated) so code choice follows evidence.

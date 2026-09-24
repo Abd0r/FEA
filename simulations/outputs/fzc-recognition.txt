@@ -1,0 +1,20 @@
+c++ -std=c++17 -O2 -Wall -o FEA_fzc_recognition_v3 simulations/FEA_fzc_recognition_v3.cpp
+./FEA_fzc_recognition_v3
+FEA V3 FZC dimensionless pattern-recognition simulator
+Model values are abstract selectivity parameters, not device-physics predictions.
+
+[SCENARIO 1] ideal dual-rail codeword separation
+  target score=3, nearest invalid=-1, target threshold margin=2
+
+[SCENARIO 2] one corrupted dual-rail pair is rejected
+  ideal=3 corrupted=1 threshold=1.5 -> rejected
+
+[SCENARIO 3] bounded neighbour offset erodes but does not erase margin
+  neighbour offset=0.25, valid margin=2.25, invalid headroom=1.75
+
+[SCENARIO 4] seeded disorder campaign exposes a selectivity failure regime
+  sigma=0.10: missed=0/2500, false=0/7500
+  sigma=1.00: missed=46/2500, false=160/7500
+
+PASS: abstract recognition invariants held.
+NEXT EVIDENCE GATE: calibrate coupling, disorder, neighbour offsets, clocked gain, and sensing against a physical device model.

@@ -1,0 +1,19 @@
+c++ -std=c++17 -O2 -Wall -o FEA_fzc_reliability_v3 simulations/FEA_fzc_reliability_v3.cpp
+./FEA_fzc_reliability_v3
+FEA V3 FZC protected-state simulator
+Faults are abstract logical injections, not physical error-rate predictions.
+
+[SCENARIO 1] one divergent protected-state replica is scrubbed
+  majority recovery -> scrub -> confirmed commit
+
+[SCENARIO 2] no majority source causes safe halt
+  three-way disagreement -> halt, no invented restoration
+
+[SCENARIO 3] bounded retry and exactly-once transaction commit
+  ambiguous result -> retry -> one committed transaction
+
+[SCENARIO 4] seeded campaign distinguishes one fault from two faults
+  corrected=80 halted=20
+
+PASS: protected-state recovery invariants held.
+NEXT EVIDENCE GATE: map these logical faults to physical retention, capture, sensing, and correlated-error models.

@@ -1,0 +1,126 @@
+FEA V3 M12 fabrication throughput
+Patterning and areal rates are CITED from Randall 2018. The years follow.
+
+[SCENARIO 1] count what actually has to be patterned
+  clusters in V2's claim        : 1.130e+14
+  clusters in our 5.000e-01 cm^2 design   : 1.875e+13
+  atoms per cluster             : 5.000e+00
+  atoms requiring a pulse       : 5.650e+14
+  equivalent pulses (1 H each)  : 5.650e+14
+
+  Reviewer 4 said 10^14 clusters. The pulse count is 5.7 x 10^14, because each cluster
+  needs its atoms placed individually. Pathway atoms would add more and are
+  not yet counted here, so this is a floor on the patterning work.
+
+[SCENARIO 2] wall-clock patterning time from cited rates
+  rate (atoms/s)   seconds          years
+         1.0e+02        5.6e+12        1.8e+05
+         1.0e+03        5.6e+11        1.8e+04
+         1.0e+04        5.6e+10        1.8e+03
+         1.0e+05        5.6e+09        1.8e+02
+         1.0e+06        5.6e+08        1.8e+01
+
+  cited rate 10000 atoms/s gives 1790.38 YEARS for one die, serial, one tip.
+  Reviewer 4 said a 3 cm^2 die would take years. Confirmed for ONE tip: even
+  at 1e6 atoms/s a single tip needs 17.9 years.
+  this is a serial figure. It does not mean fabrication is impossible, because
+  parallel scanning-probe arrays remove the multiplication. See SCENARIO 3.
+
+  CITED areal throughput (Randall 2018): 0.053 um^2/h per tip
+  die area                         : 300000000.00 um^2
+  serial time by areal throughput  : 645719.53 YEARS
+  ratio to the atom-count figure   : 360.7x worse
+  the atom count understates the work by 361x, because the tip must sweep empty lattice it never writes.
+  so the governing single-tip number for a 3 cm^2 die is 645720 years, not 1790.
+  label: both rates CITED from Randall 2018. Atom count exact at 5.65e14.
+
+[SCENARIO 3] parallel scanning-probe arrays make this countable, not impossible
+  rate atoms/s   tips for 1.0 yr   tips for 0.25 yr
+       1.0e+04          1.8e+03            7.2e+03
+       1.0e+05          1.8e+02            7.2e+02
+       1.0e+06          1.8e+01            7.2e+01
+
+  at the cited 10000 atoms/s, one die in one year needs 1791 parallel tips.
+  at an optimistic 1e6 atoms/s it needs only 18 tips.
+
+  CITED scanner densities (Randall 2018 results table):
+    electrostatic 1000:1 10101 /cm^2    electrothermal 200:1 37037 /cm^2
+    demonstrated 3-DoF electrostatic device (Bell Labs) 2500 /cm^2
+  wafer figures in the paper confirm 10 101 /cm^2: 65 168 per 1 in^2,
+  793 330 per 100 mm wafer, 7 139 970 per 300 mm wafer.
+  tips this die receives at that density : 30303 to 111111
+  resulting wall clock                    : 21.31 to 5.81 YEARS
+
+  so at the paper's OWN proposed density a 3 cm^2 die still takes 5.8 to 21.3 years.
+  Reviewer 4's "would take years" holds on the cited numbers.
+  the quantity that actually decides feasibility is tip-to-tip registration.
+  one tip is slow but accurately placed. 1791.0 tips must all land on the
+  same 1.15 nm lattice, and no cited source gives that registration error.
+  label: rates CITED from Randall 2018. Achieved registration error OPEN.
+
+[SCENARIO 4] defect rate multiplies the work, it does not remove it
+  V2 hard-defect fraction        : 0.0500
+  extra clusters to route around : 0.0526 (5.3%)
+  single-pass time, no spares    : 1790.377 yr
+  time including spare clusters  : 1884.607 yr
+  naive whole-die yield at 5%    : 0.000e+00
+  (V2 instead assumes boot-time defect mapping rescues the die.)
+
+  finding: defect routing reduces scrapped die count but never reduces the
+  atom-by-atom patterning work. Throughput and yield are separate problems and
+  V2 addresses neither with a number.
+  label: defect fraction from V2, rates cited from Randall 2018, yield naive on purpose
+  to show that boot-time mapping is an assumption rather than a yield result.
+
+[SCENARIO 5] what Reviewer 4's "pathway toward high-throughput" would require
+  unknown or unquantified today:
+    1. depassivation rate per tip   (CITED 10000 atoms/s, Randall 2018)
+    2. parallel tip density         (CITED electrostatic 10101, electrothermal 37037/cm^2)
+    3. tip lattice alignment         (CITED requirement 0.1 nm; achieved multi-tip error uncited)
+    4. defect rate after patterning (V2 assumes 5%, uncited)
+    5. DBW pathway atom count       (not counted in this module at all)
+
+  so the honest statement for the manuscript is not "well-understood
+  engineering challenge" but: at the cited 10000 atoms/s one serial tip needs 1790.4 years by atom count and 645720 by areal raster.
+  Table II nominal exposure is 9.6 ms/atom, i.e. 104.2 atoms/s, consistent with the cited rate.
+  the parallel tool's own control electronics are cited at 30.0 mW per scanner, about 303 W/cm^2. That is tool power, not FEA chip power.
+  what remains uncited is the achieved multi-tip registration error, not the
+  rate or the density. See SCENARIO 6 for the improvement actually needed.
+  label: OPEN. This module quantifies the gap. It does not close it.
+
+[SCENARIO 6] how much parallel improvement actually closes the gap
+  target            um^2/h needed    tips needed   density /cm^2  gain vs cited
+  1-year die                34223         645720          215240      5.81x
+  3-month die              136893        2582878          860959     23.25x
+
+  a one-year 3 cm^2 die needs 21.52e4 tips/cm^2.
+  that is 5.81x the cited ELECTROTHERMAL density (37037.00/cm^2) and 21.31x the cited ELECTROSTATIC one (10101.00/cm^2).
+  against the demonstrated 2500.00/cm^2 device it is 86.10x.
+  the same factor can come from per-tip rate instead of tip count, because
+  Randall 2018 argues parallel scaling is LINEAR, not exponential like the
+  e-beam case that defeated parallelism.
+
+  finding: the gap is 5.8x to 21.3x over the paper's projected densities, and 86.1x over what has actually been built.
+  a 6-21x gain in tip density OR per-tip rate reaches a one-year die. That is a
+  roadmap target, not an impossibility.
+  the harder half stays atomic-precision registration across the array, which
+  needs a demonstration rather than a scaling argument.
+  label: gains derived from cited 2018 values. Rate-of-improvement uncited.
+
+[SCENARIO 7] cited rates applied to the 0.5 cm^2 design die
+  clusters on the design die      : 18750522687700
+  x 5 atoms, pulses required : 93752613438502
+  serial, one tip, atom count     : 297.084 years
+  serial, one tip, areal raster   : 107619.921 years
+  raster / atom ratio             : 362.254 x
+  parallel tips for a 1-year die  : 298 by atom count, 107620 by areal raster
+  cited densities give this die   : 5050 to 18518 tips
+  gap over the cited densities    : 5.811 x to 21.309 x
+  gap over the demonstrated 2500/cm^2 device : 86.096 x
+  label: rates and densities CITED from Randall 2018, times arithmetic.
+  The gap is area-independent: both the need and the budget scale with
+  die area, so it is the same 5.8-21.3x on any die we could cut.
+
+PASS: atom count, cited rates, tip scaling, yield, and required improvement all printed.
+LABEL: atom arithmetic derived, rates cited from Randall 2018, registration OPEN.
+NEXT EVIDENCE GATE: achieved multi-tip registration error and a cited DBW pathway atom count.

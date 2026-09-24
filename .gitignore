@@ -1,0 +1,8 @@
+# Build outputs: `make` writes the linked binaries at the repo root.
+# Sources live in simulations/ and are always committed; these are not.
+/FEA_*
+/FEA_sim_v1
+/FEA_sim_v2
+*.o
+*.dSYM/
+.DS_Store

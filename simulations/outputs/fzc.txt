@@ -1,0 +1,19 @@
+c++ -std=c++17 -O2 -Wall -o FEA_fzc_v3 simulations/FEA_fzc_v3.cpp
+./FEA_fzc_v3
+FEA V3 FZC/Slingshot architectural simulator
+Scope: protocol semantics only. Device actuation is abstract.
+
+[SCENARIO 1] boot -> ARM -> FIRE -> CONFIRM -> commit
+  reply ACK BOOT (1,0) -> (0,0) tx=1 boot-committed
+  reply ACK ARM (1,0) -> (0,0) tx=2 resources-reserved
+  reply STATUS CONFIRM (1,0) -> (0,0) tx=2 commit-confirmed
+
+[SCENARIO 2] ambiguous confirm -> recovery -> retry, duplicate suppression
+
+[SCENARIO 3] refresh source rule and safe halt
+
+[SCENARIO 4] retry budget exhaustion halts
+  attempt=2 fault -> halt
+
+PASS: all v0 architectural invariants held in deterministic scenarios.
+NEXT EVIDENCE GATE: replace ScriptedActuator with a validated physical model.

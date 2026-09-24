@@ -1,0 +1,16 @@
+c++ -std=c++17 -O2 -Wall -o FEA_fzc_screened_v3 simulations/FEA_fzc_screened_v3.cpp
+./FEA_fzc_screened_v3
+FEA V3 screened selector and thermal-escape model
+Screening length and binding energy are declared parameters, not silicon measurements.
+
+[SCENARIO 1] screening can erase a bias that bare coupling keeps
+  lambda=100 bias=0.993591, lambda=0.35 bias=0.436676
+
+[SCENARIO 2] stored occupation escapes when theta rises
+  theta=0.25 retained=0.781442, theta=4 retained=0.037719
+
+[SCENARIO 3] a second stage fails when screened hop bias falls below margin
+  hop=3 lambda=100 delivered=0.964226, lambda=0.35 delivered=0.000188228
+
+PASS: screening and thermal-escape gates held for this parameter set.
+NEXT EVIDENCE GATE: replace lambda and E_bind with a screened Si Hamiltonian and a measured escape barrier.

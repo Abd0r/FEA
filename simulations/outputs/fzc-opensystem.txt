@@ -1,0 +1,28 @@
+FEA V3 FZC open-system accounting simulator
+Channels and clock energy are accounting parameters, not device predictions.
+
+[SCENARIO 1] named channels must conserve probability
+  five named channels sum to 1; dropped reservoir fails
+
+[SCENARIO 2] transmission or unlabeled loss is not capture
+  transport-only and reservoir-free loss both rejected as capture
+
+[SCENARIO 3] explicit relaxation can pass the accounting gate only
+  stored=0.40 reservoir=0.30 passes capture accounting; clock energy still missing
+
+[SCENARIO 4] cascade requires clock energy and downstream margin
+  clock energy=1.0 and output margin=1.5 allow a two-stage accounting cascade
+  clock energy=0 blocks the same cascade
+
+[SCENARIO 5] capture is a pure function of the channels, not of intent
+  all conditions met         conserved=yes stored=0.40 reservoir=0.30 -> capture=YES   ok
+  no stored occupation       conserved=yes stored=0.00 reservoir=0.00 -> capture=no    ok
+  stored but no reservoir    conserved=yes stored=0.30 reservoir=0.00 -> capture=no    ok
+  channels do not conserve   conserved=no  stored=0.50 reservoir=0.30 -> capture=no    ok
+  reservoir but no stored    conserved=yes stored=0.00 reservoir=0.30 -> capture=no    ok
+  3 of 3 condition mutations flipped the verdict; 1 non-condition mutation did not.
+  no intent flag remains: the channels alone decide capture.
+  label: capture decided by stored + reservoir + conservation only.
+
+PASS: capture and restoration accounting gates held by channels alone.
+NEXT EVIDENCE GATE: replace these probabilities with a stated geometry, Hamiltonian or rate model, clock waveform, and sensor path.

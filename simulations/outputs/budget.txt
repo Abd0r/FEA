@@ -1,0 +1,110 @@
+FEA V3 M1 reconciled control-plane budget
+All terms computed from fea_params.h. Not a tape-out estimate.
+
+[SCENARIO 1] every V2 control-plane term is recomputed and unit-checked
+  decoder                 234159.780 W   area 204.00 cm^2   (15 fJ x 9.19 GHz x 1.7e9 Zones; area 1.7e9 x 12 um^2)
+  pll                       3320.312 W   (1.7e9 / 256 PLLs x 0.5 mW)
+  sequencer-sensing          170.000 W   (0.1 uW/Zone x 1.7e9 Zones)
+  data-plane                   0.013 W   (26.47 mW/cm2 x 0.500000 cm2)
+  TOTAL                   237650.105 W   area 204.00 cm^2
+  V2 claimed 3.8 W. The per-Zone CMOS control plane this replaces costs 237650.1 W.
+  reading: this is the cost of the approach FZC eliminates, not a V3 budget line.
+
+[SCENARIO 2] decoder area alone exceeds the die
+  decoder area 204.0 cm^2 vs die 3.0 cm^2 -> overcommit 68x
+  a per-Zone CMOS decoder cannot fit. This is why V3 moves control into FZC.
+
+[SCENARIO 3] the literal V2 values fail their own unit checks
+  V2 decoder 0.14 uW vs correct 137.74 uW -> factor 984
+  V2 PLL 3.3 W vs correct 3320 W -> factor 1006
+
+[SCENARIO 4] reproduce the reviewers' own hand calculations from V2 text
+  decoder (V2 stated 0.14 uW/Zone x 1.7e9): 238.0 W   (reviewer said ~238 W)
+  sensing/sequencer (0.1 uW/Zone x 1.7e9):  170.0 W   (reviewer said ~170 W)
+  PLL (1.7e9/256 x 0.5 mW):                  3320.3 W   (reviewer said ~3300 W)
+  decoder if 15 fJ x 9.19 GHz is taken literally: 137.7 uW/Zone, 234159.8 W aggregate
+  either reading is orders of magnitude above V2's stated 0.4 W decoder+sequencer.
+  V2 total was 3.8 W. Lowest defensible control-plane floor is 3728 W.
+
+[SCENARIO 5] V3 boundary-CMOS alternative replaces per-Zone control
+  eliminated per-Zone decoder area: 204.0 cm^2
+  eliminated per-Zone decoder power: 234159.8 W
+  eliminated PLL instances: 6640625.00 (replaced by boundary bias/clock)
+  note: boundary CMOS still costs area and power. M2 and M1 must size it.
+
+[SCENARIO 7] whole-chip total power: floor, open terms, and no false precision
+  per-Zone CMOS (FZC eliminates)      0.0000e+00 W   known
+  data plane (V2 figure)              1.3235e-02 W   known
+  restoration endpoints (M6)          9.4310e-03 W   known
+  refresh (M13, declared energy)      7.1766e-04 W   known
+  boundary CMOS ring (declared)       6.0289e-01 W   DECLARED, unsourced
+  external I/O (declared)             1.3056e+01 W   DECLARED, unsourced
+  clock and bias distribution (declared)  2.2741e-01 W   DECLARED, unsourced
+  power-delivery losses (declared)    9.7368e-01 W   DECLARED, unsourced
+  ----------------------------------------------
+  FLOOR (4 of 8 terms)              0.023384 W
+  unsourced (declared, not measured)       4
+  declared sum of those four               14.859981 W
+  DECLARED TOTAL (all 8 terms)            14.883364 W
+  upper bound                           see SCENARIO 8 for the swept interval
+  if each open term equalled the data plane: 0.076324 W
+  STATUS: NOT VALIDATED. 4 of 8 terms declared but unsourced.
+  what is settled: the total does not contain the 3728 W per-Zone control plane.
+  label: floor DERIVED from stated terms; four terms DECLARED with a basis but
+  UNSOURCED, so the total stays unvalidated and the M11 ratio stays withheld.
+
+[SCENARIO 6] the V3 control budget is FZC plus boundary CMOS only
+  eliminated per-Zone terms: 234159.8 W decoder + 3320.3 W PLL + 170.0 W sensing
+  eliminated PLL instances: 6640625
+  eliminated decoder area:  204.0 cm^2
+  V3 control lines that remain:
+    FZC native control     : in data plane, 0.013 W (FZC Block count from fzc-floorplan ledger)
+    boundary CMOS ring     : 12% of die declared; power 0.0 W is an OPEN gate
+    per-Zone CMOS         : 0 by construction
+  V3 does not inherit the kilowatt-scale per-Zone cost. It inherits only
+  a boundary ring and a native FZC footprint, both of which still need sizing.
+  label: eliminated terms derived, boundary power open, FZC count from M2 ledger.
+
+[SCENARIO 8] V3 power economics: the four OPEN terms given a stated basis
+  external I/O, by attachment              
+    NVMe SSD (PCIe 5.0)        12 GB/s ->      12 effective x 12.0 pJ/bit = 1.152 W  [12 GB/s cited, pJ DECLARED]
+    LPDDR5X 8-channel         136 GB/s ->     136 effective x 12.0 pJ/bit = 13.056 W  [17.1 GB/s/ch cited x8, pJ cited 12 (DIMM)]
+    HBM3 one stack            819 GB/s ->     819 effective x 4.0 pJ/bit = 26.208 W  [819 GB/s JEDEC cited, pJ cited 4 (HBM)]
+  fabric delivery ceiling (M10): 1064 GB/s, so no attachment can draw more.
+
+  previously OPEN term   stated basis                         low       mid       high
+  boundary CMOS          0.060 cm^2 x density      0.060     0.603     3.014   W  DECLARED (1/10/50 W/cm^2)
+  external I/O           by attached device              1.152    13.056    26.208   W  bandwidth CITED per attachment, pJ cited or flagged
+  boundary-ring clock    frac of boundary ring       0.018     0.226     1.357   W  CITED 30/37.5/45% of dynamic power
+  fabric clock and bias  frac of data plane           0.001     0.001     0.003   W  DECLARED 5/10/20%
+  PDN losses             frac of delivered           0.038     0.974     3.673   W  DECLARED 3/7/12%
+  known (data+restore+refresh)                                  0.023   W  computed
+
+  V3 TOTAL  low  : 1.292 W
+  V3 TOTAL  mid  : 14.883 W
+  V3 TOTAL  high : 34.278 W
+
+  contrast:
+    V2 as written                     3.800 W   (wrong arithmetic, omits I/O, PDN, clock)
+    V2 control plane, corrected    3728.326 W   (reviewers' own figures + data plane)
+    V3 mid, with I/O actually paid    14.883 W
+
+  sourced or attachment-pinned:
+    I/O bandwidth        three cited interface rates
+    I/O energy per bit   cited for LPDDR5X (12) and HBM3 (4)
+    boundary-ring clock  cited 30-45% of dynamic power
+  still DECLARED, no source found:
+    SSD pJ/bit, fabric clock share, boundary CMOS density, PDN fraction
+  interval span: 26.5x, down from 326x before any sourcing.
+  V3 mid is 3.9x V2's CLAIMED 3.8 W, because V2 left
+  I/O, PDN and clock distribution out of its own budget.
+  V3 mid is 250.5x BELOW corrected V2, which is the real
+  advancement: FZC removes a kilowatt-scale control plane.
+  finding: the defensible V3 power story is NOT lower than V2's claim. It is that
+  V2's claim was unsound, and V3 removes the term that made it unsound.
+  label: arithmetic derived; bandwidth and ring clock CITED; SSD pJ, fabric
+  clock share, boundary density and PDN fraction DECLARED, not measured.
+
+PASS: V2 control-plane arithmetic reconciled and unit-checked.
+LABEL: derived arithmetic, estimated device parameters, proposed control migration.
+NEXT EVIDENCE GATE: size boundary CMOS, I-O, PDN, and clock-distribution power explicitly.

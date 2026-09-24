@@ -1,0 +1,76 @@
+c++ -std=c++17 -O2 -Wall -Isimulations -o FEA_bandwidth_v3 simulations/FEA_bandwidth_v3.cpp
+./FEA_bandwidth_v3
+FEA V3 M10 bandwidth aggregation
+All figures derived from V2's own per-Zone contention numbers.
+
+[SCENARIO 1] reproduce V2's per-Zone contention figures
+  row-broadcast / sequential : 147 GOPS/Zone
+  random access              : 133 GOPS/Zone
+  worst-case strided         : 9 GOPS/Zone
+  random -> bytes/s per Zone : 1.064e+12 B/s (1.064 TB/s)
+  strided -> bytes/s per Zone: 7.200e+10 B/s (72.000 GB/s)
+  these are PER ZONE figures. They have not been aggregated yet.
+
+[SCENARIO 2] V2's chip aggregate is numerically one Zone (Reviewer 6 #5)
+  random:  one Zone = 1.064 TB/s, V2 chip = 1.100 TB/s, ratio 1.034x
+  strided: one Zone = 72.000 GB/s, V2 chip = 75.000 GB/s, ratio 1.042x
+
+  both V2 chip figures land within 15% of a SINGLE Zone. The multiplication
+  by 10^9 Zones was never performed. Reviewer 6 #5 is exactly right.
+  so V2 has two internally consistent but mutually exclusive readings:
+    (a) the chip really delivers 1.1 TB/s, and 10^9 Zones are unreachable, or
+    (b) every Zone delivers, and the aggregate is 10^9 times larger.
+
+[SCENARIO 3] applying the Zone multiplier V2 omitted
+  per-Zone random                 : 1.064e+12 B/s
+  x 1e9 Zones (V2 prose)          : 1.064e+21 B/s (1064 EB/s)
+  x 1.7e9 Zones (V2 headline)     : 2e+21 B/s
+  V2 stated chip aggregate        : 1e+12 B/s
+  understatement factor            : 967272727.3x
+
+  a true 10^9-Zone aggregate of 1064 EB/s cannot be routed on any die.
+  so reading (b) is physically impossible, which forces reading (a):
+  V2's usable bandwidth is that of one Zone, and the other 10^9 Zones do not
+  contribute. Either way the 1.1 TB/s figure does not describe a 10^9-Zone chip.
+
+[SCENARIO 4] refresh is LOCAL, so it is not port bandwidth
+  payload per Zone             : 65536 bits = 1024 Words
+  FIREs to refresh one Zone    : 1024 (one per Word, 64 bits in parallel)
+  expected FIRE latency (M9)   : 93.157 ps
+  sequential full-Zone refresh : 95.4 ns
+  refresh interval             : 26.1272 ms
+  LOCAL duty cycle             : 3.651e-06  (0.0004 %)
+  V2 claimed refresh overhead  : 1.1e-4  (0.011 %)
+  V2 is 30.1x MORE conservative than this local estimate.
+
+  WITHDRAWN: an earlier revision of this module called refresh 90 TB/s against a 1 TB/s port, a 82x overrun.
+  That mixed internal state maintenance with external bandwidth. It is wrong
+  and must not be quoted in the manuscript or the point-by-point response.
+
+  what refresh really costs is ACTIVITY and ENERGY, not port bandwidth:
+    bit-writes per second       : 7.235e+14 /s
+    at declared 1e-18 J/bit     : 7.235e-04 W
+    at 1e-16 J/bit              : 7.235e-02 W
+  every Zone refreshes in parallel, so no single path carries the sum. This is
+  exactly the local scheduling FZC already owns in FZC-v0.
+  note: FZC's REFRESH opcode scrubs protected state from redundant copies,
+  which is ECC correction, not retention refresh. Two different operations.
+  label: duty derived from M9 latency and V2 Kramers cadence, energy per bit DECLARED.
+
+[SCENARIO 5] how many Zones the claimed bandwidth can actually serve
+  claimed chip bandwidth          : 1.100000 TB/s
+  per-Zone demand                 : 1.064000 TB/s
+  Zones simultaneously serviceable: 1.033835
+  Zones on the die                : 1700 million
+  fraction reachable              : 6.081e-10  (6.081e-08 %)
+
+  V2's bandwidth serves about 1 Zone(s) of 1700 million.
+  finding: a 14.1 TB array behind a 1.1 TB/s port behaves like memory with a
+  single-tenant crossbar. Capacity does not create bandwidth. Any bandwidth
+  claim must state how many Zones are concurrently reachable through shared
+  routing, which is the physical link model V3 still does not have.
+  label: per-Zone figures from V2, aggregation arithmetic derived, link model open.
+
+PASS: V2's chip bandwidth identified as one Zone, multiplier omitted, refresh shown local.
+LABEL: derived aggregation, V2 per-Zone inputs, physical link model open.
+NEXT EVIDENCE GATE: a shared-routing link capacity model so concurrent Zone count is derived, not assumed.

@@ -1,0 +1,69 @@
+FEA V3 M5 neighbouring-Block crosstalk
+Screening length is declared, not measured. The sweep is the result.
+
+[SCENARIO 1] occupied neighbours shift the target charging energy
+  Ec baseline                : 0.6500 eV
+  declared screening length  : 1.0000 nm
+  Block pitch                : 1.1500 nm
+
+  nearest (1x pitch)   shift 0.0661 eV  (x4 = 0.2643)
+  diagonal (sqrt2)     shift 0.0290 eV  (x4 = 0.1161)
+  next (2x pitch)      shift 0.0105 eV  (x4 = 0.0418)
+  far (sqrt5)          shift 0.0071 eV  (x8 = 0.0571)
+  sum over all occupied shells: 0.4793 eV
+  Ec becomes                  : 0.1707 eV  (from 0.6500)
+  label: coupling form declared, screening length and permittivity DECLARED.
+
+[SCENARIO 2] neighbour occupation moves retention because Ec moves
+  tau with isolated Block     : 52.254329 ms
+  tau with all neighbours up  : 0.000000 ms
+  ratio                        : 0.00x
+  occupied neighbours shorten retention in this parameterization.
+  finding: retention is a function of the occupation of the surrounding array,
+  not of one isolated 5-atom cluster. A single-cluster Ec measurement cannot
+  set the array's retention. Reviewer 7 #3 is correct.
+
+[SCENARIO 3] write selectivity must survive a worst-case neighbour pattern
+  declared write threshold    : 0.3250 eV
+  margin, neighbours empty    : 0.3250 eV
+  margin, neighbours occupied : -0.1543 eV
+  margin lost to crosstalk    : 0.4793 eV
+  worst-case margin survives? : NO
+  FAIL-CLASS RESULT: crosstalk erases write selectivity under this screening.
+  label: threshold is declared. The structural point is that margin is a
+  function of the array state, so a coupled-block sweep is mandatory before
+  any write-fidelity number can be quoted.
+
+[SCENARIO 4] screening length decides whether crosstalk matters at all
+  lambda(nm)   full-neighbour shift(eV)   Ec(eV)   tau(ms)
+    0.3000               0.0210   0.6290     23.1834
+    0.5000               0.1151   0.5349      0.6094
+    1.0000               0.4793   0.1707      0.0000
+    2.0000               1.0701   -0.4201      0.0000
+    5.0000               1.7996   -1.1496      0.0000
+  at weak screening the shift approaches or exceeds Ec itself.
+  finding: without a measured surface screening length, crosstalk is unbounded
+  in either direction. This is the parameter that must come from experiment
+  or an atomistic calculation before single-Block results can be arrayed.
+
+[SCENARIO 5] permittivity decides the headline verdict
+  write threshold              : 0.3250 eV
+  eps_r     label                              shift(eV)   margin(eV)  verdict
+   1.0000  vacuum, the previous value           2.8758     -2.5508    FAIL
+   2.0000  low surface bound                    1.4379     -1.1129    FAIL
+   6.0000  effective surface (eps_Si+1)/2 approx 6.35   0.4793     -0.1543    FAIL
+  11.7000  bulk silicon                         0.2458      0.0792    PASS
+
+  the verdict is NOT a property of the geometry alone. It flips at about eps_r = 8.8488.
+  previous revision fixed eps_r = 1.0 (vacuum), which produced the headline
+  FAIL-CLASS result of -2.5508 eV. That was an artifact, not physics.
+  at the effective-surface default the margin is -0.1543 eV, and at bulk Si it is 0.0792 eV.
+  so the honest statement is: crosstalk margin is bounded by how strongly the
+  medium screens, and no surface permittivity has been measured for this
+  structure. Reviewer 7 #3 stands, but for the screening constant, not for a
+  predetermined failure.
+  label: all eps_r values DECLARED. Sweep is the result. No verdict without one.
+
+PASS: crosstalk shift, retention coupling, selectivity margin and permittivity sweep computed.
+LABEL: derived coupling form, screening and permittivity both DECLARED, no fixed verdict.
+NEXT EVIDENCE GATE: atomistic or measured surface screening length at 1.15 nm pitch.

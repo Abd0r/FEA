@@ -1,0 +1,99 @@
+FEA V3 M15 fabric layout as a function of die area
+Die area is an input. Geometry comes from Block pitch. Widths are declared.
+
+[SCENARIO 1] Zone geometry follows from Block pitch, not from chip size
+  Block pitch                 : 1.1500 nm
+  Blocks per Zone side        : 256
+  Zone side                   : 294.4 nm (0.02944 um)
+  Zone area                   : 8.667e-10 cm^2
+  Blocks per Zone             : 65536
+  a Zone is a ~300 nm object. Chip size does not change Zone geometry, only
+  how many of them are tiled and how far apart the far ones sit.
+
+[SCENARIO 2] layout as a function of die area
+  die cm^2   side cm        zones       grid array cm    slack  FZC cm^2      bnd max hops
+  1           1.0000    572220541      23921   0.7071   1.4142    0.0040    8.606%      47840
+  3           1.7321   1716661623      41433   1.2247   1.4142    0.0121    5.016%      82863
+  10          3.1623   5722205410      75645   2.2361   1.4142    0.0405    2.763%     151289
+
+  data cells from this module's Zone tiling : 1.4879 cm^2
+  cells from V2's stated 1.13e14 Blocks    : 1.4944 cm^2
+  disagreement between the two routes       : 0.440 %
+  Zone total including the FZC strip       : 1.5000 cm^2 of 1.5000 cm^2 budgeted
+  routing slack                : 1.4142 = sqrt(2.0000) BY CONSTRUCTION, an identity, not a measurement.
+  note: data_tiled cancels block_area (zones already divide by it), so the
+  check above is die-geometry occupancy versus V2's stated count x block
+  area, not two pitch-derived routes. Claiming independent pitch routes was
+  wrong; the comparison is still a real die-versus-claim test.
+  zones scale linearly: 3.0x area -> 3.0x zones, and 10.0x at 10 cm^2.
+  worst-case Slingshot hops grow sub-linearly: 3.162x for 10.000x the area, because hops follow the grid side, not the area.
+  boundary ring share FALLS as the die grows: 8.6% at 1 cm^2 -> 5.0% at 3 cm^2 -> 2.8% at 10 cm^2.
+  declared ring 22.000 mm costs 5.016% of V2's 3 cm^2 die but 12.058% of our 0.5 cm^2 design die.
+  the width is fixed because boundary pads do not shrink, so a SMALLER die
+  pays a LARGER share for I-O. Shrinking the die to ease fabrication costs
+  this, and it is budgeted rather than hidden.
+  so a bigger chip amortises the boundary ring, which is why the ratio is
+  perimeter over area: it falls as 1/sqrt(area).
+
+[SCENARIO 3] clock feeds and worst-case route length
+  Zones                       : 1716661623
+  Zone grid side              : 41433 Zones
+  clock feeds at 1 per 256 Zones  : 6705710
+  worst-case XY route         : 82863 Slingshot hops
+
+  a Zone at one corner talking to the opposite corner crosses about 82863 hops.
+  that number is what turns M9's local cycle into a system latency, and it
+  scales as sqrt(die area), not linearly with Zone count.
+  label: geometry derived from pitch, widths and grain DECLARED. Not a drawing.
+
+[SCENARIO 4] capacity options: every structure must live inside the die
+  V2: Block = 3a x 3a = 1.15 x 1.15 nm^2, practical density 3.77e13 cm^-2
+  after 2x routing. Cells taken from V2's stated 1.13e14 Block count:
+    Block cells             : 1.4944 cm^2
+    routing (V2's own 2x)   : 1.4944 cm^2
+    area V2 claims outright : 2.9888 cm^2  = 99.6% of a 3.0 cm^2 die
+
+  option                          support cm^2   routing   cells cm^2   capacity   area needed   fits?
+  A  V2 as published                   0.0000      2.0      1.5000    14.18 TB       2.9888   yes
+      basis: assumes PDN, boundary and control are free
+  B  FZC only                          0.0121      2.0      1.4939    14.12 TB       3.0010   NO
+      basis: reserve control, still free PDN and I/O
+  C  FZC + PDN 5%                      0.1621      2.0      1.4189    13.41 TB       3.1510   NO
+      basis: cheaper power grid, no boundary ring
+  D  FZC + PDN 10% + boundary          0.4626      2.0      1.2687    11.99 TB       3.4515   NO
+      basis: every declared structure paid
+  E  D but routing 1.5x                0.4626      1.5      1.6916    15.99 TB       2.7043   yes
+      basis: needs justification for lower routing
+
+  A needs 2.9888 cm^2 of a 3.0000 cm^2 die -> fits, with 0.0112 cm^2 left over.
+  D needs 3.4515 cm^2 of a 3.0000 cm^2 die -> DOES NOT FIT, short by 0.4515 cm^2 (15.0%).
+
+  D is the physically correct reading: the die is a fixed 3.0 cm^2, so cells,
+  routing, FZC, PDN and the boundary ring must all come out of it. That
+  takes capacity from 14.2 TB to 12.0 TB.
+  A is not an option in the physical sense. It is what you get only if PDN,
+  boundary I/O and control genuinely cost zero area, which they do not.
+  E is the only route back above 14.1 TB, and it requires justifying a routing
+  factor below the 2x V2 itself states.
+  FZC alone needs 0.0121 cm^2 against V2's residual of 0.0112 cm^2, so it barely tips option B over (0.0% of die). But FZC is only 2.6% of the support term: PDN and the boundary ring are 97.4% of it. FZC is the smallest term, and it is not what drives the
+  shortfall. V2's published numbers simply leave almost no headroom.
+  label: cell area from V2's stated Block count, feasibility checked against the
+  die. The three identities that used to sit here were removed: slack and the
+  budget total were true by construction, not by measurement.
+
+[SCENARIO 8] capacity options at the 0.5 cm^2 design die
+  die 0.5 cm^2, Block area 1.3225e-14 cm^2, routing 2.0000x
+  support: FZC 0.0020, PDN5 0.0250, PDN10 0.0500, boundary ring 0.0603 cm^2
+
+  code  option                     support cm^2  routing   capacity TB
+  A     no support                      0.0000   2.0000        2.3629
+  B     +FZC                            0.0020   2.0000        2.3534
+  C     +FZC+PDN5                       0.0270   2.0000        2.2352
+  D     +FZC+PDN10+boundary             0.1123   2.0000        1.8322
+  E     D at routing 1.5x               0.1123   1.5000        2.4429
+  A 2.362949 TB, D 1.832166 TB, E 2.442888 TB
+  label: ARITHMETIC from the canonical Block area at the design die.
+
+PASS: Zone grid, FZC, boundary ring, clock feeds and hop count all scale correctly.
+LABEL: derived geometry, declared widths and clock grain, no drawn layout.
+NEXT EVIDENCE GATE: an actual placement of Zones, FZC, ports and boundary PHYs.

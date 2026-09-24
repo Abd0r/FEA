@@ -1,0 +1,103 @@
+FEA V3 M17 peer recovery: quorum, seed, and the tau gate
+Same 0.5 cm^2 design array, same Kramers retention as M4 and M13.
+
+[SCENARIO 1] what a neighbour actually transmits
+  ledger: 7 groups x 8 bits x 2 rails x 3 replicas
+  unique state (one replica) : 112 bits
+  stored ledger (all replicas): 336 bits
+  FZC Blocks per Zone        : 535
+  reconstruction at the M10 ceiling: 0.0131579 ns  (ARITHMETIC)
+  as 64-bit packets         : 2
+  label: ARITHMETIC from the FZC ledger. No measurement involved.
+
+[SCENARIO 2] the tau gate: recovery must beat retention decay
+  retention tau               : 52.254329 ms
+  refresh interval (tau/2)    : 26.127165 ms
+  miss threshold m            : 3.000000
+  max viable heartbeat H      : 17.417776 ms
+
+        H (ms)   detect (ms)   quorum (us)    recon (ns)    total (ms)    vs tau
+      0.010000      0.030000      1.000000      0.013158      0.031000      PASS
+      0.100000      0.300000      1.000000      0.013158      0.301000      PASS
+      0.500000      1.500000      1.000000      0.013158      1.501000      PASS
+      1.000000      3.000000      1.000000      0.013158      3.001000      PASS
+      5.000000     15.000000      1.000000      0.013158     15.001000      PASS
+     10.000000     30.000000      1.000000      0.013158     30.001000      PASS
+     26.127165     78.381494      1.000000      0.013158     78.382494      FAIL
+     50.000000    150.000000      1.000000      0.013158    150.001000      FAIL
+
+  ARITHMETIC: the binding constraint is m x H, not the packet path.
+  At m = 3.000000 the heartbeat must run at least 1.500029x faster than the refresh interval.
+  SUGGESTED: H = 10 ms gives 30.001000 ms total against a 52.254329 ms budget.
+  label: ARITHMETIC. H and m are declared, not measured.
+
+[SCENARIO 3] the declared, unsourced Slingshot latency
+  latency         max viable H (ms)  shift vs 1ns
+  1 ns                   17.418109     0.000000%
+  10 ns                  17.418106     0.000017%
+  100 ns                 17.418076     0.000189%
+  1 us                   17.417776     0.001912%
+  10 us                  17.414776     0.019135%
+  100 us                 17.384776     0.191370%
+  1 ms                   17.084776     1.913715%
+
+  worst shift across six decades: 1.913715%
+  conclusion: m x H carries this result, the packet path does not.
+  label: SWEPT over an unsourced input, deliberately.
+
+[SCENARIO 4] quorum 4-of-5 against quorum 3-of-5
+  peer set N = 5, quorum ceil(2/3 x N) = 4
+
+  congest     FP k=4        FP k=3        detect k=4    falls to L2   MC err        
+  0.00000     0.00000       0.00000       1.00000       0.00000       0.00000       
+  0.05000     0.00003       0.00116       0.97741       0.02259       0.00001       
+  0.10000     0.00046       0.00856       0.91854       0.08146       0.00001       
+  0.20000     0.00672       0.05792       0.73728       0.26272       0.00012       
+  0.30000     0.03078       0.16308       0.52822       0.47178       0.00059       
+  0.50000     0.18750       0.50000       0.18750       0.81250       0.00026       
+
+  at 10% congestion: k=4 false recovery 0.00046, k=3 0.00856 -> 18.60870x fewer with the stricter quorum
+  at 30% congestion, L1 reaches quorum 52.82200% of the time; the rest falls to L2
+  label: ARITHMETIC (exact binomial), checked against a seeded sample.
+  The congestion RATE is SWEPT, not measured.
+
+[SCENARIO 5] what the heartbeat costs across every Zone
+  Zones on the die        : 286110271
+  heartbeat packet        : 64 bits
+  H                       : 10.000 ms
+  heartbeat traffic       : 228.888 GB/s
+  refresh traffic         : 90440.314 GB/s
+  heartbeat share         : 0.2531 %
+  at H = 5.0000 ms the share becomes 0.5062 %
+  label: ARITHMETIC from design_zone_count() and the declared packet size.
+  The packet size is DECLARED framing, not a packet specification.
+
+[SCENARIO 6] a partitioned Zone must not run two controllers
+  original epoch 7, recovery epoch 8
+  without a fence: 2 controllers accepted commits -> split brain
+  with the fence : 1 controller accepted commits
+  invariant 12 holds: lower-epoch commits are rejected.
+  label: ARITHMETIC demonstration of the rule, not a timed simulation.
+
+[SCENARIO 7] what M17 deliberately does not claim
+  recovery at H = 10 ms       : 30.001000 ms against tau 52.254329 ms
+
+  none of the following is established here:
+  - no rescue port exists, so nothing above has ever been exercised on
+    hardware; the mechanism is specified, not demonstrated.
+  - H and m are declared. Neither is measured, and FZC-v0 lists both as
+    open parameters.
+  - the Slingshot latency is unsourced; scenario 3 exists to show it does
+    not carry the result rather than to endorse a value for it.
+  - congestion rates are SWEPT. No chip traffic has produced one.
+  - scenario 6 is a rule demonstration, not a timed partition, so it shows
+    the fence rejects stale epochs, not how fast it does so.
+  - heartbeat bandwidth across every Zone IS reported, in scenario 5,
+    but from a declared packet size rather than from a real packet format.
+  label: capability PROPOSED, latency OPEN, mechanism NOT DEMONSTRATED.
+  NEXT EVIDENCE GATE: a physical rescue port, and a timed partition with
+  measured congestion from a real Slingshot load.
+
+PASS: recovery beats retention decay and the quorum suppresses false recoveries.
+LABEL: arithmetic and swept inputs only, mechanism not demonstrated.
+NEXT EVIDENCE GATE: physical rescue port and a timed partition under measured congestion.

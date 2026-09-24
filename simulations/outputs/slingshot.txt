@@ -1,0 +1,19 @@
+c++ -std=c++17 -O2 -Wall -o FEA_slingshot_v3 simulations/FEA_slingshot_v3.cpp
+./FEA_slingshot_v3
+FEA V3 unified Slingshot architectural simulator
+Unit: arbitration rounds. No physical time, energy, or bandwidth claim.
+
+[SCENARIO 1] priority: RECOVERY before DATA at one finite port
+  recovery delivered in round 2; data delivered in round 3
+
+[SCENARIO 2] finite ingress buffers and backpressure
+  explicit ingress rejection count=1
+
+[SCENARIO 3] failed link is explicit; hop count is conserved
+  failed-link rejection and 4-hop delivery verified
+
+[SCENARIO 4] refresh deadline traffic outranks ordinary control/data
+  refresh delivered in round 2; control delivered in round 3
+
+PASS: finite-buffer routing invariants held in all v0 scenarios.
+NEXT EVIDENCE GATE: physical link, restoration, and packet-energy model.

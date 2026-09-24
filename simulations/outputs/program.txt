@@ -1,0 +1,41 @@
+FEA V3 M16 programmability: one chipset, three programs
+Same 0.5 cm^2 design array in every run. Only the command stream differs.
+
+[SCENARIO 1] one chipset, three programs, no hardware change
+  chipset (identical in all three runs): data=65536 fzc=535 pitch=1.150000nm die=0.500000cm2 zones=286110270
+
+  role                              ops   cycles   Zones    hops   ops/cycle    clusters
+  CPU-like dependency chain        4096     4096       1       0         1.0   286110270
+  GPU-like independent chains      4096       16     256       0       256.0     1117618
+  NPU-like systolic array          4096      127    4096    8064        32.3       69851
+
+  same array, same FZC budget, same pitch, same die in all three runs.
+  what changed is the command stream: depth, parallel width, hop pattern.
+  clusters = how many independent instances fit the design die, so the
+  0.5 cm^2 chip can be partitioned into any mix of these three roles.
+  label: program shape DERIVED, cycle time owned by M9, no accelerator claim.
+
+[SCENARIO 2] widening the parallel chain changes throughput, not hardware
+  chains  depth    cycles   ops/cycle   clusters    
+  1       4096     4096     1.0         286110270   
+  4       1024     1024     4.0         71527567    
+  16      256      256      16.0        17881891    
+  64      64       64       64.0        4470472     
+  256     16       16       256.0       1117618     
+  width is a program parameter. No register, cell or pitch changed.
+  label: derived from program shape; the array size is bounded by the die.
+
+[SCENARIO 3] what this module deliberately does not claim
+  CPU-like shape : 286110270 independent instances on the die
+  NPU-like shape : 69851 independent instances on the die
+  a 127-cycle systolic array is NOT shown to beat a real matrix engine here,
+  because no real matrix engine was simulated. Speed is unclaimed.
+  what IS shown: the capability exists, is reprogrammable, and needs no
+  different silicon for any of the three roles.
+  next evidence gate: energy per op per role, and a workload that stresses
+  all three roles at once so partitioning cost becomes measurable.
+  label: capability PROPOSED, performance OPEN.
+
+PASS: one array ran three roles on identical hardware with distinct results.
+LABEL: program shape derived, capability proposed, performance unclaimed.
+NEXT EVIDENCE GATE: per-role energy and a mixed-role partition workload.

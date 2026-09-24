@@ -1,0 +1,59 @@
+c++ -std=c++17 -O2 -Wall -Isimulations -o FEA_restoration_v3 simulations/FEA_restoration_v3.cpp
+./FEA_restoration_v3
+FEA V3 M6 signal restoration across the die
+Decay length and input threshold are declared, not measured.
+
+[SCENARIO 1] a passive path across the die collapses without restoration
+  die edge                    : 0.707 cm (7071.068 um)
+  declared decay length       : 1.000 um
+  end-of-chain amplitude      : 10^-3070.9
+  next-stage input threshold  : 0.1 (10^-1.0)
+  passes threshold?           : NO
+  shortfall                   : 3069.9 orders of magnitude
+  finding: Reviewer 4 #7 is correct. Without gain the signal is gone long
+  before it crosses the die. This is not a margin problem, it is a 3070-order collapse.
+
+[SCENARIO 2] restoration endpoints required to cross the die
+  max spacing at threshold    : 2.302585 um
+  endpoints for one die edge  : 3070
+  amplitude after one hop     : 0.100000  (threshold 0.100000, equal by construction)
+  so restoration is mandatory, and it needs roughly 3070 endpoints per edge.
+  label: decay length and threshold are declared. The structural result is
+  that restoration is required at all, and its density follows from decay.
+
+[SCENARIO 3] every restoration endpoint costs area and power
+  endpoints per edge          : 3070
+  endpoint lattice pitch      : 2.302585 um
+  endpoints on the die        : 9431041
+  area per endpoint (declared): 0.050000 um^2
+  endpoint area               : 0.004716 cm^2
+  endpoint power (1 nW each)  : 0.009431 W
+  as fraction of die area     : 0.94 %
+  these must be added to M1 power and M2 area. They are currently absent
+  from every V2 number, because V2 assumed no gain was needed.
+
+[SCENARIO 4] the declared decay length is the load-bearing unknown
+  decay(um)   unrestored amp      max spacing(um)   endpoints/edge
+  1.000e-01        0.000e+00        2.303e-01           30709
+  5.000e-01        0.000e+00        1.151e+00            6141
+  1.000e+00        0.000e+00        2.303e+00            3070
+  5.000e+00        0.000e+00        1.151e+01             614
+  5.000e+01        3.815e-62        1.151e+02              61
+  at 50 um decay the unrestored path reaches 0.000000, still below a 0.100000 threshold.
+  finding: even an optimistic 50 um decay length needs restoration endpoints
+  somewhere on a 1.73 cm die. No passive pathway crosses it alone.
+  label: decay length unmeasured. Until it is measured, restoration endpoint
+  density, and therefore its area and power, are unbounded above.
+
+[SCENARIO 5] restoration needs an energy source, not the signal itself
+  endpoints                  : 9431041
+  power from a bias/clock rail: 0.009431 W
+  a passive DBW cannot amplify. Every endpoint needs supplied energy.
+  this is the same constraint FZC's actuator gate already states: a stored
+  pattern is not gain, and a decaying signal is not a restoration source.
+  the rail that feeds these endpoints must appear in M1 as boundary or
+  regional power, and its routing must appear in M2 as area.
+
+PASS: unrestored collapse shown, endpoint count and cost computed.
+LABEL: derived propagation form, declared decay and threshold, open measurement.
+NEXT EVIDENCE GATE: measured DBW amplitude decay length and a powered relay mechanism.
