@@ -62,7 +62,7 @@ Each row is one simulator. `Gate` is the condition that fails the run.
 | M8 | `fea_secded_v3` | R6 #7: SECDED asserted but never simulated | Area, power, latency, refresh, correction, residual failure for the chosen code | The code parameters, the1-bit correction claim and the multi-bit residual failure rate are gated inside M8. **OPEN: the correction overhead is NOT yet folded into the M1 power or M2 area totals** -- no SECDED term appears in `budget.txt` or `floorplan.txt`. This row records that gap instead of asserting a gate that does not exist. |
 | M9 | `fea_clock_v3` | R4 #10: 9.19 GHz needs justification | Latency assembled from transport, actuation, sensing, restoration, arbitration, controller | f_sys must be recomputed from summed phases. Hardcoded 9.19 fails. |
 | M10 | `fea_bandwidth_v3` | R6 #5: 133 GOPS/Zone already equals chip bandwidth | Per-Zone op rate to chip aggregate through shared routing, with saturation | Dimensional check: chip bandwidth must not equal one Zone's rate by accident. |
-| M11 | `fea_compare_v3` | R4 #3, #5, #6; R3 #2: M4 Max not apples-to-apples, need RC, need normalized | Energy per bit stored, area per bit, energy per confirmed operation, energy per transported bit, against DRAM, HBM, CIM, PIM, RC | Comparison must share one boundary definition. Mixed boundaries fail. |
+| M11 | `fea_compare_v3` | R4 #3, #5, #6; R3 #2: the previous production-SoC reference is not apples-to-apples, need RC, need normalized | Energy per bit stored, area per bit, energy per confirmed operation, energy per transported bit, against DRAM, HBM, CIM, PIM, RC | Comparison must share one boundary definition. Mixed boundaries fail. |
 | M12 | `FEA_fabrication_v3` (`make run-fabrication`) | R4 #8; R3 #1; CF14 #6: 1e14 clusters, STM throughput, years to pattern | Patterned atoms per second, cluster count, wall-clock time, defect and yield projection | Fabrication time must be printed as a real number, not called an engineering challenge. |
 | M13 | `fea_refresh_v3` | R6 #6, R7 #4: retention sets refresh overhead | Refresh period, refresh bandwidth, refresh power, occupancy of Slingshot by refresh | Refresh IS counted inside M1 (`budget.txt` carries a refresh term) and its traffic is asserted inside the M10 ceiling. The claim that it is also counted inside M9 is **not implemented**: no clock-side refresh term exists, so that half of the original criterion is withdrawn rather than gated. |
 | M14 | `fea_fzc_e2e_v3` | Control-plane replacement, already reviewed | Full transaction path with computed gates | Every gate computed. Boolean skip fails. |
@@ -100,7 +100,7 @@ A reviewer comment is covered only when its module ran and its gate passed.
 |---|---|---|
 | R4 #1 | Room-temperature retention needs theory or kMC | M4, M13 |
 | R4 #2 | Literature review must situate FEA vs beyond-CMOS | literature, not simulated |
-| R4 #3 | M4 Max comparison conflates systems | M11 |
+| R4 #3 | the production-SoC reference conflates systems | M11 |
 | R4 #4 | CMOS control-plane power overhead | M1 |
 | R4 #5 | 3.8 W omits I-O energy | M1 |
 | R4 #6 | Normalized core vs peripheral comparison | M11 |
@@ -135,7 +135,7 @@ A reviewer comment is covered only when its module ran and its gate passed.
 | review.pdf #1 | Room-temperature retention extrapolated, and Haider framing | M4, M13, `research/fzc-physical-mechanism-report.md` |
 | review.pdf #2 | Gap between near-unity absorption and `P_abs = 0.46` | M7 |
 | review.pdf #3 | All validation is self-referential, no independent replication | open, requires a third party |
-| review.pdf #4 | M4 Max comparison should be reframed or dropped | M11 |
+| review.pdf #4 | the production-SoC reference should be reframed or dropped | M11 |
 | review.pdf #5 | `10^14` cluster manufacturing asserted not argued | M12 |
 | review.pdf #6 | PLL and decoder estimates are unreferenced | M1 |
 

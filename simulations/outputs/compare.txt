@@ -1,5 +1,3 @@
-c++ -std=c++17 -O2 -Wall -Isimulations -o FEA_compare_v3 simulations/FEA_compare_v3.cpp
-./FEA_compare_v3
 FEA V3 M11 normalized comparison
 FEA side derived from V3 modules. Reference side partly sourced, boundaries unmatched.
 
@@ -13,15 +11,15 @@ FEA side derived from V3 modules. Reference side partly sourced, boundaries unma
   these four numbers are the only defensible way to compare FEA with anything.
   all four come from V3 modules: data plane, M7 multi-FIRE, M9 clock, M13 retention.
 
-[SCENARIO 2] the M4 Max comparison mixes two different boundaries
+[SCENARIO 2] the previous revision's SoC reference mixes two boundaries
   FEA, as V2 compared        0.013 W   data plane only
   FEA, V2's stated total     3.800 W   data plane + partial control, omits I/O, PDN, clock
   FEA, V3 floor              0.023 W   open terms counted from params
-  Apple M4 Max              40.000 W   whole SoC: CPU, GPU, NPU, memory controller
+  production SoC (ref.)     40.000 W   whole SoC: CPU, GPU, NPU, memory, ref. only
 
   Reviewer 4 point 3 is correct: these rows do not share a boundary.
   comparing 0.013 W of array-only
-  against 40.000 W of complete SoC is not a like-for-like result.
+  against 40.000 W of a complete SoC is not a like-for-like result.
   the V3 floor is worse still as a comparison input, because 4 of 8 terms are
   still unsized. A ratio computed from it would be invented precision.
   finding: the 10x power and 110x memory headline cannot be restated from V3.
@@ -31,7 +29,7 @@ metric                      FEA         ref 2     ref 3     boundary issue
   Block density (cm^-2)     3.77e13     7e12      ~1e10     raw pitch vs practical pitch unclear
   Data-plane power (mW/cm^2)26.5        ~1e5      ~1e3      FEA excludes control, refs include it
   System clock (GHz)        9.19 (V2)   ~3        N/A       M9 revises FEA to 9.539
-  Total chip power (W)      3.8         40        ---       M4 Max is whole SoC; FEA omits I/O, PDN, clock
+  Total chip power (W)      3.8         40        ---       SoC ref is whole SoC; FEA omits I/O, PDN, clock
 
   V2's own table compares differently-bounded quantities row by row.
   none of the reference columns cites a matched-boundary source in the table.

@@ -2,8 +2,9 @@
 // FEA_compare_v3.cpp -- M11 normalized comparison with matched boundaries
 //
 // Reviewer 4 points 3, 5, 6 and 9, Reviewer 3 point 2, and the review.pdf
-// attachment: the Apple M4 Max comparison conflates a simulated data-plane
-// array with a production SoC, omits I/O energy, and should be normalized
+// attachment: the previous revision's production-SoC reference line (40 W)read
+// against a simulated data-plane array conflates two boundaries, omits I/O
+// energy, and should be normalized
 // against energy-per-bit-stored and area-per-bit from DRAM, HBM, CIM, PIM and
 // RC instead. This module derives FEA's normalized metrics from the modules
 // that already exist, then checks whether any comparison V2 made used one
@@ -78,7 +79,7 @@ static void scenario_fea_normalized_metrics() {
 }
 
 static void scenario_m4max_boundary_mismatch() {
-    std::cout << "\n[SCENARIO 2] the M4 Max comparison mixes two different boundaries\n";
+    std::cout << "\n[SCENARIO 2] the previous revision's SoC reference mixes two boundaries\n";
     const double fea_data_plane = data_plane_W();
     // V2's total, and the V3 floor from M1 SCENARIO 7.
     const double v2_total = 3.8;
@@ -101,7 +102,7 @@ static void scenario_m4max_boundary_mismatch() {
         {"FEA, as V2 compared", "data plane only", fea_data_plane},
         {"FEA, V2's stated total", "data plane + partial control, omits I/O, PDN, clock", v2_total},
         {"FEA, V3 floor", "open terms counted from params", v3_floor},
-        {"Apple M4 Max", "whole SoC: CPU, GPU, NPU, memory controller", m4_max},
+        {"production SoC (ref.)", "whole SoC: CPU, GPU, NPU, memory, ref. only", m4_max},
     };
     std::cout << std::fixed << std::setprecision(3);
     for (const Row& r : rows) {
@@ -109,12 +110,18 @@ static void scenario_m4max_boundary_mismatch() {
                   << std::setw(8) << r.w << " W   " << r.boundary << "\n";
     }
     std::cout << "\n";
-    require(fea_data_plane < m4_max, "FEA data plane must be below the M4 Max figure");
+    // PR8/external review: this used to require the data plane to beat the
+    // production-SoC figure, i.e. it asserted the withdrawn claim. The paper's
+    // stated policy is that no shipping part is used as a reference line at
+    // all, so what is asserted now is only the thing this module establishes:
+    // the two sides are not accounted under one boundary and no ratio closes.
+    require(m4_max > 0.0 && fea_data_plane > 0.0,
+            "both sides must be positive or the mismatch argument is vacuous");
     require(v3_floor < v2_total, "the V3 floor must be below V2's overstated total");
     require(open_terms > 0, "open terms must be counted so the comparison cannot be closed");
     std::cout << "  Reviewer 4 point 3 is correct: these rows do not share a boundary.\n";
     std::cout << "  comparing " << std::setprecision(3) << fea_data_plane << " W of array-only\n";
-    std::cout << "  against " << m4_max << " W of complete SoC is not a like-for-like result.\n";
+    std::cout << "  against " << m4_max << " W of a complete SoC is not a like-for-like result.\n";
     std::cout << "  the V3 floor is worse still as a comparison input, because " << open_terms
               << " of 8 terms are\n";
     std::cout << "  still unsized. A ratio computed from it would be invented precision.\n";
@@ -128,7 +135,7 @@ static void scenario_v2_table1_boundaries() {
         {"Block density (cm^-2)", "3.77e13", "7e12", "~1e10", "raw pitch vs practical pitch unclear"},
         {"Data-plane power (mW/cm^2)", "26.5", "~1e5", "~1e3", "FEA excludes control, refs include it"},
         {"System clock (GHz)", "9.19 (V2)", "~3", "N/A", "M9 revises FEA to 9.539"},
-        {"Total chip power (W)", "3.8", "40", "---", "M4 Max is whole SoC; FEA omits I/O, PDN, clock"},
+        {"Total chip power (W)", "3.8", "40", "---", "SoC ref is whole SoC; FEA omits I/O, PDN, clock"},
     };
     std::cout << std::left << std::setw(28) << "metric" << std::setw(12) << "FEA"
               << std::setw(10) << "ref 2" << std::setw(10) << "ref 3" << "boundary issue\n";
