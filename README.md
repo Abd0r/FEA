@@ -2,8 +2,11 @@
 
 A transistor-free computing architecture on hydrogen-passivated Si(100).
 Electrons travel along dangling bond wires (DBWs); 5-atom cross-shaped
-dangling-bond clusters selectively capture passing electrons via
-Breit–Wigner resonance under gate-voltage control. One cluster (Fusion
+dangling-bond clusters are modelled to undergo resonant occupation by
+passing electrons via Breit–Wigner resonance under gate-voltage control.
+Persistent capture additionally requires a post-write isolation mechanism
+that the model does not supply, and is stated as an open requirement rather
+than an achieved result. One cluster (Fusion
 Block) stores one bit; 64 Fusion Blocks form a 64-bit Word, and 1,024
 Words form a Zone.
 
