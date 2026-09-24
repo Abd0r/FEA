@@ -4,25 +4,27 @@ A transistor-free computing architecture on hydrogen-passivated Si(100).
 Electrons travel along dangling bond wires (DBWs); 5-atom cross-shaped
 dangling-bond clusters selectively capture passing electrons via
 Breit–Wigner resonance under gate-voltage control. One cluster (Fusion
-Block) stores one bit; 64 Fusion Blocks form a 64-bit Word.
+Block) stores one bit; 64 Fusion Blocks form a 64-bit Word, and 1,024
+Words form a Zone.
+
+Control is not a per-Zone CMOS block: it is carried by a *Fusion Zone
+Controller* (FZC) assembled from the same Fusion Blocks, so each Zone adds
+535 controller Blocks and no second cell design. Typed packets move data,
+refresh, boot and recovery over a transport called *Slingshot*.
 
 <p align="center">
-  <img src="docs/img/fusion_block_hierarchy.png" width="90%" alt="Architectural hierarchy: 5-atom Fusion Block, 64-bit Word, and 256×256-block Zone on H-Si(100)">
+  <img src="docs/img/fusion_block_hierarchy.png" width="90%" alt="Architectural hierarchy: 5-atom Fusion Block, 64-bit Word, and the Zone on H-Si(100)">
 </p>
 
-<p align="center"><em>Fusion Block (a), 64-bit Word (b), 256×256-block Zone (c). A 3 cm² die contains ~1.7 × 10⁹ Zones.</em></p>
+<p align="center"><em>Fusion Block (a), 64-bit Word (b), and the Zone (c).</em></p>
 
-**Preprint:** [10.5281/zenodo.19559255](https://doi.org/10.5281/zenodo.19559255)
-· **Paper PDF:** [`Paper/FEA-architecture.pdf`](Paper/FEA-architecture.pdf)
-(22 pages, 8 figures, 14 simulations, 13 references).
+**Preprint (v1):** [10.5281/zenodo.19559255](https://doi.org/10.5281/zenodo.19559255)
+· **Architecture paper (PDF):** [`Paper/FEA-architecture.pdf`](Paper/FEA-architecture.pdf)
 
-The Zenodo preprint reports numbers from `FEA_sim_v1.cpp`.
-The current reference implementation is
-[`simulations/FEA_sim_v2.cpp`](simulations/FEA_sim_v2.cpp), which
-replaces the hardcoded Γ with a first-principles derivation, adds a 2D
-thermal solver, adds a contention-model crossbar, and makes the
-ALU/VM simulations consistent under a multi-FIRE write-fidelity model.
-Numbers below are v2.
+The numbers below are the current revision's, produced by the 27-target
+verification suite in [`simulations/`](simulations/). The v1 preprint reports
+the earlier `FEA_sim_v1.cpp` figures and is kept for provenance only; where it
+differs from this README, this README is right.
 
 ---
 
@@ -33,89 +35,79 @@ Numbers below are v2.
 | Physical primitive | 5-atom cross DB cluster on H-Si(100) |
 | 1 Fusion Block | 1 bit |
 | 1 Word | 64 Fusion Blocks |
+| 1 Zone | 66,071 Blocks = 65,536 data + 535 FZC |
 | Practical block density | 3.77 × 10¹³ cm⁻² |
-| System clock (T_cycle = 108.85 ps) | 9.19 GHz |
+| Reference die | 0.5 cm² |
+| Zones on the reference die | 2.86 × 10⁸ |
+| In-situ capacity | 2.34 TB |
 | Resonance broadening Γ (derived) | 45 meV |
-| Data-plane power density | 26.47 mW/cm² |
 | Charging energy E_C | 0.65 eV |
 | Retention τ_ret at 300 K | 52.2 ms |
-| Refresh overhead | 0.011% |
-| ADD_64 single-FIRE ideal / multi-FIRE (N=18) | 0.87 ns / 2.72 ns |
-| MUL_64 single-FIRE ideal / multi-FIRE | 2.18 ns / 4.03 ns |
-| Slingshot hop (8-lane parallel) | 1.09 ns |
-| 3 cm² die: in-situ memory | 14.1 TB |
-| 3 cm² die: data-plane power | 79.4 mW |
-| 3 cm² die: total chip power (incl. CMOS control plane) | ~3.8 W |
+| Local clock (`T_cycle` = 104.83 ps) | 9.54 GHz (same-Block, not a die-wide rate) |
+| Data-plane power | 13.2 mW (26.47 mW/cm²) |
+| Accounted whole-chip floor (four sized terms) | 0.0234 W |
+| Four further terms, stated basis but **no source** | +14.9 W upper bound |
+| Refresh duty / local traffic | 3.68 × 10⁻⁶ / 90,440 GB/s |
+| ADD_64 single-FIRE / multi-FIRE | 0.84 ns / 2.62 ns |
+| MUL_64 single-FIRE / multi-FIRE | 2.10 ns / 3.88 ns |
+| SECDED cost on a 64-bit Word | 1.125× |
+| Steady-state ΔT at the die corner | 1.29 K |
+| Cross-die path rate | 0.065 GHz |
 
 ---
 
-## Simulation Suite (v2, 14 simulations)
+## Verification Suite
 
-Source: [`simulations/FEA_sim_v2.cpp`](simulations/FEA_sim_v2.cpp)
-(~1,370 lines, C++17, no external dependencies).
-
-| # | Name | Result |
-|---|------|--------|
-| 1 | Hamiltonian + lead self-energy | Γ = 45 meV (derived from Σ = t_c² g_L) |
-| 2 | Transmission: Green's function vs Breit–Wigner | T(E) from full GF; injection-averaged capture |
-| 3 | Kramers retention + Langevin MC | τ_ret = 52.2 ms; FPT distribution exponential |
-| 4 | Wavepacket with embedded cluster | On/off absorption contrast ~1,066× |
-| 5 | CLA ADD with multi-FIRE redundancy | N_FIRE = 18 → 0/1,000 failures → 2.72 ns |
-| 6 | ARM/FIRE/CONFIRM timing | 33 + 42.9 + 33 = 108.85 ps |
-| 8 | Density, memory, power breakdown | 14.1 TB; P_transit + P_absorb + P_gate |
-| 9 | 2D steady-state thermal (SOR) | ΔT_max ≈ 1.07 K with CMOS, <3 mK data-plane only |
-| 10 | FEA VM — three programs, 100-run MC | vector add 96%, dot product 98%, branch 98% |
-| 11 | Full-chip stability (binomial MC) | 99.99% compute utilisation under τ/2 refresh |
-| 12 | Crossbar contention (real arbitration) | 147 / 133 / 9 GOPS/zone (row / random / strided) |
-| 14 | Cross-die access (fat-tree routing) | 95th %ile 32 hops (34.8 ns), max 34 hops (37.0 ns) |
-
-v1's SIM 7 and SIM 13 were tautological Monte Carlo self-checks and have been removed; the underlying physics is now covered by SIM 3 (Langevin) and SIM 5 (block-level CLA).
-
----
-
-## Build & Run
-
-C++17 compiler (clang, gcc). No external libraries.
-
-```bash
-make          # builds FEA_sim_v2
-make run      # runs v2
-make v1       # builds the archived v1 for reproducibility
-```
-
-Reproduce the whole verification suite with one command:
+19 modules, each with a gate that can fail: physics, retention, clock,
+SECDED, crosstalk, restoration, refresh, bandwidth, power, fabrication,
+floorplan, programmability, recovery, rescue, thermal, and more.
+See [`spec/DESIGN-V3.md`](spec/DESIGN-V3.md) for the module-to-reviewer
+mapping.
 
 ```bash
 make check    # builds and runs all 29 targets; non-zero exit if any fails
 ```
 
-Each of the 27 self-checking V3 targets has its own entry point, e.g.
-`make run-thermal`, `make run-refresh`, `make run-program`. A target prints
-`PASS` only when every gate in it holds, otherwise it throws and exits
-non-zero. Per-target instructions are in
-[`simulations/README.md`](simulations/README.md), and the committed reference
-output for each target is in [`simulations/outputs/`](simulations/outputs/),
-so a result can be diffed against ground truth rather than read off the screen.
-
-One-liner for the reference program alone:
-
-```bash
-c++ -std=c++17 -O2 -o FEA_sim_v2 simulations/FEA_sim_v2.cpp && ./FEA_sim_v2
+```
+  run-v1                   PASS
+  ...
+  run-thermal              PASS
+  ALL 29 TARGETS PASS
 ```
 
-Captured reference outputs:
-[`simulations/FEA_sim_v2_output.txt`](simulations/FEA_sim_v2_output.txt),
-[`simulations/FEA_sim_v1_output.txt`](simulations/FEA_sim_v1_output.txt).
+Each target prints `PASS` only when every gate in it holds, otherwise it
+throws and exits non-zero. Per-target instructions:
+[`simulations/README.md`](simulations/README.md). Committed reference output
+for every target: [`simulations/outputs/`](simulations/outputs/), so a result
+can be diffed against ground truth rather than read off the screen.
+
+Requirements: a C++17 compiler (clang or gcc). No external libraries.
+
+Select one target with `make run-<target>`, for example:
+
+```bash
+make run-thermal      # M19: 2D sheet-conduction solve + sensitivity sweeps
+make run-refresh      # M13: refresh contract, FZC self-refresh
+make run-program      # M16: one chipset, three program shapes
+```
+
+The archived reference programs are separate:
+
+```bash
+make run              # runs FEA_sim_v2
+make v1               # builds the archived v1, for provenance
+c++ -std=c++17 -O2 -o FEA_sim_v2 simulations/FEA_sim_v2.cpp && ./FEA_sim_v2
+```
 
 ---
 
 ## Architecture
 
 ```
-  1 Fusion Block  =  1 bit    (5-atom cross DB cluster)
-  64 Fusion Blocks =  1 Word   (64-bit parallel register)
-  1024 Words       =  1 Zone   (256×256 = 65,536 blocks)
-  ~10⁹ Zones       =  1 Chip   (3 cm² M4-Max die)
+  1 Fusion Block   =  1 bit      (5-atom cross DB cluster)
+  64 Fusion Blocks =  1 Word     (64-bit parallel register)
+  1024 Words       =  1 Zone     (65,536 data Blocks + 535 FZC)
+  2.86 × 10⁸ Zones =  1 die      (0.5 cm², 2.34 TB in situ)
 ```
 
 <p align="center">
@@ -124,43 +116,49 @@ Captured reference outputs:
 
 <p align="center"><em>Compute–memory integration. (a) CIM: array + peripheral ADCs + accumulators + separate decoder. (b) PIM: logic near DRAM banks, fetch–execute boundary preserved per bank. (c) FEA: each Fusion Block is simultaneously the memory cell and the compute unit.</em></p>
 
-Instruction set (5 micro-ops, CMOS control plane):
+Instruction set (5 micro-ops, control carried by the FZC):
 
 - `ARM` Zone, Word — address target Word (1 cycle)
 - `FIRE` Op — execute ALU op on armed Word (1–20 cycles)
 - `CONFIRM` — read back result via AC charge sensing (1 cycle)
-- `SLINGSHOT` src, dst — 8-lane parallel 64-bit transfer (10 cycles)
+- `SLINGSHOT` src, dst — 64-bit transfer over the fabric (bounded arbitration rounds)
 - `BRANCH` cond, offset — conditional jump (1 cycle, no speculation)
+
+Slingshot's transport model states no physical time or energy per hop; hop
+counts are reported, wall-clock transfer time is not.
 
 ---
 
 ## Sparse-Workload Power
 
-The data plane has no dark-silicon floor. The CMOS control plane
-(~3.8 W, dominated by PLL distribution) does, unless actively
-duty-cycled. The three relevant numbers at 5% activation (95%-sparse
-transformer):
+The data plane has no dark-silicon floor, because it has no transistors. At
+5% utilisation:
 
-| Layer | Power at 5% activation |
+| | Power at 5% activation |
 |---|---|
-| Data plane only | ~4 mW |
-| Full chip, static CMOS | ~3.81 W |
-| Full chip, duty-cycled CMOS (100 mW floor) | ~0.29 W |
+| Data plane alone | 0.66 mW |
+| Accounted floor (four sized terms) | 23.4 mW |
+| Declared total, four unsourced terms added | 14.9 W |
 
-<p align="center">
-  <img src="docs/img/power_vs_sparsity.png" width="85%" alt="Full-chip power vs activation fraction">
-</p>
-
-<p align="center"><em>Full-chip power vs activation fraction (3 cm² die, log–log). Green: data plane only. Blue: total chip, static CMOS. Purple: total chip, duty-cycled CMOS. Dashed red: Apple M4 Max (40 W). Dotted orange: human brain (20 W).</em></p>
+The gap between the second and third rows is the point: the four unsourced
+terms dominate a whole-chip total, so the paper reports the floor and the upper
+bound separately and quotes no cross-vendor multiple.
 
 ---
 
 ## Limitations
 
-- Room-temperature DB retention has not been experimentally measured. All retention figures are Kramers-model extrapolations from cryogenic (~4 K) STM measurements.
-- No compiler. Instruction traces are hand-compiled.
-- Fabrication of 10¹⁴ clusters on a 3 cm² die requires massively parallel atomic-precision patterning; current STM demonstrations operate at the 10²–10⁴-atom scale.
-- CMOS control-plane power is an analytical estimate; physical design would be required to confirm it and to bound clock-distribution, I/O, and PDN contributions.
+- Room-temperature dangling-bond retention has **not been experimentally
+  measured**. Retention figures are Kramers-model extrapolations; the phonon
+  attempt frequency is taken from bulk silicon and is not established for a
+  five-atom cluster.
+- Four whole-chip power terms (boundary ring, clock and bias distribution,
+  external I/O, power-delivery losses) have a stated basis but **no source**.
+- No compiler exists. Instruction traces are hand-compiled.
+- The rescue path that recovers a failed controller is priced but not built;
+  irreversible capture and sensing remain unvalidated device physics.
+- No public 2 nm PDK, so wire pitch and transistor area are swept, not sourced.
+- No independent third party has reproduced this suite.
 
 ---
 
