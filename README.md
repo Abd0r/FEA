@@ -1,19 +1,20 @@
 # FEA — Free Electron Absorption Architecture
 
-A transistor-free computing architecture on hydrogen-passivated Si(100).
+A proposed computing architecture with a transistor-free data plane, on
+hydrogen-passivated Si(100).
 Electrons travel along dangling bond wires (DBWs); 5-atom cross-shaped
 dangling-bond clusters are modelled to undergo resonant occupation by
 passing electrons via Breit–Wigner resonance under gate-voltage control.
 Persistent capture additionally requires a post-write isolation mechanism
 that the model does not supply, and is stated as an open requirement rather
-than an achieved result. One cluster (Fusion
-Block) stores one bit; 64 Fusion Blocks form a 64-bit Word, and 1,024
+than an achieved result. One Fusion Block represents one stored bit in the
+architectural model; 64 Fusion Blocks form a 64-bit Word, and 1,024
 Words form a Zone.
 
 Control is carried by a *Fusion Zone Controller* (FZC) assembled from the
 same Fusion Blocks, so each Zone adds 535 controller Blocks and no second cell
-design: decoding, sequencing and sense amplification live in the control
-fabric rather than in a separate peripheral block. Typed packets move data,
+design: decoding, sequencing and sense amplification are assigned to the FZC
+rather than to a separate peripheral block. Typed packets move data,
 refresh, boot and recovery over a transport called *Slingshot*, whose model
 states no physical time or energy per hop.
 
@@ -26,10 +27,9 @@ states no physical time or energy per hop.
 **Preprint (v1):** [10.5281/zenodo.19559255](https://doi.org/10.5281/zenodo.19559255)
 · **Architecture paper (PDF):** [`Paper/FEA-architecture.pdf`](Paper/FEA-architecture.pdf)
 
-The numbers below are the current revision's, produced by the 27-target
-verification suite in [`simulations/`](simulations/). The v1 preprint reports
-the earlier `FEA_sim_v1.cpp` figures and is kept for provenance only; where it
-differs from this README, this README is right.
+The numbers below are the current revision's, produced by the verification
+suite in [`simulations/`](simulations/). The current revision supersedes v1
+for the values reported here; v1 is retained unchanged for provenance.
 
 ---
 
@@ -47,20 +47,20 @@ differs from this README, this README is right.
 | In-situ capacity (raw array) | 2.34 TB |
 | Fully accounted, all declared support reserved | 1.83 TB |
 | Resonance broadening Γ (derived) | 45 meV |
-| Charging energy E_C | 0.65 eV |
-| Retention τ_ret at 300 K | 52.2 ms |
+| Adopted charging energy E_C | 0.65 eV (assumed escape barrier) |
+| Kramers-model retention estimate at 300 K | 52.2 ms (not measured) |
 | Local clock (`T_cycle` = 104.83 ps) | 9.54 GHz (same-Block, not a die-wide rate) |
 | Data-plane power | 13.2 mW (26.47 mW/cm²) |
 | Accounted whole-chip floor (four sized terms) | 0.0234 W |
-| Four further terms, stated basis but **no source** | +14.9 W upper bound |
+| Declared whole-chip upper bound, incl. four unsourced terms | 14.9 W |
 | Refresh duty / local traffic | 3.68 × 10⁻⁶ / 90,440 GB/s |
 | ADD_64 single-FIRE / multi-FIRE | 0.84 ns / 2.62 ns |
 | MUL_64 single-FIRE / multi-FIRE | 2.10 ns / 3.88 ns |
 | SECDED cost on a 64-bit Word | 1.125× |
-| Steady-state ΔT at the die corner | 1.29 K |
+| Modelled steady-state corner rise | 1.29 K (ideal back-face sink, no package) |
 | Cross-die path rate | 0.065 GHz |
-| Sustainable active-zone fraction (pathway-limited) | 4.57% |
-| Electron-flux deficit if every Zone fired every cycle | 21.9x |
+| Model-derived ceiling on active-zone fraction (stated pathway inputs) | 4.57% — sustainable fraction unvalidated |
+| Model-derived flux deficit at full-rate firing | 21.9x |
 
 ---
 
@@ -72,8 +72,11 @@ floorplan, programmability, recovery, rescue, thermal, and more.
 [`docs/DESIGN-V3.md`](docs/DESIGN-V3.md) is the design contract each gate is
 mapped to.
 
-**`ALL 29 TARGETS PASS` means the architecture is internally consistent. It
-does not mean the physics is validated.** The suite checks arithmetic, units,
+**27 current-revision verification targets pass; `make check` also executes
+two archived reference targets, for 29 total run targets.
+`ALL 29 TARGETS PASS` means all implemented consistency gates pass. It does
+not mean the architecture is proven consistent, and it does not mean the
+physics is validated.** The suite checks arithmetic, units,
 contradictory constants, protocol semantics, probability conservation,
 sensitivity and cross-module consistency. It cannot check whether a five-DB
 cell actually captures, holds or isolates an electron: the rates behind those
@@ -81,7 +84,7 @@ models are inputs, not measurements. The paper states this as an explicit
 device contract.
 
 ```bash
-make check    # builds and runs all 29 targets; non-zero exit if any fails
+make check    # runs 27 current targets + 2 archived; non-zero exit on failure
 ```
 
 ```
@@ -95,7 +98,8 @@ Each target prints `PASS` only when every gate in it holds, otherwise it
 throws and exits non-zero. Per-target instructions:
 [`simulations/README.md`](simulations/README.md). Committed reference output
 for every target: [`simulations/outputs/`](simulations/outputs/), so a result
-can be diffed against ground truth rather than read off the screen.
+can be diffed against a committed reference baseline rather than read off the
+screen.
 
 Requirements: a C++17 compiler (clang or gcc). No external libraries.
 
@@ -147,8 +151,9 @@ counts are reported, wall-clock transfer time is not.
 
 ## Sparse-Workload Power
 
-The data plane has no dark-silicon floor, because it has no transistors. At
-5% utilisation:
+In the present model, data-plane power scales with active pathway utilisation;
+no per-Zone transistor switching or leakage term is included in the data plane.
+At 5% utilisation:
 
 | | Power at 5% activation |
 |---|---|
@@ -171,7 +176,7 @@ and marks each one **derived**, **assumed**, or **open**. Two dominate:
 
 | Property | Requirement | Status |
 |---|---|---|
-| Post-write isolation | after capture the escape rate must collapse from the lead-coupled scale `hbar/Gamma ~ 1.5e-14 s` toward the 52 ms hold scale -- a factor near **3e12** | **open** |
+| Post-write isolation | after the write the escape rate must collapse from the lead-coupled scale `hbar/Gamma ~ 1.5e-14 s` toward the 52 ms hold scale -- a factor near **3e12** | **open** |
 | Escape barrier | `e^2/2C_Sigma` adopted as the saddle-point barrier for Kramers escape | assumed |
 
 The second table records, for each part of the suite, what it establishes and
@@ -182,15 +187,18 @@ made visible.
 
 ## Limitations
 
-- Room-temperature dangling-bond retention has **not been experimentally
-  measured**. Retention figures are Kramers-model extrapolations; the phonon
-  attempt frequency is taken from bulk silicon and is not established for a
-  five-atom cluster.
+- Room-temperature retention of the proposed five-DB stored state has **not
+  been experimentally measured**. Retention figures are Kramers-model
+  extrapolations; the phonon attempt frequency is taken from bulk silicon and
+  is not established for a five-atom cluster.
 - Four whole-chip power terms (boundary ring, clock and bias distribution,
   external I/O, power-delivery losses) have a stated basis but **no source**.
 - No compiler exists. Instruction traces are hand-compiled.
 - The rescue path that recovers a failed controller is priced but not built;
   irreversible capture and sensing remain unvalidated device physics.
+- Massively parallel STM is an active technology path, but array-scale atomic
+  registration, yield and throughput at the density this architecture requires
+  (2.15 x 10^5 tips/cm^2 for a one-year die) have not been demonstrated.
 - No public 2 nm PDK, so wire pitch and transistor area are swept, not sourced.
 - No independent third party has reproduced this suite.
 
