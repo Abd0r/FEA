@@ -61,7 +61,7 @@ REC_BIN  := FEA_recovery_v3
 RESC_BIN := FEA_fzc_rescue_v3
 THERM_BIN := FEA_thermal_v3
 
-.PHONY: all clean run run-v1 run-v2 run-fzc run-slingshot run-fzc-reliability run-fzc-recognition run-fzc-opensystem run-fzc-selector run-fzc-screened run-fzc-floorplan run-fzc-e2e run-budget run-floorplan run-gamma run-retention run-multifire run-secded run-crosstalk run-restoration run-refresh run-clock run-bandwidth run-compare run-fabrication run-layout v1 v2 fzc slingshot fzc-reliability fzc-recognition fzc-opensystem fzc-selector fzc-screened fzc-floorplan fzc-e2e budget floorplan gamma retention multifire secded crosstalk restoration refresh clock bandwidth compare fabrication layout program recovery run-recovery rescue run-rescue thermal run-thermal
+.PHONY: all clean run run-v1 run-v2 run-fzc run-slingshot run-fzc-reliability run-fzc-recognition run-fzc-opensystem run-fzc-selector run-fzc-screened run-fzc-floorplan run-fzc-e2e run-budget run-floorplan run-gamma run-retention run-multifire run-secded run-crosstalk run-restoration run-refresh run-clock run-bandwidth run-compare run-fabrication run-layout run-program v1 v2 fzc slingshot fzc-reliability fzc-recognition fzc-opensystem fzc-selector fzc-screened fzc-floorplan fzc-e2e budget floorplan gamma retention multifire secded crosstalk restoration refresh clock bandwidth compare fabrication layout program recovery run-recovery rescue run-rescue thermal run-thermal
 
 all: $(V2_BIN)
 
@@ -273,3 +273,32 @@ run-thermal: $(THERM_BIN)
 
 clean:
 	rm -f $(V1_BIN) $(V2_BIN) $(FZC_BIN) $(SLING_BIN) $(REL_BIN) $(RECOG_BIN) $(OPEN_BIN) $(SEL_BIN) $(SCR_BIN) $(PLAN_BIN) $(E2E_BIN) $(BUD_BIN) $(DIE_BIN) $(GAM_BIN) $(RET_BIN) $(MF_BIN) $(SC_BIN) $(CT_BIN) $(RST_BIN) $(REF_BIN) $(CLK_BIN) $(BW_BIN) $(CMP_BIN) $(FAB_BIN) $(LAY_BIN) $(PRG_BIN) $(REC_BIN) $(RESC_BIN) $(THERM_BIN)
+
+# ---------------------------------------------------------------------------
+# check: build and run EVERY target with one command, and fail if any fails.
+#
+# Reproducibility entry point for a reviewer: `make check` rebuilds the whole
+# suite and returns non-zero if anything breaks. Each target either prints PASS
+# itself or throws and exits non-zero, so only the exit status is inspected;
+# output is shown only for a failing target (nothing is written to a temp file,
+# because /tmp is not assumed to be writable).
+# ---------------------------------------------------------------------------
+V3_CHECK_TARGETS := run-v1 run-v2 run-fzc run-slingshot run-fzc-reliability run-fzc-recognition run-fzc-opensystem run-fzc-selector run-fzc-screened run-fzc-floorplan run-fzc-e2e run-budget run-floorplan run-gamma run-retention run-multifire run-secded run-crosstalk run-restoration run-refresh run-clock run-bandwidth run-compare run-fabrication run-layout run-program run-recovery run-rescue run-thermal
+
+check:
+	@fail=0; \
+	for t in $(V3_CHECK_TARGETS); do \
+		printf '  %-24s ' "$$t"; \
+		if $(MAKE) --no-print-directory "$$t" >/dev/null 2>&1; then \
+			echo "PASS"; \
+		else \
+			echo "FAIL"; \
+			$(MAKE) --no-print-directory "$$t" 2>&1 | tail -n 25 | sed 's/^/        /'; \
+			fail=1; \
+		fi; \
+	done; \
+	if [ $$fail -eq 0 ]; then echo "  ALL 29 TARGETS PASS"; \
+	else echo "  SOME TARGETS FAILED"; fi; \
+	exit $$fail
+
+.PHONY: check

@@ -83,7 +83,21 @@ make run      # runs v2
 make v1       # builds the archived v1 for reproducibility
 ```
 
-One-liner:
+Reproduce the whole verification suite with one command:
+
+```bash
+make check    # builds and runs all 29 targets; non-zero exit if any fails
+```
+
+Each of the 27 self-checking V3 targets has its own entry point, e.g.
+`make run-thermal`, `make run-refresh`, `make run-program`. A target prints
+`PASS` only when every gate in it holds, otherwise it throws and exits
+non-zero. Per-target instructions are in
+[`simulations/README.md`](simulations/README.md), and the committed reference
+output for each target is in [`simulations/outputs/`](simulations/outputs/),
+so a result can be diffed against ground truth rather than read off the screen.
+
+One-liner for the reference program alone:
 
 ```bash
 c++ -std=c++17 -O2 -o FEA_sim_v2 simulations/FEA_sim_v2.cpp && ./FEA_sim_v2

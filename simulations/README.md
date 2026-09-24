@@ -6,6 +6,11 @@ external dependencies, and prints `PASS` only when all of its gates hold.
 
 Build and run one target with `make run-<target>`, for example `make run-program`.
 
+Build and run every target with `make check` (from the repository root). It
+rebuilds the whole suite, prints PASS or FAIL per target, shows the failing
+output for any failure, and exits non-zero if anything did not pass — so it is
+a single reproducible command for a reviewer.
+
 ## `FEA_fzc_e2e_v3.cpp`
 
 One transaction computes a dual-rail score, screened bias, clocked storage,
