@@ -7,10 +7,12 @@ Breit–Wigner resonance under gate-voltage control. One cluster (Fusion
 Block) stores one bit; 64 Fusion Blocks form a 64-bit Word, and 1,024
 Words form a Zone.
 
-Control is not a per-Zone CMOS block: it is carried by a *Fusion Zone
-Controller* (FZC) assembled from the same Fusion Blocks, so each Zone adds
-535 controller Blocks and no second cell design. Typed packets move data,
-refresh, boot and recovery over a transport called *Slingshot*.
+Control is carried by a *Fusion Zone Controller* (FZC) assembled from the
+same Fusion Blocks, so each Zone adds 535 controller Blocks and no second cell
+design: decoding, sequencing and sense amplification live in the control
+fabric rather than in a separate peripheral block. Typed packets move data,
+refresh, boot and recovery over a transport called *Slingshot*, whose model
+states no physical time or energy per hop.
 
 <p align="center">
   <img src="docs/img/fusion_block_hierarchy.png" width="90%" alt="Architectural hierarchy: 5-atom Fusion Block, 64-bit Word, and the Zone on H-Si(100)">
@@ -39,7 +41,8 @@ differs from this README, this README is right.
 | Practical block density | 3.77 × 10¹³ cm⁻² |
 | Reference die | 0.5 cm² |
 | Zones on the reference die | 2.86 × 10⁸ |
-| In-situ capacity | 2.34 TB |
+| In-situ capacity (raw array) | 2.34 TB |
+| Fully accounted, all declared support reserved | 1.83 TB |
 | Resonance broadening Γ (derived) | 45 meV |
 | Charging energy E_C | 0.65 eV |
 | Retention τ_ret at 300 K | 52.2 ms |
@@ -53,6 +56,8 @@ differs from this README, this README is right.
 | SECDED cost on a 64-bit Word | 1.125× |
 | Steady-state ΔT at the die corner | 1.29 K |
 | Cross-die path rate | 0.065 GHz |
+| Sustainable active-zone fraction (pathway-limited) | 4.57% |
+| Electron-flux deficit if every Zone fired every cycle | 21.9x |
 
 ---
 
@@ -61,8 +66,16 @@ differs from this README, this README is right.
 19 modules, each with a gate that can fail: physics, retention, clock,
 SECDED, crosstalk, restoration, refresh, bandwidth, power, fabrication,
 floorplan, programmability, recovery, rescue, thermal, and more.
-See [`spec/DESIGN-V3.md`](spec/DESIGN-V3.md) for the module-to-reviewer
-mapping.
+[`docs/DESIGN-V3.md`](docs/DESIGN-V3.md) is the design contract each gate is
+mapped to.
+
+**`ALL 29 TARGETS PASS` means the architecture is internally consistent. It
+does not mean the physics is validated.** The suite checks arithmetic, units,
+contradictory constants, protocol semantics, probability conservation,
+sensitivity and cross-module consistency. It cannot check whether a five-DB
+cell actually captures, holds or isolates an electron: the rates behind those
+models are inputs, not measurements. The paper states this as an explicit
+device contract.
 
 ```bash
 make check    # builds and runs all 29 targets; non-zero exit if any fails
@@ -143,6 +156,24 @@ The data plane has no dark-silicon floor, because it has no transistors. At
 The gap between the second and third rows is the point: the four unsourced
 terms dominate a whole-chip total, so the paper reports the floor and the upper
 bound separately and quotes no cross-vendor multiple.
+
+---
+
+## Device Contract
+
+Everything above is conditional on a cell that has not been built. The paper
+states the conditions as a contract -- the properties a five-DB
+storage-compute primitive must satisfy for the architectural results to hold --
+and marks each one **derived**, **assumed**, or **open**. Two dominate:
+
+| Property | Requirement | Status |
+|---|---|---|
+| Post-write isolation | after capture the escape rate must collapse from the lead-coupled scale `hbar/Gamma ~ 1.5e-14 s` toward the 52 ms hold scale -- a factor near **3e12** | **open** |
+| Escape barrier | `e^2/2C_Sigma` adopted as the saddle-point barrier for Kramers escape | assumed |
+
+The second table records, for each part of the suite, what it establishes and
+the measurement its own module asks for next -- the `NEXT EVIDENCE GATE` lines
+made visible.
 
 ---
 
