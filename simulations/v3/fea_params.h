@@ -3,7 +3,7 @@
 //
 // No module declares its own copy of a physical or architectural constant.
 // Units are carried explicitly so the unit checker can reject order-of-magnitude
-// errors of the kind reviewers found in V2 (3.3 W vs 3300 W, 0.14 uW vs
+// inconsistent-scale errors (3.3 W vs 3300 W, 0.14 uW vs
 // 137.85 uW, 12 um^2 x 1.7e9 Zones vs a 3 cm^2 die).
 // =============================================================================
 
@@ -135,7 +135,7 @@ inline double check_unit(const std::string& name, double value, const std::strin
         throw std::runtime_error(
             "UNIT CHECK FAILED: " + name + " = " + std::to_string(value) + " " + unit +
             ", expected order " + std::to_string(expected_magnitude) + " " + unit +
-            " (ratio " + std::to_string(scale) + "). This is the class of error reviewers found in V2.");
+            " (ratio " + std::to_string(scale) + "), which indicates a scale error.");
     }
     return value;
 }
@@ -193,8 +193,8 @@ inline double zone_data_blocks() {
 // FZC Blocks resident in one Zone. ONE definition for M2, M15 and fzc-floorplan.
 // 535 is the DECLARED default allocation: state 336 (7 groups x 8 bits x 2 rails
 // x 3 replicas) + commands 130 + ports 16 + pathways 4 + spares 49. Confirmed by
-// spec/REVIEWER-VALIDATION-MATRIX.md ("a declared ledger now gives FZC 535
-// Blocks"), spec/REVIEWER-POINT-BY-POINT.md ("FZC budget at 535 Blocks per
+// the design contract ("a declared ledger now gives FZC 535
+// Blocks"), and the point-by-point review ("FZC budget at 535 Blocks per
 // Zone") and FEA_fzc_floorplan_v3 SCENARIO 2. It deliberately EXCEEDS the
 // provisional 512 target, which DECISIONS.md records as provisional.
 // The 350 figure is NOT the design value: it is the conditional 4-bits-per-group
@@ -325,7 +325,7 @@ inline bool thermal_geometry_sourced() { return false; }
 // If M1's floor moves, these must move with it; a gate in M19 detects the drift.
 inline double m1_printed_floor_W() { return 0.023384; }        // M1 SCENARIO 7, FLOOR (4 of 8)
 inline double m1_printed_refresh_W() { return 7.1766e-4; }     // M1 SCENARIO 7, refresh term
-inline double per_zone_cmos_control_floor_W() { return 3728.326; } // M1, reviewers' figures + data plane
+inline double per_zone_cmos_control_floor_W() { return 3728.326; } // M1: per-Zone control figures plus the data plane
 
 // ---- rescue path: where the recovery receiver's area lives (M18) ----
 // The FZC ledger that zone_fzc_blocks() documents as

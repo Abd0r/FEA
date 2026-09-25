@@ -17,7 +17,7 @@ FEA side derived from V3 modules. Reference side partly sourced, boundaries unma
   FEA, V3 floor              0.023 W   open terms counted from params
   production SoC (ref.)     40.000 W   whole SoC: CPU, GPU, NPU, memory, ref. only
 
-  Reviewer 4 point 3 is correct: these rows do not share a boundary.
+  these rows do not share a boundary.
   comparing 0.013 W of array-only
   against 40.000 W of a complete SoC is not a like-for-like result.
   the V3 floor is worse still as a comparison input, because 4 of 8 terms are
@@ -46,7 +46,7 @@ class stores              computes                      distinction
 
   the conceptual distinction is real: in FEA compute and memory are one
   physical entity, so there is no load, store, or data bus.
-  what that distinction does NOT establish, and Reviewer 3 point 2 requires:
+  what that distinction does NOT establish, and what it requires:
     - that FEA is faster than RC hardware
     - that FEA is more energy-efficient per confirmed operation
     - that either architecture is preferable for a given workload

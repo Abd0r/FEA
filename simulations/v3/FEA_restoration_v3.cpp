@@ -1,7 +1,7 @@
 // =============================================================================
 // FEA_restoration_v3.cpp -- M6 signal restoration across the die
 //
-// Reviewer 4 point 7: in a data plane with no switching elements, signal
+// in a data plane with no switching elements, signal
 // attenuation is inevitable. How does FEA restore gain as a signal crosses a
 // 3 cm^2 die, and what does that cost? This module computes end-of-chain
 // amplitude with and without restoration endpoints, then charges every
@@ -61,7 +61,7 @@ static void scenario_no_restoration_collapses() {
               << " orders of magnitude\n";
     require(orders_short > 0.0, "an unrestored path must fall below the input threshold");
     require(orders_short > 6.0, "the shortfall must be far more than a marginal loss");
-    std::cout << "  finding: Reviewer 4 #7 is correct. Without gain the signal is gone long\n";
+    std::cout << "  finding: without gain the signal is gone long\n";
     std::cout << "  before it crosses the die. This is not a margin problem, it is a "
               << std::setprecision(0) << orders_short << "-order collapse.\n";
 }

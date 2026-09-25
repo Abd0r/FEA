@@ -2,35 +2,40 @@ CXX      ?= c++
 CXXFLAGS ?= -std=c++17 -O2 -Wall
 
 SIMDIR   := simulations
-V1_SRC   := $(SIMDIR)/FEA_sim_v1.cpp
-V2_SRC   := $(SIMDIR)/FEA_sim_v2.cpp
-FZC_SRC  := $(SIMDIR)/FEA_fzc_v3.cpp
-SLING_SRC:= $(SIMDIR)/FEA_slingshot_v3.cpp
-REL_SRC  := $(SIMDIR)/FEA_fzc_reliability_v3.cpp
-RECOG_SRC:= $(SIMDIR)/FEA_fzc_recognition_v3.cpp
-OPEN_SRC := $(SIMDIR)/FEA_fzc_opensystem_v3.cpp
-SEL_SRC  := $(SIMDIR)/FEA_fzc_selector_v3.cpp
-SCR_SRC  := $(SIMDIR)/FEA_fzc_screened_v3.cpp
-PLAN_SRC := $(SIMDIR)/FEA_fzc_floorplan_v3.cpp
-E2E_SRC  := $(SIMDIR)/FEA_fzc_e2e_v3.cpp
-BUD_SRC  := $(SIMDIR)/FEA_budget_v3.cpp
-DIE_SRC  := $(SIMDIR)/FEA_floorplan_v3.cpp
-GAM_SRC  := $(SIMDIR)/FEA_gamma_v3.cpp
-RET_SRC  := $(SIMDIR)/FEA_retention_v3.cpp
-MF_SRC   := $(SIMDIR)/FEA_multifire_v3.cpp
-SC_SRC   := $(SIMDIR)/FEA_secded_v3.cpp
-CT_SRC   := $(SIMDIR)/FEA_crosstalk_v3.cpp
-RST_SRC  := $(SIMDIR)/FEA_restoration_v3.cpp
-REF_SRC  := $(SIMDIR)/FEA_refresh_v3.cpp
-CLK_SRC  := $(SIMDIR)/FEA_clock_v3.cpp
-BW_SRC   := $(SIMDIR)/FEA_bandwidth_v3.cpp
-CMP_SRC  := $(SIMDIR)/FEA_compare_v3.cpp
-FAB_SRC  := $(SIMDIR)/FEA_fabrication_v3.cpp
-LAY_SRC  := $(SIMDIR)/FEA_layout_v3.cpp
-PRG_SRC  := $(SIMDIR)/FEA_fzc_program_v3.cpp
-REC_SRC  := $(SIMDIR)/FEA_recovery_v3.cpp
-RESC_SRC := $(SIMDIR)/FEA_fzc_rescue_v3.cpp
-THERM_SRC := $(SIMDIR)/FEA_thermal_v3.cpp
+# Version directories. Comments sit on their own lines: Make keeps whitespace
+# that precedes a '#', and that whitespace would split a prerequisite list.
+V1DIR    := $(SIMDIR)/v1
+V2DIR    := $(SIMDIR)/v2
+V3DIR    := $(SIMDIR)/v3
+V1_SRC   := $(V1DIR)/FEA_sim_v1.cpp
+V2_SRC   := $(V2DIR)/FEA_sim_v2.cpp
+FZC_SRC  := $(V3DIR)/FEA_fzc_v3.cpp
+SLING_SRC:= $(V3DIR)/FEA_slingshot_v3.cpp
+REL_SRC  := $(V3DIR)/FEA_fzc_reliability_v3.cpp
+RECOG_SRC:= $(V3DIR)/FEA_fzc_recognition_v3.cpp
+OPEN_SRC := $(V3DIR)/FEA_fzc_opensystem_v3.cpp
+SEL_SRC  := $(V3DIR)/FEA_fzc_selector_v3.cpp
+SCR_SRC  := $(V3DIR)/FEA_fzc_screened_v3.cpp
+PLAN_SRC := $(V3DIR)/FEA_fzc_floorplan_v3.cpp
+E2E_SRC  := $(V3DIR)/FEA_fzc_e2e_v3.cpp
+BUD_SRC  := $(V3DIR)/FEA_budget_v3.cpp
+DIE_SRC  := $(V3DIR)/FEA_floorplan_v3.cpp
+GAM_SRC  := $(V3DIR)/FEA_gamma_v3.cpp
+RET_SRC  := $(V3DIR)/FEA_retention_v3.cpp
+MF_SRC   := $(V3DIR)/FEA_multifire_v3.cpp
+SC_SRC   := $(V3DIR)/FEA_secded_v3.cpp
+CT_SRC   := $(V3DIR)/FEA_crosstalk_v3.cpp
+RST_SRC  := $(V3DIR)/FEA_restoration_v3.cpp
+REF_SRC  := $(V3DIR)/FEA_refresh_v3.cpp
+CLK_SRC  := $(V3DIR)/FEA_clock_v3.cpp
+BW_SRC   := $(V3DIR)/FEA_bandwidth_v3.cpp
+CMP_SRC  := $(V3DIR)/FEA_compare_v3.cpp
+FAB_SRC  := $(V3DIR)/FEA_fabrication_v3.cpp
+LAY_SRC  := $(V3DIR)/FEA_layout_v3.cpp
+PRG_SRC  := $(V3DIR)/FEA_fzc_program_v3.cpp
+REC_SRC  := $(V3DIR)/FEA_recovery_v3.cpp
+RESC_SRC := $(V3DIR)/FEA_fzc_rescue_v3.cpp
+THERM_SRC := $(V3DIR)/FEA_thermal_v3.cpp
 V1_BIN   := FEA_sim_v1
 V2_BIN   := FEA_sim_v2
 FZC_BIN  := FEA_fzc_v3
@@ -129,46 +134,46 @@ $(E2E_BIN): $(E2E_SRC)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 $(BUD_BIN): $(BUD_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 $(DIE_BIN): $(DIE_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 $(GAM_BIN): $(GAM_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 $(RET_BIN): $(RET_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 $(MF_BIN): $(MF_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 $(SC_BIN): $(SC_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 $(CT_BIN): $(CT_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 $(RST_BIN): $(RST_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 $(REF_BIN): $(REF_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 $(CLK_BIN): $(CLK_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 $(BW_BIN): $(BW_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 $(CMP_BIN): $(CMP_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 $(FAB_BIN): $(FAB_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 $(LAY_BIN): $(LAY_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 run: run-v2
 
@@ -251,13 +256,13 @@ $(PRG_BIN): $(PRG_SRC)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 $(REC_BIN): $(REC_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 $(RESC_BIN): $(RESC_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 $(THERM_BIN): $(THERM_SRC)
-	$(CXX) $(CXXFLAGS) -I$(SIMDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(V3DIR) -o $@ $<
 
 run-program: $(PRG_BIN)
 	./$(PRG_BIN)
@@ -277,7 +282,7 @@ clean:
 # ---------------------------------------------------------------------------
 # check: build and run EVERY target with one command, and fail if any fails.
 #
-# Reproducibility entry point for a reviewer: `make check` rebuilds the whole
+# Reproducibility entry point: `make check` rebuilds the whole
 # suite and returns non-zero if anything breaks. Each target either prints PASS
 # itself or throws and exits non-zero, so only the exit status is inspected;
 # output is shown only for a failing target (nothing is written to a temp file,

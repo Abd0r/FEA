@@ -1,9 +1,9 @@
 // =============================================================================
-// FEA_retention_v3.cpp -- M4 Kramers retention sensitivity and reviewer check
+// FEA_retention_v3.cpp -- M4 Kramers retention sensitivity
 //
-// V2 stated 52.2 ms at 300 K and 2.1 ms at 330 K. Reviewer 7 recomputed the
+// V2 stated 52.2 ms at 300 K and 2.1 ms at 330 K. The 330 K value was recomputed the
 // same formula and got about 5.3 ms at 330 K. This module recomputes retention
-// from Ec, the attempt frequency, and temperature, must reproduce the reviewer's
+// from Ec, the attempt frequency, and temperature must reproduce the reference
 // number, and must fail on V2's 2.1 ms. It then sweeps Ec, attempt frequency,
 // and temperature so the uncertainty is an output rather than a footnote.
 // =============================================================================
@@ -28,8 +28,8 @@ using fea::kramers_tau_s;
 // definition and retention cannot diverge from refresh. Peer review 4 caught it,
 // and it was the one remaining hole in the one-definition claim.
 
-static void scenario_reproduce_reviewer_values() {
-    std::cout << "\n[SCENARIO 1] reproduce V2's 300 K figure and the reviewer's 330 K recomputation\n";
+static void scenario_reproduce_reference_values() {
+    std::cout << "\n[SCENARIO 1] reproduce V2's 300 K figure and the reference's 330 K recomputation\n";
     const auto& d = params().device;
     const double tau_300 = kramers_tau_s(d.Ec_eV, d.phonon_attempt_Hz, 300.0);
     const double tau_330 = kramers_tau_s(d.Ec_eV, d.phonon_attempt_Hz, 330.0);
@@ -38,7 +38,7 @@ static void scenario_reproduce_reviewer_values() {
               << (d.phonon_attempt_Hz / 1e12) << " THz\n";
     std::cout << std::setprecision(4);
     std::cout << "  tau(300 K) = " << (tau_300 * 1e3) << " ms   (V2 claimed 52.2 ms)\n";
-    std::cout << "  tau(330 K) = " << (tau_330 * 1e3) << " ms   (reviewer claimed ~5.31 ms, V2 claimed 2.1 ms)\n";
+    std::cout << "  tau(330 K) = " << (tau_330 * 1e3) << " ms   (reference value ~5.31 ms, V2 claimed 2.1 ms)\n";
 
     check_unit("retention at 300 K", tau_300, "s", 0.0522, 0.05);
     check_unit("retention at 330 K", tau_330, "s", 0.00531, 0.05);
@@ -47,7 +47,7 @@ static void scenario_reproduce_reviewer_values() {
     require(!v2_330_ok, "V2's 2.1 ms at 330 K must not reproduce from V2's own parameters");
     std::cout << "  V2's 330 K figure is off by a factor of " << std::setprecision(1)
               << (tau_330 / 0.0021) << " against its own stated Ec and nu0.\n";
-    std::cout << "  reviewer 5.31 ms reproduces; V2's 2.1 ms does not.\n";
+    std::cout << "  reference 5.31 ms reproduces; V2's 2.1 ms does not.\n";
 }
 
 static void scenario_attempt_frequency_uncertainty() {
@@ -121,7 +121,7 @@ static void scenario_refresh_overhead() {
 static void scenario_kramers_regime_caveat() {
     std::cout << "\n[SCENARIO 5] the Kramers prefactor is an assumption, not a measurement\n";
     const auto& d = params().device;
-    // Reviewer 4 and 6: the attempt frequency comes from bulk Si optical phonons,
+    // the attempt frequency comes from bulk Si optical phonons,
     // while the trapped state is a 5-atom surface cluster with local modes.
     const double tau_bulk = kramers_tau_s(d.Ec_eV, d.phonon_attempt_Hz, 300.0);
     // A faster attempt frequency means faster escape, so it shortens retention.
@@ -145,12 +145,12 @@ int main() {
     try {
         std::cout << "FEA V3 M4 retention sensitivity\n";
         std::cout << "Kramers formula recomputed from Ec, attempt frequency, and temperature.\n";
-        scenario_reproduce_reviewer_values();
+        scenario_reproduce_reference_values();
         scenario_attempt_frequency_uncertainty();
         scenario_charging_energy_sweep();
         scenario_refresh_overhead();
         scenario_kramers_regime_caveat();
-        std::cout << "\nPASS: reviewer figure reproduced, V2 figure rejected, sensitivity exposed.\n";
+        std::cout << "\nPASS: reference figure reproduced, V2 figure rejected, sensitivity exposed.\n";
         std::cout << "NEXT EVIDENCE GATE: local-mode phonon spectrum or an ab initio/kMC stability study at 300 K.\n";
         return 0;
     } catch (const std::exception& e) {

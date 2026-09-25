@@ -1,5 +1,3 @@
-c++ -std=c++17 -O2 -Wall -Isimulations -o FEA_restoration_v3 simulations/FEA_restoration_v3.cpp
-./FEA_restoration_v3
 FEA V3 M6 signal restoration across the die
 Decay length and input threshold are declared, not measured.
 
@@ -10,7 +8,7 @@ Decay length and input threshold are declared, not measured.
   next-stage input threshold  : 0.1 (10^-1.0)
   passes threshold?           : NO
   shortfall                   : 3069.9 orders of magnitude
-  finding: Reviewer 4 #7 is correct. Without gain the signal is gone long
+  finding: without gain the signal is gone long
   before it crosses the die. This is not a margin problem, it is a 3070-order collapse.
 
 [SCENARIO 2] restoration endpoints required to cross the die

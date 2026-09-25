@@ -1,7 +1,7 @@
 // =============================================================================
 // FEA_fabrication_v3.cpp -- M12 atomic patterning throughput and yield
 //
-// Reviewer 4 point 8, Reviewer 3 point 1 and CF14 point 6: 10^14 atomically
+// point 1 and CF14 point 6: 10^14 atomically
 // precise clusters on a 3 cm^2 die is asserted rather than argued, and STM
 // lithography would take years. V2 called it "a substantial but well-understood
 // engineering challenge" with no throughput estimate. This module counts the
@@ -22,7 +22,7 @@ namespace fabrication {
 using fea::params;
 using fea::require;
 
-// V2's headline Block count, line 131. Reviewer 4's 10^14 figure and every gate
+// V2's headline Block count, line 131. The 10^14 cluster figure and every gate
 // in SCENARIO 1 audit THAT claim, which V2 wrote for its own 3 cm^2 die, so this
 // module runs entirely on v2_reference_die_cm2 for consistency of basis: the
 // atom count and the areal throughput must describe the SAME die. Mixing V2's
@@ -32,7 +32,7 @@ static double clusters_on_die() { return fea::v2_stated_blocks(); }
 static double design_clusters_on_die() {
     return fea::design_zone_count() * fea::zone_data_blocks();
 }
-static double atoms_per_cluster() { return 5.0; }    // 5-atom cross, per reviewers
+static double atoms_per_cluster() { return 5.0; }    // 5-atom cross cluster
 static double hard_defect_fraction() { return 0.05; } // V2 stated 5%
 
 // Declared STM depassivation rate. One hydrogen removed per tunnel-junction
@@ -73,9 +73,9 @@ static void scenario_count_the_atoms() {
     std::cout << "  atoms requiring a pulse       : " << atoms << "\n";
     std::cout << "  equivalent pulses (1 H each)  : " << atoms << "\n\n";
 
-    require(atoms > 1.0e14, "the atom count must exceed 10^14, matching Reviewer 4's figure");
+    require(atoms > 1.0e14, "the atom count must exceed 10^14");
     require(atoms < 1.0e16, "the atom count must stay in a plausible range");
-    std::cout << "  Reviewer 4 said 10^14 clusters. The pulse count is " << std::fixed
+    std::cout << "  10^14 clusters were cited. The pulse count is " << std::fixed
               << std::setprecision(1) << (atoms / 1e14) << " x 10^14, because each cluster\n";
     std::cout << "  needs its atoms placed individually. Pathway atoms would add more and are\n";
     std::cout << "  not yet counted here, so this is a floor on the patterning work.\n";
@@ -102,10 +102,10 @@ static void scenario_wall_clock() {
     std::cout << "\n" << std::fixed << std::setprecision(2);
     std::cout << "  cited rate " << std::setprecision(0) << atom_rate_per_tip() << " atoms/s gives "
               << std::setprecision(2) << declared_years << " YEARS for one die, serial, one tip.\n";
-    require(declared_years > 1.0, "the cited single-tip time must exceed one year, as reviewers said");
+    require(declared_years > 1.0, "the cited single-tip time must exceed one year");
     require(pulses / rates.back() / seconds_per_year > 1.0,
             "even an optimistic 1e6 atoms/s must exceed one year for one tip");
-    std::cout << "  Reviewer 4 said a 3 cm^2 die would take years. Confirmed for ONE tip: even\n";
+    std::cout << "  A 3 cm^2 die was said to take years. Confirmed for ONE tip: even\n";
     std::cout << "  at 1e6 atoms/s a single tip needs " << std::setprecision(1)
               << (pulses / rates.back() / seconds_per_year) << " years.\n";
     std::cout << "  this is a serial figure. It does not mean fabrication is impossible, because\n";
@@ -174,7 +174,7 @@ static void scenario_parallelism_required() {
     std::cout << "  so at the paper's OWN proposed density a 3 cm^2 die still takes "
               << std::setprecision(1) << years_at_high << " to " << years_at_low
               << " years.\n";
-    std::cout << "  Reviewer 4's " << "\"" << "would take years\"" << " holds on the cited numbers.\n";
+    std::cout << "  the " << "\"" << "would take years\"" << " result holds on the cited numbers.\n";
     std::cout << "  the quantity that actually decides feasibility is tip-to-tip registration.\n";
     std::cout << "  one tip is slow but accurately placed. " << tips_1y << " tips must all land on the\n";
     std::cout << "  same 1.15 nm lattice, and no cited source gives that registration error.\n";
@@ -216,7 +216,7 @@ static void scenario_yield_and_rework() {
 }
 
 static void scenario_what_a_roadmap_needs() {
-    std::cout << "\n[SCENARIO 5] what Reviewer 4's \"pathway toward high-throughput\" would require\n";
+    std::cout << "\n[SCENARIO 5] what a \"pathway toward high-throughput\" would require\n";
     const double pulses = clusters_on_die() * atoms_per_cluster();
     const double seconds_per_year = 3.15576e7;
     const double die_um2 = params().arch.v2_reference_die_cm2 * 1.0e8;
@@ -252,7 +252,7 @@ static void scenario_what_a_roadmap_needs() {
     std::cout << "  label: OPEN. This module quantifies the gap. It does not close it.\n";
 }
 
-// Reviewer 4 point 8 asks whether there is "a pathway toward high-throughput
+// r there is "a pathway toward high-throughput
 // fabrication". This turns that question into a number an engineering program
 // can be held to, instead of the vague claim that the challenge is understood.
 static void scenario_improvement_required() {

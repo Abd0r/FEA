@@ -1,7 +1,7 @@
 // =============================================================================
 // FEA_clock_v3.cpp -- M9 system clock derived from summed phases
 //
-// Reviewer 4 point 10: a 9.19 GHz clock is extraordinarily high for a system
+// a 9.19 GHz clock is extraordinarily high for a system
 // relying on resonant absorption. Is it set by electron transit time, resonance
 // width, or control-plane latency? This module reproduces V2's phase sum, then
 // answers that question by comparing the three candidate timescales, and then
@@ -118,7 +118,7 @@ static void scenario_reproduce_v2() {
 }
 
 static void scenario_which_timescale_limits() {
-    std::cout << "\n[SCENARIO 2] which timescale actually sets the clock (Reviewer 4 #10)\n";
+    std::cout << "\n[SCENARIO 2] which timescale actually sets the clock \n";
     const double t_res = resonance_time_s();
     const double t_fire = t_fire_ps() * fea::kPS;
     const double t_control = (t_arm_formula_ps() + t_confirm_formula_ps()) * fea::kPS;
@@ -133,7 +133,7 @@ static void scenario_which_timescale_limits() {
     const double ratio = t_fire / t_res;
     std::cout << std::fixed << std::setprecision(1);
     std::cout << "  transit is " << ratio << "x longer than the resonance timescale\n";
-    std::cout << "  answer to Reviewer 4 #10: 9.19 GHz is NOT limited by resonance width.\n";
+    std::cout << "  9.19 GHz is NOT limited by resonance width.\n";
     std::cout << "  Gamma = 45 meV implies a 14.6 fs lifetime, three orders faster than any phase.\n";
     std::cout << "  the clock is set by control-plane latency plus FIRE transit. Neither the\n";
     std::cout << "  resonance nor the electron is the bottleneck; the crossbar and the readout are.\n";

@@ -2,9 +2,9 @@
 // FEA_budget_v3.cpp -- M1 reconciled control-plane power and area budget
 //
 // Computes every V2 headline power term from fea_params.h instead of restating
-// it. Reviewers found that V2 wrote 3.3 W where the arithmetic gives 3300 W,
+// it. V2 wrote 3.3 W where the arithmetic gives 3300 W,
 // and 0.14 uW where 15 fJ x 9.19 GHz gives 137.85 uW per Zone. This module
-// reproduces the reviewer arithmetic, then reports the corrected totals.
+// reproduces the reference hand arithmetic, then reports the corrected totals.
 //
 // It does not claim a tape-out. It claims only that the arithmetic is checked.
 // =============================================================================
@@ -32,7 +32,7 @@ struct Term {
 };
 
 // Zones on the die, derived from V2's own stated count. Kept as a parameter
-// rather than recomputed from pitch so the comparison to the reviewer's own
+// rather than recomputed from pitch so the comparison against the
 // V2 states ~1.7e9 Zones (line 130). One definition, from fea_params.
 static double zone_count() { return zone_count_stated(); }
 
@@ -122,7 +122,7 @@ static void scenario_decoder_area_exceeds_die() {
     // produce a ratio true of neither die.
     const double die = params().arch.v2_reference_die_cm2;
     require(decoder_area > die, "decoder area must exceed V2's 3 cm^2 die to expose the V2 error");
-    require(decoder_area > 50.0 * die, "decoder overcommit must be more than 50x, matching the reviewer figure");
+    require(decoder_area > 50.0 * die, "decoder overcommit must be more than 50x, matching the reference figure");
     std::cout << "  decoder area " << std::fixed << std::setprecision(1) << decoder_area
               << " cm^2 vs die " << die << " cm^2 -> overcommit "
               << std::setprecision(0) << (decoder_area / die) << "x\n";
@@ -149,34 +149,34 @@ static void scenario_v2_literal_values_fail_checks() {
               << " W -> factor " << (correct_pll / v2_pll) << "\n";
 }
 
-static void scenario_reviewer_hand_calculations() {
-    std::cout << "\n[SCENARIO 4] reproduce the reviewers' own hand calculations from V2 text\n";
+static void scenario_reference_hand_calculations() {
+    std::cout << "\n[SCENARIO 4] reproduce the the reference hand calculations from V2 text\n";
     const auto& c = params().control;
     const double zones = zone_count();
 
-    // Reviewer 7 and Reviewer 6: take V2's stated per-Zone figure as written,
+    // take V2's stated per-Zone figure as written,
     // then multiply by the Zone count. This is how they got 238 W and 170 W.
     const double v2_decoder_per_zone_W = 0.14e-6;
-    const double reviewer_decoder_W = v2_decoder_per_zone_W * zones;
-    check_unit("reviewer decoder aggregate", reviewer_decoder_W, "W", 238.0, 0.10);
+    const double reference_decoder_W = v2_decoder_per_zone_W * zones;
+    check_unit("reference decoder aggregate", reference_decoder_W, "W", 238.0, 0.10);
 
-    const double reviewer_sense_W = c.sense_zone_W * zones;
-    check_unit("reviewer sensing aggregate", reviewer_sense_W, "W", 170.0, 0.10);
+    const double reference_sense_W = c.sense_zone_W * zones;
+    check_unit("reference sensing aggregate", reference_sense_W, "W", 170.0, 0.10);
 
-    const double reviewer_pll_W = (zones / c.pll_group_K) * c.pll_power_W;
-    check_unit("reviewer PLL aggregate", reviewer_pll_W, "W", 3300.0, 0.05);
+    const double reference_pll_W = (zones / c.pll_group_K) * c.pll_power_W;
+    check_unit("reference PLL aggregate", reference_pll_W, "W", 3300.0, 0.05);
 
     std::cout << "  decoder (V2 stated 0.14 uW/Zone x 1.7e9): " << std::fixed
-              << std::setprecision(1) << reviewer_decoder_W << " W   (reviewer said ~238 W)\n";
+              << std::setprecision(1) << reference_decoder_W << " W   (reference figure ~238 W)\n";
     std::cout << "  sensing/sequencer (0.1 uW/Zone x 1.7e9):  "
-              << std::setprecision(1) << reviewer_sense_W << " W   (reviewer said ~170 W)\n";
+              << std::setprecision(1) << reference_sense_W << " W   (reference figure ~170 W)\n";
     std::cout << "  PLL (1.7e9/256 x 0.5 mW):                  "
-              << std::setprecision(1) << reviewer_pll_W << " W   (reviewer said ~3300 W)\n";
+              << std::setprecision(1) << reference_pll_W << " W   (reference figure ~3300 W)\n";
 
     // There are two self-consistent readings of V2's decoder text and both fail.
     const double correct_per_zone = c.decoder_event_J * f_sys();
     const double as_arithmetic_W = correct_per_zone * zones;
-    require(as_arithmetic_W > reviewer_decoder_W,
+    require(as_arithmetic_W > reference_decoder_W,
             "correcting 0.14 uW to 137.85 uW makes the decoder aggregate worse, not better");
     std::cout << "  decoder if 15 fJ x 9.19 GHz is taken literally: "
               << std::setprecision(1) << (correct_per_zone * 1e6) << " uW/Zone, "
@@ -184,9 +184,9 @@ static void scenario_reviewer_hand_calculations() {
     std::cout << "  either reading is orders of magnitude above V2's stated 0.4 W decoder+sequencer.\n";
     std::cout << "  V2 total was 3.8 W. Lowest defensible control-plane floor is "
               << std::setprecision(0)
-              << (reviewer_decoder_W + reviewer_sense_W + reviewer_pll_W) << " W.\n";
-    require(reviewer_decoder_W + reviewer_sense_W + reviewer_pll_W > 3000.0,
-            "even the reviewers' most generous reading must exceed the V2 3.8 W claim");
+              << (reference_decoder_W + reference_sense_W + reference_pll_W) << " W.\n";
+    require(reference_decoder_W + reference_sense_W + reference_pll_W > 3000.0,
+            "the most generous reading of the reference figures must exceed the V2 3.8 W claim");
 }
 
 static void scenario_fzc_boundary_alternative() {
@@ -212,9 +212,9 @@ static void scenario_fzc_boundary_alternative() {
 }
 
 // The lowest defensible per-Zone CMOS control-plane total, using V2's own
-// stated per-zone figures rather than its literal arithmetic. Reviewers 6 and 7
+// stated per-zone figures rather than its literal arithmetic. Both reviews
 // both land in this vicinity. Used only for the contrast line in SCENARIO 7.
-static double reviewer_floor_W() {
+static double reference_floor_W() {
     const auto& c = params().control;
     const double zones = zone_count();
     const double decoder = 0.14e-6 * zones;
@@ -298,7 +298,7 @@ static void scenario_total_power() {
     std::cout << "  STATUS: NOT VALIDATED. " << open_count << " of " << total_count
               << " terms declared but unsourced.\n";
     std::cout << "  what is settled: the total does not contain the "
-              << std::setprecision(0) << (reviewer_floor_W()) << " W per-Zone control plane.\n";
+              << std::setprecision(0) << (reference_floor_W()) << " W per-Zone control plane.\n";
     std::cout << "  label: floor DERIVED from stated terms; four terms DECLARED with a basis but\n";
     std::cout << "  UNSOURCED, so the total stays unvalidated and the M11 ratio stays withheld.\n";
 }
@@ -342,7 +342,7 @@ static void scenario_v3_control_budget() {
     std::cout << "  label: eliminated terms derived, boundary power open, FZC count from M2 ledger.\n";
 }
 
-// Reviewer 4 points 4, 5 and 6 asked for control-plane overhead, I/O energy and
+// sked for control-plane overhead, I/O energy and
 // a normalized comparison. V2 omitted I/O, PDN and clock distribution outright.
 // This gives each previously OPEN term a stated basis plus a declared intensity
 // sweep, so the budget becomes a bounded interval instead of an unsized floor.
@@ -425,7 +425,7 @@ static void scenario_power_economics() {
     const double mid = sub_md + pdn_md_W;
     const double high = sub_hi + pdn_hi_W;
     const double v2_claimed = 3.8;
-    const double v2_corrected = reviewer_floor_W() + data_plane;
+    const double v2_corrected = reference_floor_W() + data_plane;
     (void)total; // arithmetic shown term by term above
 
     std::cout << std::fixed << std::setprecision(3);
@@ -466,7 +466,7 @@ static void scenario_power_economics() {
     std::cout << "    V2 as written                 " << std::setw(9) << v2_claimed
               << " W   (wrong arithmetic, omits I/O, PDN, clock)\n";
     std::cout << "    V2 control plane, corrected   " << std::setw(9) << v2_corrected
-              << " W   (reviewers' own figures + data plane)\n";
+              << " W   (reference figures + data plane)\n";
     std::cout << "    V3 mid, with I/O actually paid " << std::setw(9) << mid << " W\n";
 
     require(high > mid && mid > low, "the economics must open into a bounded interval");
@@ -499,7 +499,7 @@ static void scenario_power_economics() {
 } // namespace budget
 
 // =============================================================================
-// SCENARIO: parallelism, current and power must agree (external review, Tier B)
+// SCENARIO: parallelism, current and power must agree
 //
 // The paper claims 2.86e8 Zones issuing independent operations at a data-plane
 // power of 13.2 mW. Those two statements had only ever been shown separately.
@@ -669,7 +669,7 @@ int main() {
         scenario_unit_checks();
         scenario_decoder_area_exceeds_die();
         scenario_v2_literal_values_fail_checks();
-        scenario_reviewer_hand_calculations();
+        scenario_reference_hand_calculations();
         scenario_fzc_boundary_alternative();
         scenario_total_power();
         scenario_v3_control_budget();

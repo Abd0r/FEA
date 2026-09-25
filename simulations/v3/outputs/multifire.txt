@@ -1,5 +1,3 @@
-c++ -std=c++17 -O2 -Wall -Isimulations -o FEA_multifire_v3 simulations/FEA_multifire_v3.cpp
-./FEA_multifire_v3
 FEA V3 M7 multi-FIRE reliability
 Independent Bernoulli reproduced first, then a declared common-mode fraction added.
 
@@ -41,7 +39,7 @@ Independent Bernoulli reproduced first, then a declared common-mode fraction add
   finding: V2's reported 96-98% program rates are far WORSE than its own
   18-fire independent model predicts, yet the paper never links the two.
   either the program runs use fewer fires than 18, or another error source
-  exists that the capture model does not contain. Reviewer 6 #7 is correct:
+  exists that the capture model does not contain:
   program success and SECDED are asserted, not derived from one model.
 
 [SCENARIO 5] multi-FIRE latency is not a single FIRE latency

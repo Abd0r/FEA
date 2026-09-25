@@ -1,14 +1,12 @@
-c++ -std=c++17 -O2 -Wall -Isimulations -o FEA_retention_v3 simulations/FEA_retention_v3.cpp
-./FEA_retention_v3
 FEA V3 M4 retention sensitivity
 Kramers formula recomputed from Ec, attempt frequency, and temperature.
 
-[SCENARIO 1] reproduce V2's 300 K figure and the reviewer's 330 K recomputation
+[SCENARIO 1] reproduce V2's 300 K figure and the reference's 330 K recomputation
   Ec = 0.6500 eV, nu0 = 1.59 THz
   tau(300 K) = 52.2543 ms   (V2 claimed 52.2 ms)
-  tau(330 K) = 5.3142 ms   (reviewer claimed ~5.31 ms, V2 claimed 2.1 ms)
+  tau(330 K) = 5.3142 ms   (reference value ~5.31 ms, V2 claimed 2.1 ms)
   V2's 330 K figure is off by a factor of 2.5 against its own stated Ec and nu0.
-  reviewer 5.31 ms reproduces; V2's 2.1 ms does not.
+  reference 5.31 ms reproduces; V2's 2.1 ms does not.
 
 [SCENARIO 2] local-mode attempt frequency is the dominant uncertainty
   nu0 x 0.5 -> tau = 104.509 ms
@@ -43,5 +41,5 @@ Kramers formula recomputed from Ec, attempt frequency, and temperature.
   stays an open experimental question. This module bounds it; it does not close it.
   label: derived formula, estimated inputs, open physical validation.
 
-PASS: reviewer figure reproduced, V2 figure rejected, sensitivity exposed.
+PASS: reference figure reproduced, V2 figure rejected, sensitivity exposed.
 NEXT EVIDENCE GATE: local-mode phonon spectrum or an ab initio/kMC stability study at 300 K.

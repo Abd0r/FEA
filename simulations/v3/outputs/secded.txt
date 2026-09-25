@@ -18,7 +18,7 @@ Code derived from the Hamming bound for the stated Word width.
   V2 states ~2-3x overhead at the Word level, but its Words are 64-bit.
   the derived cost is 1.125x. A factor of 2 only appears at a 4-bit Word.
   finding: either V2 means a different code, a different Word width, or the
-  factor is wrong. Reviewer 6 is correct that this was asserted, not simulated.
+  factor is wrong: it was asserted, not simulated.
 
 [SCENARIO 3] SECDED overhead must be charged to capacity and area
   payload bits (unchanged)   : 18.751e12

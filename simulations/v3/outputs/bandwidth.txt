@@ -1,5 +1,3 @@
-c++ -std=c++17 -O2 -Wall -Isimulations -o FEA_bandwidth_v3 simulations/FEA_bandwidth_v3.cpp
-./FEA_bandwidth_v3
 FEA V3 M10 bandwidth aggregation
 All figures derived from V2's own per-Zone contention numbers.
 
@@ -11,12 +9,12 @@ All figures derived from V2's own per-Zone contention numbers.
   strided -> bytes/s per Zone: 7.200e+10 B/s (72.000 GB/s)
   these are PER ZONE figures. They have not been aggregated yet.
 
-[SCENARIO 2] V2's chip aggregate is numerically one Zone (Reviewer 6 #5)
+[SCENARIO 2] V2's chip aggregate is numerically one Zone 
   random:  one Zone = 1.064 TB/s, V2 chip = 1.100 TB/s, ratio 1.034x
   strided: one Zone = 72.000 GB/s, V2 chip = 75.000 GB/s, ratio 1.042x
 
   both V2 chip figures land within 15% of a SINGLE Zone. The multiplication
-  by 10^9 Zones was never performed. Reviewer 6 #5 is exactly right.
+  by 10^9 Zones was never performed.
   so V2 has two internally consistent but mutually exclusive readings:
     (a) the chip really delivers 1.1 TB/s, and 10^9 Zones are unreachable, or
     (b) every Zone delivers, and the aggregate is 10^9 times larger.

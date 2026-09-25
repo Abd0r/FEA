@@ -2,7 +2,7 @@
 // FEA_fzc_rescue_v3.cpp -- M18 where the rescue path's area lives
 //
 // Claim under test: FZC-v0's rescue port can reach every Zone without
-// reintroducing the per-Zone CMOS that reviewers showed V2 could not floorplan.
+// reintroducing the per-Zone CMOS that V2 could not floorplan at die scale.
 // This module sizes three candidate mechanisms against the area the design has
 // actually left, and reports which of them survives arithmetic.
 //
@@ -136,11 +136,12 @@ static void scenario_option_b_per_zone_decode() {
     std::cout << "  option B total             : " << area_cm2 << " cm^2 = " << area_cm2 / g.die_cm2
               << "x the " << g.die_cm2 << " cm^2 die\n";
 
-    // V2's own approach must fail here too. If it did not, the reviewers' core
-    // objection would not carry over to our larger Zone count, and M1 and M2
-    // would be measuring something that does not matter.
+    // The same failure mode must hold here as in V2: if one decoder per Zone
+    // fit on the die, the crossbar overcommit these modules test would not
+    // apply to V3 either, and M1 and M2 would be measuring something that
+    // does not matter.
     require(area_cm2 > g.die_cm2,
-            "one decoder per Zone must exceed the die, otherwise the reviewers' "
+            "one decoder per Zone must exceed the die, otherwise the reference "
             "arithmetic objection does not apply to V3 either");
     require(area_cm2 > g.routing_share_cm2,
             "one decoder per Zone must also exceed the entire routing share");

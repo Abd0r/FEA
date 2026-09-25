@@ -11,7 +11,7 @@
 // accelerator. It reports cycles, ops and hops for a stated program shape on a
 // stated array. Cycle time is set by M9, which this module does not re-derive.
 //
-// Reviewer mapping: R4 #9 and R3 #2 ask FEA to be distinguished from PIM, CIM
+// The comparison must distinguish FEA from PIM, CIM
 // and RC. Those distinctions are conceptual in V2. M16 makes one of them
 // executable: an array that runs three roles without a hardware change is not a
 // fixed-function accelerator, whatever its speed turns out to be.

@@ -97,7 +97,7 @@ make check    # runs 27 current targets + 2 archived; non-zero exit on failure
 Each target prints `PASS` only when every gate in it holds, otherwise it
 throws and exits non-zero. Per-target instructions:
 [`simulations/README.md`](simulations/README.md). Committed reference output
-for every target: [`simulations/outputs/`](simulations/outputs/), so a result
+for every target: [`simulations/v3/outputs/`](simulations/v3/outputs/), so a result
 can be diffed against a committed reference baseline rather than read off the
 screen.
 
@@ -116,7 +116,7 @@ The archived reference programs are separate:
 ```bash
 make run              # runs FEA_sim_v2
 make v1               # builds the archived v1, for provenance
-c++ -std=c++17 -O2 -o FEA_sim_v2 simulations/FEA_sim_v2.cpp && ./FEA_sim_v2
+c++ -std=c++17 -O2 -o FEA_sim_v2 simulations/v2/FEA_sim_v2.cpp && ./FEA_sim_v2
 ```
 
 ---

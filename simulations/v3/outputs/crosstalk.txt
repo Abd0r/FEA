@@ -21,7 +21,7 @@ Screening length is declared, not measured. The sweep is the result.
   occupied neighbours shorten retention in this parameterization.
   finding: retention is a function of the occupation of the surrounding array,
   not of one isolated 5-atom cluster. A single-cluster Ec measurement cannot
-  set the array's retention. Reviewer 7 #3 is correct.
+  set the array's retention.
 
 [SCENARIO 3] write selectivity must survive a worst-case neighbour pattern
   declared write threshold    : 0.3250 eV
@@ -60,7 +60,7 @@ Screening length is declared, not measured. The sweep is the result.
   at the effective-surface default the margin is -0.1543 eV, and at bulk Si it is 0.0792 eV.
   so the honest statement is: crosstalk margin is bounded by how strongly the
   medium screens, and no surface permittivity has been measured for this
-  structure. Reviewer 7 #3 stands, but for the screening constant, not for a
+  structure. The point stands for the screening constant, not for a
   predetermined failure.
   label: all eps_r values DECLARED. Sweep is the result. No verdict without one.
 

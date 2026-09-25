@@ -1,7 +1,7 @@
 // =============================================================================
 // FEA_bandwidth_v3.cpp -- M10 per-Zone rate to chip aggregate
 //
-// Reviewer 6 point 5: 133 GOPS/Zone for 64-bit ops already equals about
+// 133 GOPS/Zone for 64-bit ops already equals about
 // 1.06 TB/s, nearly identical to the reported chip-level value, so the
 // aggregation across Zones must be clarified. This module reproduces V2's
 // per-Zone figures, converts them to bytes per second, compares that against
@@ -60,7 +60,7 @@ static void scenario_reproduce_per_zone() {
 }
 
 static void scenario_v2_chip_equals_one_zone() {
-    std::cout << "\n[SCENARIO 2] V2's chip aggregate is numerically one Zone (Reviewer 6 #5)\n";
+    std::cout << "\n[SCENARIO 2] V2's chip aggregate is numerically one Zone \n";
     const double per_zone_random = gops_random() * kBytesPerWord;
     const double per_zone_strided = gops_strided() * kBytesPerWord;
     const double v2_random = v2_chip_Bps_random();
@@ -80,7 +80,7 @@ static void scenario_v2_chip_equals_one_zone() {
     require(std::abs(ratio_strided - 1.0) < 0.15,
             "V2's chip strided bandwidth must equal about one Zone's bandwidth");
     std::cout << "  both V2 chip figures land within 15% of a SINGLE Zone. The multiplication\n";
-    std::cout << "  by 10^9 Zones was never performed. Reviewer 6 #5 is exactly right.\n";
+    std::cout << "  by 10^9 Zones was never performed.\n";
     std::cout << "  so V2 has two internally consistent but mutually exclusive readings:\n";
     std::cout << "    (a) the chip really delivers 1.1 TB/s, and 10^9 Zones are unreachable, or\n";
     std::cout << "    (b) every Zone delivers, and the aggregate is 10^9 times larger.\n";

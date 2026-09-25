@@ -1,7 +1,7 @@
 // =============================================================================
 // FEA_crosstalk_v3.cpp -- M5 neighbouring-Block electrostatic interaction
 //
-// Reviewer 7 point 3: at 1.15 nm pitch, neighbouring dangling-bond structures
+// at 1.15 nm pitch, neighbouring dangling-bond structures
 // interact by Coulomb coupling and tunnelling, and the single-Block model may
 // not hold. This module places occupied and empty neighbours around a target
 // Block, computes the induced charging-energy shift with a declared screened
@@ -127,7 +127,7 @@ static void scenario_retention_margin() {
                            : "  occupied neighbours lengthen retention in this parameterization.\n");
     std::cout << "  finding: retention is a function of the occupation of the surrounding array,\n";
     std::cout << "  not of one isolated 5-atom cluster. A single-cluster Ec measurement cannot\n";
-    std::cout << "  set the array's retention. Reviewer 7 #3 is correct.\n";
+    std::cout << "  set the array's retention.\n";
 }
 
 static void scenario_write_selectivity() {
@@ -264,7 +264,7 @@ static void scenario_permittivity_flips_verdict() {
               << " eV, and at bulk Si it is " << margin_bulk << " eV.\n";
     std::cout << "  so the honest statement is: crosstalk margin is bounded by how strongly the\n";
     std::cout << "  medium screens, and no surface permittivity has been measured for this\n";
-    std::cout << "  structure. Reviewer 7 #3 stands, but for the screening constant, not for a\n";
+    std::cout << "  structure. The point stands for the screening constant, not for a\n";
     std::cout << "  predetermined failure.\n";
     std::cout << "  label: all eps_r values DECLARED. Sweep is the result. No verdict without one.\n";
 }

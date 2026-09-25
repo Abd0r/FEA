@@ -5,7 +5,7 @@
 // retention out of the refresh-tolerant regime, and the hot spot can be
 // located rather than asserted.
 //
-// Reviewer mapping: R7 #1 asks for downstream performance AND THERMAL claims to
+// Downstream performance and thermal claims must be
 // be revised after the control-plane budget was corrected; R4 #4 asks what the
 // control plane costs at system level. V3 has no thermal result at all until
 // this module, because the 2D heat solver existed only in the previous suite.
@@ -18,7 +18,7 @@
 // s is a sheet source [W/m^2], k conductivity, t die thickness. For a uniform
 // source this collapses EXACTLY to the textbook 1D result deltaT = t*P/(A*k),
 // which SCENARIO 1 asserts, so the solver is checked against a closed form a
-// reviewer can reproduce by hand.
+// the arithmetic can be checked by hand.
 //
 // Heat is split by LOCATION, not by the floor/declared split used for cost:
 // array terms spread over the die, boundary terms concentrate in the perimeter

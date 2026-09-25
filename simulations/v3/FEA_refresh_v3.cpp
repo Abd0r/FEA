@@ -1,7 +1,7 @@
 // =============================================================================
 // FEA_refresh_v3.cpp -- M13 refresh traffic converted to power
 //
-// Reviewer 6 point 6 and Reviewer 7 point 4: retention sets a refresh contract
+// r 7 point 4: retention sets a refresh contract
 // that V2 called "< 1e-4 overhead". M4 derives the traffic it must pay; at the
 // 0.5 cm^2 design point that is 89708 GB/s. This
 // module converts that traffic into watts using a declared energy per rewritten

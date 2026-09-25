@@ -1,7 +1,7 @@
 // =============================================================================
 // FEA_secded_v3.cpp -- M8 SECDED code cost, correction capability, and limits
 //
-// Reviewer 6 point 7: V2 asserts a standard SECDED Hamming code at the Word
+// V2 asserts a standard SECDED Hamming code at the Word
 // level with "~2-3x overhead" but never simulates it and never reports its
 // area, power, latency, or residual failure. This module derives the code from
 // the Hamming bound for the stated Word width, charges the overhead, and checks
@@ -171,7 +171,7 @@ static void scenario_v2_overhead_claim() {
     std::cout << "  the derived cost is " << std::setprecision(3) << c64.overhead_ratio
               << "x. A factor of 2 only appears at a " << "4-bit Word.\n";
     std::cout << "  finding: either V2 means a different code, a different Word width, or the\n";
-    std::cout << "  factor is wrong. Reviewer 6 is correct that this was asserted, not simulated.\n";
+    std::cout << "  factor is wrong: it was asserted, not simulated.\n";
 }
 
 static void scenario_charged_into_budget() {

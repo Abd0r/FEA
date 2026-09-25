@@ -8,7 +8,7 @@ Patterning and areal rates are CITED from Randall 2018. The years follow.
   atoms requiring a pulse       : 5.650e+14
   equivalent pulses (1 H each)  : 5.650e+14
 
-  Reviewer 4 said 10^14 clusters. The pulse count is 5.7 x 10^14, because each cluster
+  10^14 clusters were cited. The pulse count is 5.7 x 10^14, because each cluster
   needs its atoms placed individually. Pathway atoms would add more and are
   not yet counted here, so this is a floor on the patterning work.
 
@@ -21,7 +21,7 @@ Patterning and areal rates are CITED from Randall 2018. The years follow.
          1.0e+06        5.6e+08        1.8e+01
 
   cited rate 10000 atoms/s gives 1790.38 YEARS for one die, serial, one tip.
-  Reviewer 4 said a 3 cm^2 die would take years. Confirmed for ONE tip: even
+  A 3 cm^2 die was said to take years. Confirmed for ONE tip: even
   at 1e6 atoms/s a single tip needs 17.9 years.
   this is a serial figure. It does not mean fabrication is impossible, because
   parallel scanning-probe arrays remove the multiplication. See SCENARIO 3.
@@ -52,7 +52,7 @@ Patterning and areal rates are CITED from Randall 2018. The years follow.
   resulting wall clock                    : 21.31 to 5.81 YEARS
 
   so at the paper's OWN proposed density a 3 cm^2 die still takes 5.8 to 21.3 years.
-  Reviewer 4's "would take years" holds on the cited numbers.
+  the "would take years" result holds on the cited numbers.
   the quantity that actually decides feasibility is tip-to-tip registration.
   one tip is slow but accurately placed. 1791.0 tips must all land on the
   same 1.15 nm lattice, and no cited source gives that registration error.
@@ -72,7 +72,7 @@ Patterning and areal rates are CITED from Randall 2018. The years follow.
   label: defect fraction from V2, rates cited from Randall 2018, yield naive on purpose
   to show that boot-time mapping is an assumption rather than a yield result.
 
-[SCENARIO 5] what Reviewer 4's "pathway toward high-throughput" would require
+[SCENARIO 5] what a "pathway toward high-throughput" would require
   unknown or unquantified today:
     1. depassivation rate per tip   (CITED 10000 atoms/s, Randall 2018)
     2. parallel tip density         (CITED electrostatic 10101, electrothermal 37037/cm^2)

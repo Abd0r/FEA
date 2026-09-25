@@ -1,7 +1,7 @@
 // =============================================================================
 // FEA_gamma_v3.cpp -- M3 one linewidth derivation, then everything uses it
 //
-// Reviewers 5, 6 and 7 all found that V2 derived Gamma ~ 45 meV from the lead
+// that V2 derived Gamma ~ 45 meV from the lead
 // self-energy, then wrote that absorption used Gamma = 8 meV. This module
 // derives Gamma once from the stated hoppings, uses that single value for
 // absorption, thermal capture, and contrast, and fails if the two V2 literals
@@ -43,8 +43,8 @@ static double gamma_two_lead_meV() { return 2.0 * gamma_one_lead_meV(); }
 // maximum is Gamma/2, not Gamma. The denominator therefore carries
 // (Gamma/2)^2, which makes A(E0) = 1 on resonance and gives HWHM = Gamma/2
 // = 22.5 meV for the two-lead value of 45 meV. Using Gamma^2 here instead
-// would double the line width and was the source of a factor-of-two error
-// reported in external review (Jauho, Wingreen and Meir, cond-mat/9404027).
+// would double the line width. The convention follows Jauho, Wingreen and
+// Meir, cond-mat/9404027, where Gamma = Gamma_L + Gamma_R and HWHM = Gamma/2.
 static double absorption(double detuning_meV, double gamma_meV) {
     const double half = 0.5 * gamma_meV;          // HWHM
     return (half * half) / (detuning_meV * detuning_meV + half * half);

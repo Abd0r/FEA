@@ -1,7 +1,7 @@
 // =============================================================================
 // FEA_compare_v3.cpp -- M11 normalized comparison with matched boundaries
 //
-// Reviewer 4 points 3, 5, 6 and 9, Reviewer 3 point 2, and the review.pdf
+// 9, and the boundary-matching rule,
 // attachment: the previous revision's production-SoC reference line (40 W)read
 // against a simulated data-plane array conflates two boundaries, omits I/O
 // energy, and should be normalized
@@ -110,7 +110,7 @@ static void scenario_m4max_boundary_mismatch() {
                   << std::setw(8) << r.w << " W   " << r.boundary << "\n";
     }
     std::cout << "\n";
-    // PR8/external review: this used to require the data plane to beat the
+    // This used to require the data plane to beat the
     // production-SoC figure, i.e. it asserted the withdrawn claim. The paper's
     // stated policy is that no shipping part is used as a reference line at
     // all, so what is asserted now is only the thing this module establishes:
@@ -119,7 +119,7 @@ static void scenario_m4max_boundary_mismatch() {
             "both sides must be positive or the mismatch argument is vacuous");
     require(v3_floor < v2_total, "the V3 floor must be below V2's overstated total");
     require(open_terms > 0, "open terms must be counted so the comparison cannot be closed");
-    std::cout << "  Reviewer 4 point 3 is correct: these rows do not share a boundary.\n";
+    std::cout << "  these rows do not share a boundary.\n";
     std::cout << "  comparing " << std::setprecision(3) << fea_data_plane << " W of array-only\n";
     std::cout << "  against " << m4_max << " W of a complete SoC is not a like-for-like result.\n";
     std::cout << "  the V3 floor is worse still as a comparison input, because " << open_terms
@@ -167,7 +167,7 @@ static void scenario_pim_cim_rc_distinction() {
     }
     std::cout << "\n  the conceptual distinction is real: in FEA compute and memory are one\n";
     std::cout << "  physical entity, so there is no load, store, or data bus.\n";
-    std::cout << "  what that distinction does NOT establish, and Reviewer 3 point 2 requires:\n";
+    std::cout << "  what that distinction does NOT establish, and what it requires:\n";
     std::cout << "    - that FEA is faster than RC hardware\n";
     std::cout << "    - that FEA is more energy-efficient per confirmed operation\n";
     std::cout << "    - that either architecture is preferable for a given workload\n";

@@ -32,7 +32,7 @@ Epistemic labels, reused in the manuscript:
 
 ## Parameter store
 
-Single source of truth: `repo/simulations/fea_params.h`.
+Single source of truth: `repo/simulations/v3/fea_params.h`.
 
 ```text
 device: a, t, tc, Ec, hbar, kB, e, T, nu0, Gamma_lead, Gamma_two
@@ -171,7 +171,7 @@ For each module:
 3. Unit checker must confirm every derived quantity's dimension.
 4. A reviewer-reproducible value must be reproduced. Where a reviewer recomputed a number
    by hand, the module must reproduce that hand calculation, then show the corrected value.
-5. Captured output committed under `repo/simulations/outputs/`.
+5. Captured output committed under `repo/simulations/v3/outputs/`.
 6. Evidence row added to `EVIDENCE.md`.
 
 No module may report a chip-level power, area, density, bandwidth, or clock number until its

@@ -1,7 +1,7 @@
 // =============================================================================
 // FEA_floorplan_v3.cpp -- M2 die-area floorplan with a hard area ceiling
 //
-// Reviewer 6 point 2 and Reviewer 7 point 1: density claims omitted CMOS
+// r 7 point 1: density claims omitted CMOS
 // peripherals. This module sums decoder, sensing, PLL, interconnect, power
 // delivery, FZC control, and edge pathways against a stated die area and fails
 // when the total exceeds the die. It also reports usable capacity from the

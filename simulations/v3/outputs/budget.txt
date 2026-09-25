@@ -18,10 +18,10 @@ All terms computed from fea_params.h. Not a tape-out estimate.
   V2 decoder 0.14 uW vs correct 137.74 uW -> factor 984
   V2 PLL 3.3 W vs correct 3320 W -> factor 1006
 
-[SCENARIO 4] reproduce the reviewers' own hand calculations from V2 text
-  decoder (V2 stated 0.14 uW/Zone x 1.7e9): 238.0 W   (reviewer said ~238 W)
-  sensing/sequencer (0.1 uW/Zone x 1.7e9):  170.0 W   (reviewer said ~170 W)
-  PLL (1.7e9/256 x 0.5 mW):                  3320.3 W   (reviewer said ~3300 W)
+[SCENARIO 4] reproduce the the reference hand calculations from V2 text
+  decoder (V2 stated 0.14 uW/Zone x 1.7e9): 238.0 W   (reference figure ~238 W)
+  sensing/sequencer (0.1 uW/Zone x 1.7e9):  170.0 W   (reference figure ~170 W)
+  PLL (1.7e9/256 x 0.5 mW):                  3320.3 W   (reference figure ~3300 W)
   decoder if 15 fJ x 9.19 GHz is taken literally: 137.7 uW/Zone, 234159.8 W aggregate
   either reading is orders of magnitude above V2's stated 0.4 W decoder+sequencer.
   V2 total was 3.8 W. Lowest defensible control-plane floor is 3728 W.
@@ -86,7 +86,7 @@ All terms computed from fea_params.h. Not a tape-out estimate.
 
   contrast:
     V2 as written                     3.800 W   (wrong arithmetic, omits I/O, PDN, clock)
-    V2 control plane, corrected    3728.326 W   (reviewers' own figures + data plane)
+    V2 control plane, corrected    3728.326 W   (reference figures + data plane)
     V3 mid, with I/O actually paid    14.883 W
 
   sourced or attachment-pinned:

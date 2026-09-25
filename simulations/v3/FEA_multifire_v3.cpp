@@ -1,7 +1,7 @@
 // =============================================================================
 // FEA_multifire_v3.cpp -- M7 single-pass capture and correlated multi-FIRE
 //
-// Reviewers 5, 6 and 7 all flag the same gap: V2 reports ideal on-resonance
+// he same gap: V2 reports ideal on-resonance
 // absorption near unity, then uses a single-pass capture P_abs about 0.46 from
 // the wavepacket simulation, then assumes successive FIRE pulses are
 // independent Bernoulli trials to reach 99.99% fidelity. That independence is
@@ -26,8 +26,8 @@ using fea::require;
 using fea::p_abs_single;
 
 // Single-pass capture, taken from V2's wavepacket result rather than the ideal
-// A(E_F) = 1. V2 never derived the gap quantitatively; Reviewer CF14 #5 and
-// Reviewer 7 #5 both demand it be explained. p itself comes from fea_params,
+// A(E_F) = 1. V2 never derived the gap quantitatively, and
+// e explained. p itself comes from fea_params,
 // shared with M9, M10, M11 and M13 through one definition.
 
 // Independent Bernoulli: probability at least one of N attempts captures.
@@ -152,7 +152,7 @@ static void scenario_program_pass_rate() {
     std::cout << "  finding: V2's reported 96-98% program rates are far WORSE than its own\n";
     std::cout << "  18-fire independent model predicts, yet the paper never links the two.\n";
     std::cout << "  either the program runs use fewer fires than 18, or another error source\n";
-    std::cout << "  exists that the capture model does not contain. Reviewer 6 #7 is correct:\n";
+    std::cout << "  exists that the capture model does not contain:\n";
     std::cout << "  program success and SECDED are asserted, not derived from one model.\n";
 }
 
