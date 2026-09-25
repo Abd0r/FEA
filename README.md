@@ -24,7 +24,7 @@ states no physical time or energy per hop.
 
 <p align="center"><em>Fusion Block (a), 64-bit Word (b), and the Zone (c).</em></p>
 
-**Preprint (v1):** [10.5281/zenodo.19559255](https://doi.org/10.5281/zenodo.19559255)
+**Code archive:** [10.5281/zenodo.21902252](https://doi.org/10.5281/zenodo.21902252) &nbsp;·&nbsp; **Preprint (v1):** [10.5281/zenodo.19559255](https://doi.org/10.5281/zenodo.19559255)
 · **Architecture paper (PDF):** [`Paper/FEA-architecture.pdf`](Paper/FEA-architecture.pdf)
 
 The numbers below are the current revision's, produced by the verification
@@ -54,12 +54,13 @@ for the values reported here; v1 is retained unchanged for provenance.
 | Accounted whole-chip floor (four sized terms) | 0.0234 W |
 | Declared whole-chip upper bound, incl. four unsourced terms | 14.9 W |
 | Refresh duty / local traffic | 3.68 × 10⁻⁶ / 90,440 GB/s |
-| ADD_64 single-FIRE / multi-FIRE | 0.84 ns / 2.62 ns |
-| MUL_64 single-FIRE / multi-FIRE | 2.10 ns / 3.88 ns |
-| SECDED cost on a 64-bit Word | 1.125× |
+| ADD_64 structural / reference estimate | 0.84 ns / 2.62 ns |
+| MUL_64 structural / reference estimate | 2.10 ns / 3.88 ns |
+| SECDED physical-bit overhead on a 64-bit Word (not a latency multiplier) | 1.125× |
 | Modelled steady-state corner rise | 1.29 K (ideal back-face sink, no package) |
 | Cross-die path rate | 0.065 GHz |
-| Model-derived ceiling on active-zone fraction (stated pathway inputs) | 4.57% — sustainable fraction unvalidated |
+| Zones able to fire in any cycle (stated pathway inputs) | 1.31 × 10⁷ of 2.86 × 10⁸, about 4.6% — sustainable fraction unvalidated |
+| Issue width | one Word per Zone per cycle; more Words per cycle lowers the Zone fraction but leaves active Words and throughput unchanged |
 | Model-derived flux deficit at full-rate firing | 21.9x |
 
 ---
