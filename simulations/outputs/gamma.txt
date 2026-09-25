@@ -1,5 +1,3 @@
-c++ -std=c++17 -O2 -Wall -Isimulations -o FEA_gamma_v3 simulations/FEA_gamma_v3.cpp
-./FEA_gamma_v3
 FEA V3 M3 linewidth consistency
 Gamma derived once from tc and t. Not a fit to a preferred answer.
 
@@ -17,12 +15,12 @@ Gamma derived once from tc and t. Not a fit to a preferred answer.
   result to Gamma must be printed, not hidden.
 
 [SCENARIO 3] capture probability is a strong function of the chosen Gamma
-  Gamma=8.0 meV  thermal <A>=0.1193  off-state A(300 meV)=0.0007
-  Gamma=16.0 meV  thermal <A>=0.2259  off-state A(300 meV)=0.0028
-  Gamma=22.5 meV  thermal <A>=0.3036  off-state A(300 meV)=0.0056
-  Gamma=45.0 meV  thermal <A>=0.5166  off-state A(300 meV)=0.0220
-  Gamma=60.0 meV  thermal <A>=0.6182  off-state A(300 meV)=0.0385
-  on/off contrast at derived Gamma = 23.5x
+  Gamma=8.0 meV  thermal <A>=0.0612  off-state A(300 meV)=0.0002
+  Gamma=16.0 meV  thermal <A>=0.1193  off-state A(300 meV)=0.0007
+  Gamma=22.5 meV  thermal <A>=0.1641  off-state A(300 meV)=0.0014
+  Gamma=45.0 meV  thermal <A>=0.3036  off-state A(300 meV)=0.0056
+  Gamma=60.0 meV  thermal <A>=0.3838  off-state A(300 meV)=0.0099
+  on/off contrast at derived Gamma = 54.3x
   conclusion: V2's headline capture figure is not Gamma-invariant,
   so the manuscript must pick one Gamma and report the sweep with it.
 

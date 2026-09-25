@@ -36,9 +36,18 @@ static double gamma_one_lead_meV() {
 
 static double gamma_two_lead_meV() { return 2.0 * gamma_one_lead_meV(); }
 
-// Breit-Wigner absorption on resonance and detuned, at a stated Gamma.
+// Breit-Wigner absorption on resonance and detuned, at a stated TOTAL Gamma
+// (Gamma = Gamma_L + Gamma_R, as derived from the lead self-energy above).
+//
+// Convention: for a single resonant level the Lorentzian half-width at half
+// maximum is Gamma/2, not Gamma. The denominator therefore carries
+// (Gamma/2)^2, which makes A(E0) = 1 on resonance and gives HWHM = Gamma/2
+// = 22.5 meV for the two-lead value of 45 meV. Using Gamma^2 here instead
+// would double the line width and was the source of a factor-of-two error
+// reported in external review (Jauho, Wingreen and Meir, cond-mat/9404027).
 static double absorption(double detuning_meV, double gamma_meV) {
-    return (gamma_meV * gamma_meV) / (detuning_meV * detuning_meV + gamma_meV * gamma_meV);
+    const double half = 0.5 * gamma_meV;          // HWHM
+    return (half * half) / (detuning_meV * detuning_meV + half * half);
 }
 
 // Thermal average of absorption over a Fermi window at temperature T.

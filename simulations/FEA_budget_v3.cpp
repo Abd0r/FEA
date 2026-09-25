@@ -529,7 +529,9 @@ static void scenario_parallelism_power() {
 
     const double I_path = G0 * V;
     const double P_transit_W = V * I_path * n_path_cm2;
-    const double A_thermal = 0.5166;                        // M3 at Gamma = 45 meV
+    // M3 at the corrected convention: HWHM = Gamma/2 = 22.5 meV for the two-lead
+    // Gamma of 45 meV (see absorption() in FEA_gamma_v3.cpp).
+    const double A_thermal = 0.3036;
     const double P_absorb_W = n_path_cm2 * f_sys * A_thermal * e * V;
     const double derived_mW_cm2 = (P_transit_W + P_absorb_W) * 1e3;
     const double declared_mW_cm2 = fea::params().control.data_plane_mW_per_cm2;
@@ -627,7 +629,7 @@ static void scenario_activity_gated_power() {
     const double T_cycle = 104.83e-12;
     const double f_sys = 1.0 / T_cycle;
     const double P_transit_W = V * (G0 * V) * n_path_cm2;
-    const double P_absorb_W = n_path_cm2 * f_sys * 0.5166 * e * V;
+    const double P_absorb_W = n_path_cm2 * f_sys * 0.3036 * e * V;
     const double pathway_full_mW = (P_transit_W + P_absorb_W) * area * 1e3;
 
     const double act = 0.05;

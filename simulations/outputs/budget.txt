@@ -113,10 +113,10 @@ All terms computed from fea_params.h. Not a tape-out estimate.
 
   (1) power from the pathway route
       P_transit = V x G0 x V x n_path = 2.5569e+01 mW/cm^2
-      P_absorb  = n_path x f_sys x <A> x e x V = 2.6055e-02 mW/cm^2  (<A> = 5.1660e-01 from M3)
-      derived   = 2.5595e+01 mW/cm^2
+      P_absorb  = n_path x f_sys x <A> x e x V = 1.5312e-02 mW/cm^2  (<A> = 3.0360e-01 from M3)
+      derived   = 2.5584e+01 mW/cm^2
       declared  = 2.6470e+01 mW/cm^2
-      ratio     = 9.6694e-01
+      ratio     = 9.6653e-01
 
   (2) flux demanded by every Zone firing every cycle
       1.7467e+20 electrons/s = 2.7986e+01 A
@@ -139,9 +139,9 @@ current, so activity becomes derived rather than assumed.
               carrying an active FIRE; an idle Block draws none.
 
   full activity, declared basis  : 13.2350 mW
-  full activity, pathway route   : 12.7975 mW
+  full activity, pathway route   : 12.7921 mW
   at 5% active, declared basis   : 0.6618 mW
-  at 5% active, pathway route    : 0.6399 mW
+  at 5% active, pathway route    : 0.6396 mW
   plotted callout in the paper   : 0.6600 mW
   at 0% active                   : 0.0000 mW
 
