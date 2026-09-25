@@ -1,9 +1,8 @@
 // =============================================================================
 // FEA_fabrication_v3.cpp -- M12 atomic patterning throughput and yield
 //
-// point 1 and CF14 point 6: 10^14 atomically
-// precise clusters on a 3 cm^2 die is asserted rather than argued, and STM
-// lithography would take years. V2 called it "a substantial but well-understood
+// 10^14 atomically precise clusters on a 3 cm^2 die was asserted rather than
+// argued, and STM lithography would take years. V2 called it "a substantial but well-understood
 // engineering challenge" with no throughput estimate. This module counts the
 // atoms, applies declared patterning rates and tip counts, and prints wall-clock
 // years. It must fail if it ever produces a small or vague number.
