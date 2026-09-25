@@ -19,7 +19,7 @@ refresh, boot and recovery over a transport called *Slingshot*, whose model
 states no physical time or energy per hop.
 
 <p align="center">
-  <img src="docs/img/fusion_block_hierarchy.png" width="90%" alt="Architectural hierarchy: 5-atom Fusion Block, 64-bit Word, and the Zone on H-Si(100)">
+  <img src="docs/img/fusion_block_hierarchy.png" width="62%" alt="Architectural hierarchy: 5-atom Fusion Block, 64-bit Word, and the Zone on H-Si(100)">
 </p>
 
 <p align="center"><em>Fusion Block (a), 64-bit Word (b), and the Zone (c).</em></p>
