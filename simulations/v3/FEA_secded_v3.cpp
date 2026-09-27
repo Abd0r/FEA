@@ -318,6 +318,42 @@ static void scenario_burst_limit() {
     std::cout << "  label: codec properties computed by encoding and decoding, not asserted.\n";
 }
 
+// The protected design point, assembled from shared quantities: Words from
+// payload_bits()/word_bits, the syndrome energy per Word from the derived code,
+// and the refresh cadence from the shared tau/2 accessor. No constant is copied.
+static void scenario_protected_design_point() {
+    std::cout << "\n[SCENARIO 6] the protected design point: capacity, area and the power term\n";
+    const Code c = make_code(params().arch.word_bits);
+    const double words = fea::payload_bits() / static_cast<double>(params().arch.word_bits);
+    const double per_bit_energy_J =
+        params().control.decoder_event_J / params().control.decoder_transistors;
+    const double parity_energy_J = c.total_parity * per_bit_energy_J;
+    const double syndrome_energy_per_pass_J = words * parity_energy_J;
+    const double cadence_Hz = 1.0 / fea::refresh_interval_s();
+    const double syndrome_W = syndrome_energy_per_pass_J * cadence_Hz;
+    const double unprotected_TB = fea::payload_bits() / 8.0 / 1e12;
+    const double protected_TB = unprotected_TB / c.overhead_ratio;
+
+    std::cout << std::scientific << std::setprecision(3);
+    std::cout << "  Words in the array             : " << words << "\n";
+    std::cout << "  syndrome energy per Word       : " << parity_energy_J << " J\n";
+    std::cout << "  syndrome energy, one full pass : " << syndrome_energy_per_pass_J << " J\n";
+    std::cout << std::fixed << std::setprecision(4);
+    std::cout << "  refresh cadence (shared tau/2) : " << cadence_Hz << " Hz\n";
+    std::cout << std::scientific << std::setprecision(3);
+    std::cout << "  syndrome power at that cadence : " << syndrome_W << " W\n";
+    std::cout << std::fixed << std::setprecision(3);
+    std::cout << "  payload, unprotected           : " << unprotected_TB << " TB\n";
+    std::cout << "  payload, protected, same die   : " << protected_TB << " TB\n";
+    std::cout << "  or keep the payload and pay " << ((c.overhead_ratio - 1.0) * 100.0)
+              << "% more array area\n";
+    std::cout << "  status: the four overheads are assembled here -- area, energy, latency and\n";
+    std::cout << "  reliability (SCENARIOS 3-5). The manuscript's reported design point is the\n";
+    std::cout << "  unprotected configuration; this scenario is its labelled protected variant.\n";
+    require(syndrome_W > 0.0, "protection must cost power at any stated cadence");
+    require(protected_TB < unprotected_TB, "parity buys correction, not capacity");
+}
+
 } // namespace secded
 
 int main() {
@@ -330,7 +366,8 @@ int main() {
         scenario_charged_into_budget();
         scenario_power_latency_overhead();
         scenario_burst_limit();
-        std::cout << "\nPASS: SECDED cost derived, V2's factor challenged, burst limit exposed.\n";
+        scenario_protected_design_point();
+        std::cout << "\nPASS: SECDED cost derived, V2's factor challenged, burst limit exposed, protected point assembled.\n";
         std::cout << "NEXT EVIDENCE GATE: measure the actual fault class (independent vs correlated) so code choice follows evidence.\n";
         return 0;
     } catch (const std::exception& e) {

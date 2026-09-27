@@ -57,5 +57,18 @@ Code derived from the Hamming bound for the stated Word width.
   shared causes produce bursts rather than isolated flips.
   label: codec properties computed by encoding and decoding, not asserted.
 
-PASS: SECDED cost derived, V2's factor challenged, burst limit exposed.
+[SCENARIO 6] the protected design point: capacity, area and the power term
+  Words in the array             : 2.930e+11
+  syndrome energy per Word       : 4.000e-17 J
+  syndrome energy, one full pass : 1.172e-05 J
+  refresh cadence (shared tau/2) : 38.2743 Hz
+  syndrome power at that cadence : 4.485e-04 W
+  payload, unprotected           : 2.344 TB
+  payload, protected, same die   : 2.083 TB
+  or keep the payload and pay 12.500% more array area
+  status: the four overheads are assembled here -- area, energy, latency and
+  reliability (SCENARIOS 3-5). The manuscript's reported design point is the
+  unprotected configuration; this scenario is its labelled protected variant.
+
+PASS: SECDED cost derived, V2's factor challenged, burst limit exposed, protected point assembled.
 NEXT EVIDENCE GATE: measure the actual fault class (independent vs correlated) so code choice follows evidence.

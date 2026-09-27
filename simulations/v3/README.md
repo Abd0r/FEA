@@ -208,3 +208,12 @@ simulations/
 ├── FEA_fzc_e2e_v3.cpp
 └── README.md
 ```
+
+## `audit/pabs_audit.cpp` (not a gated target)
+
+Reproduces three quantities the manuscript states, using the same Crank-Nicolson
+scheme and geometry as the retained reference propagator: the committed
+on-resonance absorbed fraction (0.4608), a packet-width sweep that converges to
+the single-site closed form `A = 4 eta/(2+eta)^2`, and the on/off contrast under
+two gate-factor scales (1,066x with Gamma, 4,194x with Gamma/2). It is excluded
+from `make check`, which continues to cover 29 run targets.

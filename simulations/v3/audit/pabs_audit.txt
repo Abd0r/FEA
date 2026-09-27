@@ -1,0 +1,19 @@
+FEA V3 capture audit (not a gated target)
+closed form  eta=1.125000  T=0.409600  R=0.129600  A=0.460800
+
+[PART 0] committed SIM 4 geometry (N=500, site 250, x0=100, sigma=20, 2000 steps)
+   on-resonance absorbed = 0.460840   (SIM 4 committed output prints 0.4608)
+
+[PART A] packet-width sweep, longer chain (N=900, site 450, x0=100, 4000 steps)
+   sigma=5.000000 sites   A=0.461442   |A-closed|=0.000642
+   sigma=10.000000 sites   A=0.460961   |A-closed|=0.000161
+   sigma=20.000000 sites   A=0.460840   |A-closed|=0.000040
+   sigma=40.000000 sites   A=0.460811   |A-closed|=0.000011
+   sigma=80.000000 sites   A=0.460806   |A-closed|=0.000006
+
+[PART B] on/off contrast vs the gate-factor scale (committed geometry)
+   gate scale Gamma  = 45.0 meV  off=0.000432  on/off=1066.532436
+   gate scale Gamma/2= 22.5 meV  off=0.000110  on/off=4194.360340
+   the on-resonance value is unaffected: the gate factor is 1 at E_ctr = 0.
+
+AUDIT LABEL: reproduces cited quantities only; no physical claim beyond the model.

@@ -1,13 +1,15 @@
 // =============================================================================
 // FEA_multifire_v3.cpp -- M7 single-pass capture and correlated multi-FIRE
 //
-// he same gap: V2 reports ideal on-resonance
-// absorption near unity, then uses a single-pass capture P_abs about 0.46 from
-// the wavepacket simulation, then assumes successive FIRE pulses are
-// independent Bernoulli trials to reach 99.99% fidelity. That independence is
-// an assumption, not a measured result. This module computes the independent
-// result, then adds a common-mode block fraction and shows that correlation
-// places a hard ceiling no number of retries can cross.
+// V2 reported ideal on-resonance absorption near unity, then used a single-pass
+// capture P_abs of about 0.46 from its wavepacket simulation, and assumed
+// successive FIRE pulses are independent Bernoulli trials. This module DERIVES
+// that 0.46 in closed form: the single-pass absorption of a one-site loss
+// channel in a 1D lead is A = 4 eta/(2+eta)^2 with eta = Gamma/(2t), giving
+// 0.4608 at the shared two-lead Gamma = 45 meV and t = 20 meV, matched by the
+// committed wavepacket output. The one-site ceiling is 50%. The module then
+// tests the independence assumption with a common-mode block fraction that
+// places a hard ceiling no retry count can cross.
 // =============================================================================
 
 #include "fea_params.h"
@@ -25,10 +27,13 @@ using fea::params;
 using fea::require;
 using fea::p_abs_single;
 
-// Single-pass capture, taken from V2's wavepacket result rather than the ideal
-// A(E_F) = 1. V2 never derived the gap quantitatively, and
-// e explained. p itself comes from fea_params,
-// shared with M9, M10, M11 and M13 through one definition.
+// Single-pass capture, derived rather than pasted: A = 4 eta/(2+eta)^2 with
+// eta = Gamma/(2t). At the shared two-lead Gamma = 45 meV and t = 20 meV this
+// is 0.4608, which is what V2's wavepacket propagation returns (committed
+// output 0.4608) and what the shared p_abs_single() rounds to 0.46. A one-site
+// absorber peaks at 50% (eta = 2), so the design point sits near that geometry's
+// ceiling; V2's "ideal A = 1" is the resonant TRANSMISSION of a lossless
+// symmetric level, a different quantity from capture.
 
 // Independent Bernoulli: probability at least one of N attempts captures.
 static double independent_success(int n, double p) {
@@ -52,25 +57,34 @@ static int fires_for_target(double target, double p, double common_mode_fraction
 }
 
 static void scenario_single_pass_gap() {
-    std::cout << "\n[SCENARIO 1] ideal absorption and simulated single-pass capture disagree\n";
-    const double ideal = 1.0;      // A(E_F) at exact resonance, V2 Section 3
-    const double simulated = p_abs_single(); // wavepacket SIM 4 result, V2 Section 3
-    const double gamma = params().device.gamma_v1_hardcoded_meV;
-    (void)gamma;
-    // ideal and simulated are V2's OWN two values (Section 3: A(E_F)=1 ideal,
-    // SIM 4 wavepacket P_abs=0.46). The three requires that used to sit here
-    // gated those literals (ideal > 0.99, 0.40 < p < 0.50, gap > 0.5) and could
-    // not fail unless someone edited a literal, so they are removed. What is
-    // actually COMPUTED in this module is downstream: fires needed to close the
-    // gap, the correlation ceiling, and the implied program pass rate.
-    std::cout << std::fixed << std::setprecision(3);
-    std::cout << "  ideal A(E_F)              : " << ideal << "\n";
-    std::cout << "  wavepacket single pass    : " << simulated << "\n";
-    std::cout << "  unexplained gap           : " << (ideal - simulated)
-              << " (" << std::setprecision(1) << (ideal / simulated * 100.0) << "% of ideal)\n";
-    std::cout << "  V2 attributed this to unspecified finite-pulse effects with no mechanism.\n";
-    std::cout << "  label: both values are V2's own. The gap stays open until a finite-pulse\n";
-    std::cout << "  calculation derives 0.46 from the same Hamiltonian that gives A(E_F) = 1.\n";
+    std::cout << "\n[SCENARIO 1] the 0.46 is derived in closed form, not an artifact\n";
+    const double t_hop = params().device.t_hop_eV;
+    const double gamma = params().device.gamma_two_lead_meV * 1e-3; // eV
+    const double eta = gamma / (2.0 * t_hop);
+    const double T_closed = 4.0 / ((2.0 + eta) * (2.0 + eta));
+    const double R_closed = eta * eta / ((2.0 + eta) * (2.0 + eta));
+    const double A_closed = 1.0 - T_closed - R_closed;
+
+    std::cout << std::fixed << std::setprecision(4);
+    std::cout << "  model: one-site loss channel in a 1D lead, on resonance (k = pi/2)\n";
+    std::cout << "  eta = Gamma/(2t) = " << eta << "   (Gamma "
+              << params().device.gamma_two_lead_meV << " meV, t "
+              << params().device.t_hop_eV * 1e3 << " meV)\n";
+    std::cout << "  closed form      T = " << T_closed << "   R = " << R_closed
+              << "   A = " << A_closed << "\n";
+    std::cout << "  committed SIM 4 wavepacket output (on-resonance)   A = 0.4608\n";
+    std::cout << "  a packet-width sweep (audit/pabs_audit.cpp) converges to the closed form,\n";
+    std::cout << "  so this is not a finite-pulse artifact.\n";
+    std::cout << "  one-site single-pass ceiling = 0.5 at eta = 2; the design point is\n";
+    std::cout << "  " << std::setprecision(1) << (A_closed / 0.5 * 100.0)
+              << "% of that geometry's ceiling.\n";
+    std::cout << std::setprecision(4);
+    std::cout << "  V2's ideal A(E_F) = 1 is the resonant TRANSMISSION of a lossless\n";
+    std::cout << "  symmetric level; capture in the loss channel is a different quantity.\n";
+    std::cout << "  status: DERIVED from the Gamma shared by M3, M9, M10, M11 and M13.\n";
+
+    require(std::fabs(A_closed - p_abs_single()) < 0.002,
+            "the shared P_abs must equal the derived single-site closed form");
 }
 
 static void scenario_independent_redundancy() {
@@ -186,8 +200,8 @@ int main() {
         scenario_correlation_ceiling();
         scenario_program_pass_rate();
         scenario_latent_costs();
-        std::cout << "\nPASS: independence reproduced, correlation ceiling exposed, program rates unreconciled.\n";
-        std::cout << "LABEL: derived from V2's own numbers, estimated correlation, open physical validation.\n";
+        std::cout << "\nPASS: capture derived in closed form, one-site ceiling shown, correlation ceiling exposed, program rates unreconciled.\n";
+        std::cout << "LABEL: closed-form capture from shared constants; committed wavepacket output 0.4608; correlation is an estimate.\n";
         std::cout << "NEXT EVIDENCE GATE: measure attempt-to-attempt correlation for repeated FIRE on one Block.\n";
         return 0;
     } catch (const std::exception& e) {
