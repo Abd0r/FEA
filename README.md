@@ -25,7 +25,7 @@ states no physical time or energy per hop.
 <p align="center"><em>Fusion Block (a), 64-bit Word (b), and the Zone (c).</em></p>
 
 **Code archive:** [10.5281/zenodo.21902251](https://doi.org/10.5281/zenodo.21902251) (concept DOI, resolves to the latest release; current release is v3.0.0, [10.5281/zenodo.22995023](https://doi.org/10.5281/zenodo.22995023), tag [v3.0.0](https://github.com/Abd0r/FEA/releases/tag/v3.0.0)) &nbsp;·&nbsp; **Preprint (v1):** [10.5281/zenodo.19559255](https://doi.org/10.5281/zenodo.19559255)
-· **Architecture paper (PDF):** [`Paper/FEA-architecture.pdf`](Paper/FEA-architecture.pdf)
+· **Architecture paper (April 2026, v1, historical):** [`Paper/FEA-architecture.pdf`](Paper/FEA-architecture.pdf)
 
 The numbers below are the current revision's, produced by the verification
 suite in [`simulations/`](simulations/). The current revision supersedes v1

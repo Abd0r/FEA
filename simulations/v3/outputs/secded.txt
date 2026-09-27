@@ -57,7 +57,7 @@ Code derived from the Hamming bound for the stated Word width.
   shared causes produce bursts rather than isolated flips.
   label: codec properties computed by encoding and decoding, not asserted.
 
-[SCENARIO 6] the protected design point: capacity, area and the power term
+[SCENARIO 6] protected-configuration accounting: what is and is not counted
   Words in the array             : 2.930e+11
   syndrome energy per Word       : 4.000e-17 J
   syndrome energy, one full pass : 1.172e-05 J
@@ -66,9 +66,11 @@ Code derived from the Hamming bound for the stated Word width.
   payload, unprotected           : 2.344 TB
   payload, protected, same die   : 2.083 TB
   or keep the payload and pay 12.500% more array area
-  status: the four overheads are assembled here -- area, energy, latency and
-  reliability (SCENARIOS 3-5). The manuscript's reported design point is the
-  unprotected configuration; this scenario is its labelled protected variant.
+  counted here : parity storage on the raw basis, and syndrome formation at
+  the refresh cadence.  NOT counted: correction writes, encoding, sensing,
+  routing, workload-driven checks, recovery, codec and routing area, and
+  system-level reliability, so this is not a complete protected budget.
+  the reported design point stays the unprotected configuration.
 
-PASS: SECDED cost derived, V2's factor challenged, burst limit exposed, protected point assembled.
+PASS: SECDED cost derived, V2's factor challenged, burst limit exposed, protected-configuration accounting reported.
 NEXT EVIDENCE GATE: measure the actual fault class (independent vs correlated) so code choice follows evidence.

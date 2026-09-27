@@ -13,6 +13,7 @@
 // Declared parameters are not silicon measurements.
 // =============================================================================
 
+#include <cstdint>
 #include <algorithm>
 #include <array>
 #include <cmath>

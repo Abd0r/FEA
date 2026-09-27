@@ -9,6 +9,7 @@
 // a multi-bit burst of the kind a common-mode failure produces.
 // =============================================================================
 
+#include <cstdint>
 #include "fea_params.h"
 
 #include <cmath>
@@ -318,11 +319,15 @@ static void scenario_burst_limit() {
     std::cout << "  label: codec properties computed by encoding and decoding, not asserted.\n";
 }
 
-// The protected design point, assembled from shared quantities: Words from
+// Protected-configuration accounting, from shared quantities: Words from
 // payload_bits()/word_bits, the syndrome energy per Word from the derived code,
 // and the refresh cadence from the shared tau/2 accessor. No constant is copied.
-static void scenario_protected_design_point() {
-    std::cout << "\n[SCENARIO 6] the protected design point: capacity, area and the power term\n";
+// SCOPE: parity storage on the raw basis and syndrome formation at the refresh
+// cadence only. Correction writes, encoding, sensing, routing, workload checks,
+// recovery, codec and routing area and system reliability are NOT counted, so
+// this is not a complete protected-system budget.
+static void scenario_protected_configuration() {
+    std::cout << "\n[SCENARIO 6] protected-configuration accounting: what is and is not counted\n";
     const Code c = make_code(params().arch.word_bits);
     const double words = fea::payload_bits() / static_cast<double>(params().arch.word_bits);
     const double per_bit_energy_J =
@@ -347,9 +352,11 @@ static void scenario_protected_design_point() {
     std::cout << "  payload, protected, same die   : " << protected_TB << " TB\n";
     std::cout << "  or keep the payload and pay " << ((c.overhead_ratio - 1.0) * 100.0)
               << "% more array area\n";
-    std::cout << "  status: the four overheads are assembled here -- area, energy, latency and\n";
-    std::cout << "  reliability (SCENARIOS 3-5). The manuscript's reported design point is the\n";
-    std::cout << "  unprotected configuration; this scenario is its labelled protected variant.\n";
+    std::cout << "  counted here : parity storage on the raw basis, and syndrome formation at\n";
+    std::cout << "  the refresh cadence.  NOT counted: correction writes, encoding, sensing,\n";
+    std::cout << "  routing, workload-driven checks, recovery, codec and routing area, and\n";
+    std::cout << "  system-level reliability, so this is not a complete protected budget.\n";
+    std::cout << "  the reported design point stays the unprotected configuration.\n";
     require(syndrome_W > 0.0, "protection must cost power at any stated cadence");
     require(protected_TB < unprotected_TB, "parity buys correction, not capacity");
 }
@@ -366,8 +373,8 @@ int main() {
         scenario_charged_into_budget();
         scenario_power_latency_overhead();
         scenario_burst_limit();
-        scenario_protected_design_point();
-        std::cout << "\nPASS: SECDED cost derived, V2's factor challenged, burst limit exposed, protected point assembled.\n";
+        scenario_protected_configuration();
+        std::cout << "\nPASS: SECDED cost derived, V2's factor challenged, burst limit exposed, protected-configuration accounting reported.\n";
         std::cout << "NEXT EVIDENCE GATE: measure the actual fault class (independent vs correlated) so code choice follows evidence.\n";
         return 0;
     } catch (const std::exception& e) {
