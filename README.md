@@ -24,7 +24,7 @@ states no physical time or energy per hop.
 
 <p align="center"><em>Fusion Block (a), 64-bit Word (b), and the Zone (c).</em></p>
 
-**Code archive:** [10.5281/zenodo.21902251](https://doi.org/10.5281/zenodo.21902251) (concept DOI, resolves to the latest release; current release is v3.0.0, [10.5281/zenodo.22995023](https://doi.org/10.5281/zenodo.22995023), tag [v3.0.0](https://github.com/Abd0r/FEA/releases/tag/v3.0.0)) &nbsp;·&nbsp; **Preprint (v1):** [10.5281/zenodo.19559255](https://doi.org/10.5281/zenodo.19559255)
+**Code archive:** [10.5281/zenodo.21902251](https://doi.org/10.5281/zenodo.21902251) (concept DOI, always resolves to the newest release; see [releases](https://github.com/Abd0r/FEA/releases)) &nbsp;·&nbsp; **Preprint (v1):** [10.5281/zenodo.19559255](https://doi.org/10.5281/zenodo.19559255)
 · **Architecture paper (April 2026, v1, historical):** [`Paper/FEA-architecture.pdf`](Paper/FEA-architecture.pdf)
 
 The numbers below are the current revision's, produced by the verification
@@ -50,6 +50,8 @@ for the values reported here; v1 is retained unchanged for provenance.
 | Adopted charging energy E_C | 0.65 eV (assumed escape barrier) |
 | Kramers-model retention estimate at 300 K | 52.2 ms (not measured) |
 | Local clock (`T_cycle` = 104.83 ps) | 9.54 GHz (same-Block, not a die-wide rate) |
+| Single-pass capture (derived) | $P_\text{abs} = 4\eta/(2+\eta)^2 = 0.4608$ within the one-site loss model; that geometry's single-pass ceiling is 50% |
+| SECDED, 64-bit Word | 1.125x physical bits; protected variant 2.083 TB at fixed area, or +12.5% area |
 | Data-plane power | 13.2 mW (26.47 mW/cm²) |
 | Accounted whole-chip floor (four sized terms) | 0.0234 W |
 | Declared whole-chip upper bound, incl. four unsourced terms | 14.9 W |
