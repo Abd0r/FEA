@@ -1,0 +1,10 @@
+{
+ "input": "runs/q0_L.extxyz",
+ "basis": "dzp",
+ "charge": -1.0,
+ "energy_eV": -649.5172908142697,
+ "fmax": 0.020438153588082,
+ "steps": 22,
+ "wall_s": 2813.5731070041656,
+ "converged": true
+}

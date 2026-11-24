@@ -1,0 +1,130 @@
+{
+ "N:dft:DB0:Ea": [
+  1.4001964485105418,
+  1e-06
+ ],
+ "N:dft:DB-:Ea": [
+  1.4326290360486382,
+  1e-06
+ ],
+ "N:dft:DB+:Ea": [
+  1.114207795487573,
+  1e-06
+ ],
+ "N:dft:DB-:bridge_dE": [
+  1.0909658640495081,
+  1e-06
+ ],
+ "N:tilt:dE_DFT": [
+  0.08085665667272224,
+  1e-06
+ ],
+ "N:tilt:dE_model_eps5_6": [
+  0.13077246911995338,
+  1e-06
+ ],
+ "N:raw_GB_lam5.0": [
+  50.45895854001323,
+  1e-06
+ ],
+ "N:chip:usable_GB": [
+  35.101884201748334,
+  1e-06
+ ],
+ "N:E_refresh_bit_aJ": [
+  1.6874691416608696,
+  1e-06
+ ],
+ "N:read_disturb": [
+  9.987439650860352e-07,
+  1e-06
+ ],
+ "N:pattern_defects_per_year_chip:Hill_clean_meas": [
+  7636022.187102849,
+  1e-06
+ ],
+ "N:anneal_Tmax_C:0.0001:Hill_clean_meas": [
+  122.04265067352634,
+  1e-06
+ ],
+ "N:lambda_eV:minus": [
+  0.4379330155534831,
+  1e-06
+ ],
+ "N:tilt:dE_DFT_charge_part": [
+  0.11279438814869991,
+  1e-06
+ ],
+ "AD:0.438/phone:fixed_max_ambient_gaming_C": [
+  5.113949775695801,
+  0.02
+ ],
+ "AD:0.438/phone:adaptive_max_ambient_gaming_C": [
+  13.103424310684204,
+  0.02
+ ],
+ "AD:0.438/laptop:fixed_max_ambient_gaming_C": [
+  28.121674060821533,
+  0.02
+ ],
+ "AD:0.438/laptop:adaptive_max_ambient_gaming_C": [
+  35.79393267631531,
+  0.02
+ ],
+ "AD:0.438/desktop:fixed_max_ambient_gaming_C": [
+  43.50867748260498,
+  0.02
+ ],
+ "AD:0.438/desktop:adaptive_max_ambient_gaming_C": [
+  51.52502417564392,
+  0.02
+ ],
+ "AD:1.0/phone:fixed_max_ambient_gaming_C": [
+  23.57940673828125,
+  0.02
+ ],
+ "AD:1.0/phone:adaptive_max_ambient_gaming_C": [
+  31.27669930458069,
+  0.02
+ ],
+ "AD:1.0/laptop:fixed_max_ambient_gaming_C": [
+  46.85555934906006,
+  0.02
+ ],
+ "AD:1.0/laptop:adaptive_max_ambient_gaming_C": [
+  54.96998906135559,
+  0.02
+ ],
+ "AD:1.0/desktop:fixed_max_ambient_gaming_C": [
+  63.27715516090393,
+  0.02
+ ],
+ "AD:1.0/desktop:adaptive_max_ambient_gaming_C": [
+  71.81598901748657,
+  0.02
+ ],
+ "AD:1.5/phone:fixed_max_ambient_gaming_C": [
+  66.54153227806091,
+  0.02
+ ],
+ "AD:1.5/phone:adaptive_max_ambient_gaming_C": [
+  75.1016628742218,
+  0.02
+ ],
+ "AD:1.5/laptop:fixed_max_ambient_gaming_C": [
+  92.64640688896179,
+  0.02
+ ],
+ "AD:1.5/laptop:adaptive_max_ambient_gaming_C": [
+  101.74616575241089,
+  0.02
+ ],
+ "AD:1.5/desktop:fixed_max_ambient_gaming_C": [
+  111.11414909362793,
+  0.02
+ ],
+ "AD:1.5/desktop:adaptive_max_ambient_gaming_C": [
+  119.99999642372131,
+  0.02
+ ]
+}

@@ -1,0 +1,10 @@
+{
+ "input": "tilt_L.extxyz",
+ "basis": "dzp",
+ "charge": -2.0,
+ "energy_eV": -640.422416476578,
+ "fmax": 0.02569118807324168,
+ "steps": 22,
+ "wall_s": 3405.0372910499573,
+ "converged": true
+}

@@ -1,0 +1,13 @@
+{
+ "L": {
+  "E": -643.740426,
+  "magmom": 2.000007,
+  "state": "triplet",
+  "source": "runs/spin_tilt_L.txt"
+ },
+ "R": {
+  "E": -643.7516217141309,
+  "magmom": 4.039168677079364e-06,
+  "state": "broken-symmetry"
+ }
+}

@@ -1,0 +1,11 @@
+{
+ "input": "slab_4x4x6_L.extxyz",
+ "basis": "dzp",
+ "charge": 0,
+ "energy_eV": -648.197719,
+ "fmax": 0.028063,
+ "steps": 11,
+ "wall_s": null,
+ "converged": true,
+ "note": "json rebuilt from q0_L.log; original run deadlocked after convergence"
+}

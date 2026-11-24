@@ -1,5 +1,12 @@
 # FEA — Free Electron Absorption Architecture
 
+> **Current revision: R7** — [`r7/`](r7/). *Free Electron Absorption: room-temperature single-electron
+> compute-in-memory on hydrogen-terminated silicon.* It adds DFT for the stability of the atomic pattern,
+> engineering for single-electron retention, and a whole-chip simulation with adaptive refresh.
+> Reproduce it with `cd r7 && pip install -r requirements.txt && make check`. The numbers below belong
+> to the earlier v3 revision and are kept for provenance.
+
+
 A proposed computing architecture with a transistor-free data plane, on
 hydrogen-passivated Si(100).
 Electrons travel along dangling bond wires (DBWs); 5-atom cross-shaped

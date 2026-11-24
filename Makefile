@@ -307,3 +307,11 @@ check:
 	exit $$fail
 
 .PHONY: check
+
+# ---------------------------------------------------------------------------
+# FEA-R7 (Python): `make r7-check` rebuilds R7 from its DFT results and verifies it.
+.PHONY: r7 r7-check
+r7:
+	$(MAKE) -C r7 all
+r7-check:
+	$(MAKE) -C r7 check
