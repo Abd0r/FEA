@@ -7,10 +7,11 @@ from gpaw import GPAW
 from gpaw.mpi import world
 
 
-def make_calc(at, basis='dzp', charge=0, txt='-', zjell=None):
+def make_calc(at, basis='dzp', charge=0, txt='-', zjell=None, **extra):
     kw = dict(mode='lcao', basis=basis, xc='PBE', kpts=(1, 1, 1), h=0.2, spinpol=True,
               occupations={'name': 'fermi-dirac', 'width': 0.05},
               poissonsolver={'dipolelayer': 'xy'}, txt=txt)
+    kw.update(extra)
     if charge:
         from gpaw.jellium import JelliumSlab
         ztop = at.positions[:, 2].max()

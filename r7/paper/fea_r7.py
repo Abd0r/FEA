@@ -70,19 +70,58 @@ N['read_disturb'] = LM['A']                # empty Block captures during read ->
 INJ = 1.602176634e-19
 LINE_J = 0.2178e-12/6200.396825396825      # R6: 0.22 pJ per line switch shared by 6,200 wires -> J per wire op
 N['E_injection_aJ'] = INJ*1e18
-N['E_line_per_wire_op_aJ'] = LINE_J*1e18
-# refresh of one 92-bit word: one logic-mode read pass per bit, rewrite only where needed (rare),
-# 4 line operations (read mode, write mode, verify, hold) per word
-N['E_refresh_bit_aJ'] = (INJ + 4*LINE_J/92)*1e18
-N['E_gate_aJ'] = (9*INJ + 3*LINE_J/64)*1e18        # bitwise NAND, 9 injections + 3 line ops shared by 64 bits
+# A buried column line sets the mode of ONE bit position across the 6,200 Words it crosses, so its switching
+# energy is paid per bit operated (per wire per bit-step), not shared over the bits of a Word.
+# Line requirement L1 (optimisation C): 10x cheaper switching than the R6 line (3.3 V swing), i.e. a swing of
+# 3.3/sqrt(10) V. Detuning a Block by the storage depth Ds then needs a lever arm Ds/swing.
+R5N = r5.N
+V_R6 = 3.3; LINE_SCALE = 0.1
+# Optimisation E2: the edge drivers charge each column line in LINE_STEPS equal voltage steps from tank
+# capacitors (stepwise/adiabatic charging) and recover the charge on the way down, so the energy dissipated
+# per switch is CV^2/(2*LINE_STEPS) instead of CV^2/2. Each step needs a few RC, so a switch takes ~LINE_STEPS x longer.
+LINE_STEPS = 4
+N['line'] = dict(E_R6_aJ=LINE_J*1e18, E_req_aJ=LINE_J*LINE_SCALE*1e18, swing_R6_V=V_R6,
+                 swing_req_V=V_R6*math.sqrt(LINE_SCALE), Ds_eV=R5N['Ds_min_W100ps_eV'])
+N['line']['lever_req_eV_per_V'] = N['line']['Ds_eV']/N['line']['swing_req_V']
+N['line']['lever_R5_eV_per_V'] = 0.30
+N['line'].update(steps=LINE_STEPS, E_stepped_aJ=LINE_J*LINE_SCALE/LINE_STEPS*1e18,
+                  swing_same_energy_V=V_R6*math.sqrt(LINE_SCALE*LINE_STEPS))   # alternative use: keep 3.5 aJ, relax the swing
+N['line']['lever_same_energy_eV_per_V'] = N['line']['Ds_eV']/N['line']['swing_same_energy_V']
+def energies(line_J):
+    # refresh / access of one bit: one logic-mode read (1 injection; rewrites are rare) + 2 line switches
+    # (column into logic mode and back to hold); bitwise NAND: 9 injections + 3 write steps x 2 line switches
+    return dict(refresh=INJ + 2*line_J, gate=9*INJ + 6*line_J)
+E_req, E_r6 = energies(LINE_J*LINE_SCALE/LINE_STEPS), energies(LINE_J)
+E_conv = energies(LINE_J*LINE_SCALE)                                   # L1 lines, conventional (one-step) drive
+N['E_line_per_wire_op_aJ'] = LINE_J*LINE_SCALE/LINE_STEPS*1e18
+N['E_refresh_bit_conv_aJ'] = E_conv['refresh']*1e18; N['E_gate_conv_aJ'] = E_conv['gate']*1e18
+N['E_refresh_bit_aJ'] = E_req['refresh']*1e18; N['E_gate_aJ'] = E_req['gate']*1e18
+N['E_refresh_bit_R6lines_aJ'] = E_r6['refresh']*1e18; N['E_gate_R6lines_aJ'] = E_r6['gate']*1e18
 N['E_access_bit_aJ'] = N['E_refresh_bit_aJ']
 
-# ------------------------------------------------------------------ A4 chip block for the simulators
-words = RAW_BITS/92
+# ------------------------------------------------------------------ A4 code and chip block for the simulators
+# Optimisation B: a shortened binary BCH code of length 64 + 7t with t = 8 (minimum distance 17). Dual-rail
+# turns lost electrons into erasures, so it corrects 16 erasures (or 8 errors) per Word.
+CODE_T = 8; CODE_N = 64 + 7*CODE_T; CODE_D = 2*CODE_T + 1
+# Optimisation E1: the FZC decodes erasures by Gaussian elimination (maximum likelihood). Any s <= d-1 = 16
+# erasures decode; beyond that a pattern fails when a codeword hides inside it. Monte Carlo on the real
+# shortened BCH(120,64) (opt/bch_erasure.py) gives no failure up to s = 44 and agrees with the random-code
+# value 2^-(n-k-s) (or is below it) from s = 45 to 56; the simulators use 2^-(n-k-s).
+N['code'] = dict(t=CODE_T, n=CODE_N, d=CODE_D, k=64, overhead=(CODE_N - 64)/64, decoder='ML')
+_be = os.path.join(HERE, '..', 'opt', 'bch_erasure.json')
+if os.path.exists(_be):
+    _rows = json.load(open(_be))['rows']
+    N['code']['ml_check'] = dict(trials=_rows[-1]['trials'],
+        s_max_no_fail=max(r['s'] for r in _rows if r['n_fail'] == 0 and all(q['n_fail'] == 0 for q in _rows if q['s'] <= r['s'])),
+        p_fail_s48=next(r['p_fail'] for r in _rows if r['s'] == 48), rc_s48=2.0**-(CODE_N - 64 - 48))
+words = RAW_BITS/CODE_N
 N['chip'] = dict(area_cm2=AREA, pitch_nm=P, raw_bits=RAW_BITS, raw_GB=RAW_BITS/8e9, words=words,
                  usable_GB=words*64/8e9, read_silent_err=N['read_silent_err'], read_disturb=N['read_disturb'],
-                 E_refresh_J=N['E_refresh_bit_aJ']*1e-18, E_gate_J=N['E_gate_aJ']*1e-18,
-                 E_access_J=N['E_access_bit_aJ']*1e-18, line_RC_s=40e-9)
+                 code_n=CODE_N, code_d=CODE_D, code_k=64, decoder='ML',
+                 E_refresh_J=E_req['refresh'], E_gate_J=E_req['gate'], E_access_J=E_req['refresh'],
+                 E_refresh_R6lines_J=E_r6['refresh'], E_gate_R6lines_J=E_r6['gate'], line_RC_s=40e-9,
+                 E_refresh_conv_J=E_conv['refresh'], line_steps=LINE_STEPS)
+N['usable_GB_code92'] = RAW_BITS/92*64/8e9
 
 
 # ------------------------------------------------------------------ B  DFT results (GPAW PBE-DZP, ../dft/runs)

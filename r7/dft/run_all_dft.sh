@@ -47,3 +47,28 @@ $G cc.py > runs/cc.stdout 2>&1
 step "9b. neutral single points redone spin-polarized (1 muB start on the DB atom)"
 $G cc_fix.py > runs/cc_fix.stdout 2>&1
 step "done"
+
+# ---- R7 additions (side tolerance, prefactors, bare dimers, wire) ----
+step "10. harmonic TST prefactors (partial Hessian, 0.03 A steps, tight forces)"
+$G htst.py q0 runs/q0_L.extxyz runs/neb_q0_band.extxyz 2 0 0.03 > runs/htst_q0_d03.stdout 2>&1
+$G htst.py qm runs/qm_L.extxyz runs/neb_qm5_band.extxyz 2 -1 0.03 > runs/htst_qm_d03.stdout 2>&1
+
+step "11. bare dimer (both H removed): symmetric and buckled starts, neutral and charged"
+for q in 0 -1; do for s in sym buck; do $G bare.py $s $q > runs/bare_${s}_${q}.stdout 2>&1; done; done
+
+step "12. bare-dimer wire: relaxed row and its pi / pi* bandwidth (hopping t = W/4)"
+$G wire_band.py > runs/wire_band.stdout 2>&1
+
+step "13. charge offset of the buckled bare dimer (Hirshfeld, site dipole)"
+$G flip.py charges > runs/flip_charges.stdout 2>&1
+
+step "14. buckling-flip barrier, charged and neutral (CI-NEB to the exact mirror image)"
+$G flip.py neb -1 3 > runs/flip_neb_qm.stdout 2>&1
+$G flip.py neb 0 3 > runs/flip_neb_q0.stdout 2>&1
+
+step "15. H hop into a bare dimer from the neighbouring dimer: final-state relax, then CI-NEB"
+for q in 0 -1; do for t in up down; do tag=hop_$([ $q = 0 ] && echo q0 || echo qm)_$t
+  $G hop.py relax $q $t > runs/${tag}_final.stdout 2>&1
+  $G hop.py neb $q $t 3 > runs/${tag}.stdout 2>&1
+done; done
+step "done (R7 additions)"

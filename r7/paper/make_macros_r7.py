@@ -21,7 +21,23 @@ M['RawGB'] = f(N['raw_GB_lam5.0'], 1); M['UsableGB'] = f(N['chip']['usable_GB'],
 M['RawGBlo'] = f(N['raw_GB_lam10.0'], 0); M['RawGBhi'] = f(N['raw_GB_lam2.0'], 0)
 M['RawBits'] = sci(N['chip']['raw_bits'], 2)
 M['ReadSilent'] = sci(N['read_silent_err']); M['ReadDisturb'] = sci(N['read_disturb'])
-M['ERefresh'] = f(N['E_refresh_bit_aJ']); M['EGate'] = f(N['E_gate_aJ']); M['ELine'] = f(N['E_line_per_wire_op_aJ'], 0)
+M['ERefresh'] = f(N['E_refresh_bit_aJ'], 1); M['EGate'] = f(N['E_gate_aJ'], 1); M['ELine'] = f(N['E_line_per_wire_op_aJ'], 1)
+M['ERefreshRSix'] = f(N['E_refresh_bit_R6lines_aJ'], 0); M['EGateRSix'] = f(N['E_gate_R6lines_aJ'], 0); M['ELineRSix'] = f(N['line']['E_R6_aJ'], 0)
+M['SwingReq'] = f(N['line']['swing_req_V'], 2); M['LeverReq'] = f(N['line']['lever_req_eV_per_V'], 2); M['LeverRFive'] = f(N['line']['lever_R5_eV_per_V'], 2)
+L_ = N['line']; M['LineSteps'] = str(L_['steps']); M['ELineConv'] = f(L_['E_req_aJ'], 1)
+M['ERefreshConv'] = f(N['E_refresh_bit_conv_aJ'], 1); M['EGateConv'] = f(N['E_gate_conv_aJ'], 1)
+M['SwingSame'] = f(L_['swing_same_energy_V'], 2); M['LeverSame'] = f(L_['lever_same_energy_eV_per_V'], 2)
+_mc = N['code'].get('ml_check', {}); M['MLSafe'] = str(_mc.get('s_max_no_fail', 0)); M['MLTrials'] = f'{_mc.get("trials", 0):,}'.replace(',', '{,}')
+M['MLFortyEight'] = sci(_mc.get('p_fail_s48', 0)) if _mc else '0'; M['MLFortyEightRC'] = sci(_mc.get('rc_s48', 0)) if _mc else '0'
+M['CodeN'] = str(N['code']['n']); M['CodeT'] = str(N['code']['t']); M['CodeE'] = str(2*N['code']['t']); M['CodeD'] = str(N['code']['d'])
+
+# lever ablation (opt/levers_rank.py): phone limit with neither / only one of E1 (ML decoding), E2 (stepped lines)
+_lr = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'opt', 'levers_rank.json')
+if os.path.exists(_lr):
+    _rl = json.load(open(_lr))['rows']; _by = {}
+    for r in _rl: _by.setdefault(r['name'][:2], r)
+    M['AmbPhoneBC'] = f(_rl[0]['phone'], 0); M['AmbPhoneEOne'] = f(_by['E1']['phone'], 0); M['AmbPhoneETwo'] = f(_by['E2']['phone'], 0)
+M['UsableNinetyTwo'] = f(N['usable_GB_code92'], 1)
 M['Kappa'] = f(N['crit_meV'], 1)
 # DFT
 D = N['dft']
@@ -103,6 +119,10 @@ fails = [run(l, m, md)['fails_day'] for l in (str(LDFT), '1.0', '1.5') for m in 
 M['FailsDay'] = sci(max(fails))
 # FEA vs a 100 W budget
 M['OpsAtHundredW'] = sci(100/(N['E_gate_aJ']*1e-18))
+B6 = SIM['runs'][str(LDFT)]
+for mach in ('phone', 'laptop', 'desktop'):
+    r = B6[f'{mach}/pessimistic']
+    M[f'RSix{mach.capitalize()}'] = '\\text{runaway}' if r['runaway'] else f(max(x['P_W'] for x in r['log']), 1)
 
 R5 = json.load(open('numbers_r5.json'))
 M['GammaEl'] = f(R5['Gamma_el_meV'], 1); M['Tw'] = f(R5['tw_meV'], 1); M['Amax'] = f(R5['A_max'], 2)

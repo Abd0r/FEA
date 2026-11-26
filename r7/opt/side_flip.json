@@ -1,0 +1,434 @@
+{
+ "geometry": {
+  "px": 7.68,
+  "py": 16.128,
+  "rail_offset_nm": 1.536,
+  "flip_nm": 0.225,
+  "budget_meV": 2.806067666331569
+ },
+ "baseline": {
+  "absorber_centre": {
+   "mean_meV": 2.736198372177397,
+   "p99_meV": 6.007186275659851,
+   "frac_over_budget": 0.4935,
+   "budget_meV": 2.806067666331569
+  },
+  "absorber_outer": {
+   "mean_meV": 3.1584265210176734,
+   "p99_meV": 6.675139637058266,
+   "frac_over_budget": 0.5645,
+   "budget_meV": 2.806067666331569
+  },
+  "wire_centre": {
+   "rms_dU_meV": 7.731195411438998,
+   "loss_median": 0.9999999999967802,
+   "loss_p99": 0.9999999999999998,
+   "pass_frac": 0.0
+  },
+  "wire_outer": {
+   "rms_dU_meV": 8.684648236666714,
+   "loss_median": 0.9999999994759395,
+   "loss_p99": 0.9999999999999983,
+   "pass_frac": 0.0
+  }
+ },
+ "sweep": [
+  {
+   "geom": "orig",
+   "off": 1.0,
+   "t_meV": 20.0,
+   "absorber_p99_meV": 6.420132697331066,
+   "absorber_over": 0.5775,
+   "rms_dU_meV": 8.009170901035638,
+   "loss_median": 0.9999999999957195,
+   "loss_p99": 0.9999999999999998,
+   "pass_frac": 0.0
+  },
+  {
+   "geom": "orig",
+   "off": 1.0,
+   "t_meV": 50.0,
+   "absorber_p99_meV": 6.420132697331066,
+   "absorber_over": 0.5775,
+   "rms_dU_meV": 8.058346975953386,
+   "loss_median": 0.8844634683328052,
+   "loss_p99": 0.9915625663055005,
+   "pass_frac": 0.0
+  },
+  {
+   "geom": "orig",
+   "off": 1.0,
+   "t_meV": 100.0,
+   "absorber_p99_meV": 6.420132697331066,
+   "absorber_over": 0.5775,
+   "rms_dU_meV": 7.877777032314315,
+   "loss_median": 0.04088523668602739,
+   "loss_p99": 0.14181464016295653,
+   "pass_frac": 0.0
+  },
+  {
+   "geom": "orig",
+   "off": 1.0,
+   "t_meV": 200.0,
+   "absorber_p99_meV": 6.420132697331066,
+   "absorber_over": 0.5775,
+   "rms_dU_meV": 7.959876092493389,
+   "loss_median": 0.007248438129535684,
+   "loss_p99": 0.03172820212872422,
+   "pass_frac": 0.0
+  },
+  {
+   "geom": "orig",
+   "off": 0.3,
+   "t_meV": 20.0,
+   "absorber_p99_meV": 1.6869515843316163,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 2.3776423008576484,
+   "loss_median": 0.21776716319118938,
+   "loss_p99": 0.4390472438322998,
+   "pass_frac": 0.0
+  },
+  {
+   "geom": "orig",
+   "off": 0.3,
+   "t_meV": 50.0,
+   "absorber_p99_meV": 1.6869515843316163,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 2.374179269319264,
+   "loss_median": 0.007558934145189877,
+   "loss_p99": 0.03493442003284917,
+   "pass_frac": 0.0
+  },
+  {
+   "geom": "orig",
+   "off": 0.3,
+   "t_meV": 100.0,
+   "absorber_p99_meV": 1.6869515843316163,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 2.386881030592219,
+   "loss_median": 0.004658000018569364,
+   "loss_p99": 0.019604703216141023,
+   "pass_frac": 0.1
+  },
+  {
+   "geom": "orig",
+   "off": 0.3,
+   "t_meV": 200.0,
+   "absorber_p99_meV": 1.6869515843316163,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 2.367265673976137,
+   "loss_median": 0.0011348168219937338,
+   "loss_p99": 0.0031065339808934275,
+   "pass_frac": 0.48333333333333334
+  },
+  {
+   "geom": "orig",
+   "off": 0.1,
+   "t_meV": 20.0,
+   "absorber_p99_meV": 0.5744052298428171,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 0.7895897374102965,
+   "loss_median": 0.011215578798555836,
+   "loss_p99": 0.026445132765996072,
+   "pass_frac": 0.016666666666666666
+  },
+  {
+   "geom": "orig",
+   "off": 0.1,
+   "t_meV": 50.0,
+   "absorber_p99_meV": 0.5744052298428171,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 0.7883162590508559,
+   "loss_median": 0.00301425882922135,
+   "loss_p99": 0.008869643276009795,
+   "pass_frac": 0.06666666666666667
+  },
+  {
+   "geom": "orig",
+   "off": 0.1,
+   "t_meV": 100.0,
+   "absorber_p99_meV": 0.5744052298428171,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 0.8033475900441487,
+   "loss_median": 0.0005490399842309479,
+   "loss_p99": 0.001262218880638961,
+   "pass_frac": 0.8833333333333333
+  },
+  {
+   "geom": "orig",
+   "off": 0.1,
+   "t_meV": 200.0,
+   "absorber_p99_meV": 0.5744052298428171,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 0.7867618869031924,
+   "loss_median": 0.00010750612184556863,
+   "loss_p99": 0.0004087789496806846,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "far",
+   "off": 1.0,
+   "t_meV": 20.0,
+   "absorber_p99_meV": 4.235671657829856,
+   "absorber_over": 0.32,
+   "rms_dU_meV": 4.866314761147253,
+   "loss_median": 0.9697898538746179,
+   "loss_p99": 0.9993085313362342,
+   "pass_frac": 0.0
+  },
+  {
+   "geom": "far",
+   "off": 1.0,
+   "t_meV": 50.0,
+   "absorber_p99_meV": 4.235671657829856,
+   "absorber_over": 0.32,
+   "rms_dU_meV": 4.813335419596854,
+   "loss_median": 0.0016548070541351212,
+   "loss_p99": 0.006581820087620278,
+   "pass_frac": 0.2833333333333333
+  },
+  {
+   "geom": "far",
+   "off": 1.0,
+   "t_meV": 100.0,
+   "absorber_p99_meV": 4.235671657829856,
+   "absorber_over": 0.32,
+   "rms_dU_meV": 4.825318618273525,
+   "loss_median": 4.9180179189256545e-05,
+   "loss_p99": 0.0002595712246035051,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "far",
+   "off": 1.0,
+   "t_meV": 200.0,
+   "absorber_p99_meV": 4.235671657829856,
+   "absorber_over": 0.32,
+   "rms_dU_meV": 4.859122184855505,
+   "loss_median": 5.148478766148212e-06,
+   "loss_p99": 2.7432038273917914e-05,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "far",
+   "off": 0.3,
+   "t_meV": 20.0,
+   "absorber_p99_meV": 1.4063338723953462,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 1.4457619759821425,
+   "loss_median": 0.0003776482252443869,
+   "loss_p99": 0.0013743505217047806,
+   "pass_frac": 0.9333333333333333
+  },
+  {
+   "geom": "far",
+   "off": 0.3,
+   "t_meV": 50.0,
+   "absorber_p99_meV": 1.4063338723953462,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 1.4720445808268774,
+   "loss_median": 1.0871764630215885e-05,
+   "loss_p99": 3.7840910076712975e-05,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "far",
+   "off": 0.3,
+   "t_meV": 100.0,
+   "absorber_p99_meV": 1.4063338723953462,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 1.4407720208810413,
+   "loss_median": 1.7237838799144534e-06,
+   "loss_p99": 6.222829790655244e-06,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "far",
+   "off": 0.3,
+   "t_meV": 200.0,
+   "absorber_p99_meV": 1.4063338723953462,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 1.460839467862018,
+   "loss_median": 4.1718673726709454e-07,
+   "loss_p99": 1.5381125349700485e-06,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "far",
+   "off": 0.1,
+   "t_meV": 20.0,
+   "absorber_p99_meV": 0.45063539867911817,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 0.48840614402982924,
+   "loss_median": 4.408279154932693e-06,
+   "loss_p99": 1.4161225925996e-05,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "far",
+   "off": 0.1,
+   "t_meV": 50.0,
+   "absorber_p99_meV": 0.45063539867911817,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 0.4854413583640342,
+   "loss_median": 6.459034783135031e-07,
+   "loss_p99": 3.4329417590384e-06,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "far",
+   "off": 0.1,
+   "t_meV": 100.0,
+   "absorber_p99_meV": 0.45063539867911817,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 0.48646641649823036,
+   "loss_median": 1.4965715000592184e-07,
+   "loss_p99": 6.453330513711547e-07,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "far",
+   "off": 0.1,
+   "t_meV": 200.0,
+   "absorber_p99_meV": 0.45063539867911817,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 0.4817591007810805,
+   "loss_median": 2.4475548143776393e-08,
+   "loss_p99": 1.6368052939696989e-07,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "line",
+   "off": 1.0,
+   "t_meV": 20.0,
+   "absorber_p99_meV": 5.645943712495295,
+   "absorber_over": 0.515,
+   "rms_dU_meV": 5.877374249363102,
+   "loss_median": 0.9999111086262162,
+   "loss_p99": 0.9999999894331314,
+   "pass_frac": 0.0
+  },
+  {
+   "geom": "line",
+   "off": 1.0,
+   "t_meV": 50.0,
+   "absorber_p99_meV": 5.645943712495295,
+   "absorber_over": 0.515,
+   "rms_dU_meV": 5.726917506910764,
+   "loss_median": 0.0020965315174956145,
+   "loss_p99": 0.00869171767153721,
+   "pass_frac": 0.23333333333333334
+  },
+  {
+   "geom": "line",
+   "off": 1.0,
+   "t_meV": 100.0,
+   "absorber_p99_meV": 5.645943712495295,
+   "absorber_over": 0.515,
+   "rms_dU_meV": 5.89383537015156,
+   "loss_median": 6.416966857192286e-05,
+   "loss_p99": 0.00022091774723544604,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "line",
+   "off": 1.0,
+   "t_meV": 200.0,
+   "absorber_p99_meV": 5.645943712495295,
+   "absorber_over": 0.515,
+   "rms_dU_meV": 5.745587574507842,
+   "loss_median": 9.02666843211053e-06,
+   "loss_p99": 4.1794793181599794e-05,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "line",
+   "off": 0.3,
+   "t_meV": 20.0,
+   "absorber_p99_meV": 1.6027733095874428,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 1.7507393230526338,
+   "loss_median": 0.00038533111694816213,
+   "loss_p99": 0.001246689016634795,
+   "pass_frac": 0.9333333333333333
+  },
+  {
+   "geom": "line",
+   "off": 0.3,
+   "t_meV": 50.0,
+   "absorber_p99_meV": 1.6027733095874428,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 1.7355770117759892,
+   "loss_median": 1.3441619274356942e-05,
+   "loss_p99": 5.0194540632927384e-05,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "line",
+   "off": 0.3,
+   "t_meV": 100.0,
+   "absorber_p99_meV": 1.6027733095874428,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 1.7378090936782387,
+   "loss_median": 3.5015012206929264e-06,
+   "loss_p99": 9.724604979493006e-06,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "line",
+   "off": 0.3,
+   "t_meV": 200.0,
+   "absorber_p99_meV": 1.6027733095874428,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 1.747757987041542,
+   "loss_median": 6.715852414740375e-07,
+   "loss_p99": 2.68498194013644e-06,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "line",
+   "off": 0.1,
+   "t_meV": 20.0,
+   "absorber_p99_meV": 0.5150075249207383,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 0.5856777065736524,
+   "loss_median": 9.301364013170055e-06,
+   "loss_p99": 3.56735160670307e-05,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "line",
+   "off": 0.1,
+   "t_meV": 50.0,
+   "absorber_p99_meV": 0.5150075249207383,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 0.5765407082306943,
+   "loss_median": 1.190192899458431e-06,
+   "loss_p99": 4.47693890557099e-06,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "line",
+   "off": 0.1,
+   "t_meV": 100.0,
+   "absorber_p99_meV": 0.5150075249207383,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 0.5835424727332807,
+   "loss_median": 3.9867174794760984e-07,
+   "loss_p99": 1.5982004789516498e-06,
+   "pass_frac": 1.0
+  },
+  {
+   "geom": "line",
+   "off": 0.1,
+   "t_meV": 200.0,
+   "absorber_p99_meV": 0.5150075249207383,
+   "absorber_over": 0.0,
+   "rms_dU_meV": 0.5771558914054706,
+   "loss_median": 3.100221257490432e-08,
+   "loss_p99": 2.3990814606245055e-07,
+   "pass_frac": 1.0
+  }
+ ],
+ "single_flip_partner_meV": 5.827431181259994
+}

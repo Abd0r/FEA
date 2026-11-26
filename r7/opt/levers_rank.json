@@ -1,0 +1,84 @@
+{
+ "lambda_eV": 0.438,
+ "rows": [
+  {
+   "name": "R7 design (B+C)",
+   "phone": 35.63021421432495,
+   "laptop": 62.72343993186951,
+   "desktop": 82.1593987941742
+  },
+  {
+   "name": "E1 ML erasure decoding of the same code",
+   "ml": true,
+   "phone": 58.406524658203125,
+   "laptop": 89.02757048606873,
+   "desktop": 111.2554657459259
+  },
+  {
+   "name": "E2 4-step adiabatic line drive (lines /4)",
+   "line_div": 4,
+   "phone": 52.787232398986816,
+   "laptop": 82.65153765678406,
+   "desktop": 104.25903081893921
+  },
+  {
+   "name": "E3 package thermal resistance -25%",
+   "rth": 0.75,
+   "phone": 40.2090060710907,
+   "laptop": 67.40043997764587,
+   "desktop": 87.06628918647766
+  },
+  {
+   "name": "P1 capture cross-section 1e-17 cm2",
+   "sig": 1e-17,
+   "phone": 109.70377206802368,
+   "laptop": 119.99999642372131,
+   "desktop": 119.99999642372131
+  },
+  {
+   "name": "P2 gap +0.4 eV (thin-SOI confinement)",
+   "gap": 0.4,
+   "phone": 119.99999642372131,
+   "laptop": 119.99999642372131,
+   "desktop": 119.99999642372131
+  },
+  {
+   "name": "E1+E2",
+   "ml": true,
+   "line_div": 4,
+   "phone": 76.25101804733276,
+   "laptop": 109.98682022094727,
+   "desktop": 119.99999642372131
+  },
+  {
+   "name": "E1+E2+E3",
+   "ml": true,
+   "line_div": 4,
+   "rth": 0.75,
+   "phone": 81.74374222755432,
+   "laptop": 115.78947901725769,
+   "desktop": 119.99999642372131
+  },
+  {
+   "name": "E1+E2+E3+P1",
+   "ml": true,
+   "line_div": 4,
+   "rth": 0.75,
+   "sig": 1e-17,
+   "phone": 119.99999642372131,
+   "laptop": 119.99999642372131,
+   "desktop": 119.99999642372131
+  },
+  {
+   "name": "all (E1+E2+E3+P1+P2)",
+   "ml": true,
+   "line_div": 4,
+   "rth": 0.75,
+   "sig": 1e-17,
+   "gap": 0.4,
+   "phone": 119.99999642372131,
+   "laptop": 119.99999642372131,
+   "desktop": 119.99999642372131
+  }
+ ]
+}

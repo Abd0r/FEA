@@ -17,3 +17,4 @@ opt/chip_sim_adaptive_results.json
 opt/*_output.txt
 opt/retention_lam*.json
 paper/*.pdf
+opt/bch_erasure.json

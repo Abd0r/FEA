@@ -2,7 +2,8 @@
 
 Chip (from R7, ../paper/numbers_r7.json 'chip' block, written by fea_r7.py). Earlier R6 version: one injection
 = 1 eV = 0.16 aJ; control-line switching 35 aJ per wire operation; line RC 40 ns.
-Usable working memory = raw x 64/92 (BCH, n=92, k=64, t=4, so up to 8 erasures or 4 errors per word).
+Usable working memory = raw x 64/n for the BCH code in the chip block (R7 design: n=120, t=8, d=17,
+so up to 16 erasures or 8 errors per word).
 
 Optimisations (all on):
   1 lattice-relaxation capture barrier, Marcus form, lambda from DFT (scanned until cc.json lands)
@@ -28,7 +29,8 @@ KB = 8.617e-5
 _here = __import__('os').path.dirname(__import__('os').path.abspath(__file__))
 CHIP = json.load(open(_here + '/../paper/numbers_r7.json'))['chip']
 RAW_BITS = CHIP['raw_bits']                      # dual-rail pairs = logical raw bits
-WORDS = RAW_BITS/92
+CODE_N, CODE_D = CHIP['code_n'], CHIP['code_d']
+WORDS = RAW_BITS/CODE_N
 USABLE_GB = WORDS*64/8e9
 INJ_J = 1.602176634e-19
 # Read of an electron bit = one R5 logic-mode pass. Two error types:
@@ -37,7 +39,7 @@ INJ_J = 1.602176634e-19
 READ_ERR = CHIP['read_silent_err']
 DISTURB = CHIP['read_disturb']
 E_REFRESH_NOM = CHIP['E_refresh_J']
-E_REFRESH_PESS = 35e-18
+E_REFRESH_PESS = CHIP['E_refresh_R6lines_J']     # R6 control lines (3.3 V swing), no line improvement
 E_GATE = CHIP['E_gate_J']
 TARGET_FAILS_PER_YEAR = 1.0
 YEAR = 3.156e7
@@ -61,11 +63,22 @@ def tau_bit(T, lam, dE, sig=1e-15, d_nm=10.0):
 def best_level(lam):
     return max((tau_bit(300, lam, x/100), x/100) for x in range(26, 87))[1]
 
-# ---------- code: errors e and erasures s are correctable while 2e + s <= 8 ----------
-def word_fail(p_er, p_err, n=92, d=9):
-    """P(2e + s >= d) for one word; independent bits."""
+# ---------- code: errors e and erasures s are correctable while 2e + s <= d - 1 ----------
+CODE_K = CHIP.get('code_k', 64)
+ML = CHIP.get('decoder') == 'ML'
+def ml_fail(s, n=None, k=None):
+    """P(an s-erasure pattern defeats Gaussian-elimination decoding): 0 below d, else 2^-(n-k-s)
+    (random-code value; Monte Carlo on the real code agrees or lies below it, opt/bch_erasure.py)."""
+    n = CODE_N if n is None else n; k = CODE_K if k is None else k
+    return 0.0 if s < CODE_D else min(1.0, 2.0**(-(n - k - s)))
+
+def word_fail(p_er, p_err, n=None, d=None, ml=None):
+    """P(word lost). Bounded-distance: 2e + s >= d. With ML erasure decoding (default from the chip block when
+    n, d are the chip's): error-free words with s >= d fail only with probability ml_fail(s)."""
+    ml = (ML and n is None and d is None) if ml is None else ml
+    n = CODE_N if n is None else n; d = CODE_D if d is None else d; emax = (d - 1)//2
     tot = 0.0
-    for e in range(0, 5):
+    for e in range(0, emax + 1):
         pe = comb(n, e)*p_err**e*(1 - p_err)**(n - e) if p_err > 0 else (1.0 if e == 0 else 0.0)
         if pe < 1e-300: continue
         smin = max(0, d - 2*e)
@@ -74,8 +87,14 @@ def word_fail(p_er, p_err, n=92, d=9):
         for s in range(smin, m + 1):
             ps += comb(m, s)*p_er**s*(1 - p_er)**(m - s)
         tot += pe*ps
-    for e in range(5, 8):        # >= 5 errors alone already fails
+    for e in range(emax + 1, emax + 4):        # more than emax errors alone already fails
         tot += comb(n, e)*p_err**e
+    if ml:                                     # error-free words: replace the s >= d tail by its ML failure share
+        p0 = (1 - p_err)**n; dt = 0.0
+        for s in range(d, n + 1):
+            bs = comb(n, s)*p_er**s*(1 - p_er)**(n - s)
+            dt += bs*(1 - ml_fail(s, n))
+        tot = max(tot - p0*dt, 0.0)
     return tot
 
 from functools import lru_cache
@@ -157,8 +176,12 @@ def day(lam, dE, e_ref, m, dt=10.0):
 
 def monte_carlo(p_er, words=200_000, rng=np.random.default_rng(1)):
     """Dual-rail words: each rail pair loses its electron with p_er (erasure); reads err with READ_ERR."""
-    s = rng.binomial(92, min(1.0, p_er + DISTURB), size=words); e = rng.binomial(92 - s, READ_ERR)
-    return float(np.mean(2*e + s >= 9))
+    s = rng.binomial(CODE_N, min(1.0, p_er + DISTURB), size=words); e = rng.binomial(CODE_N - s, READ_ERR)
+    fail = 2*e + s >= CODE_D
+    if ML:
+        pf = np.array([ml_fail(int(x)) for x in s])
+        fail = np.where(e == 0, rng.random(words) < pf, fail)
+    return float(np.mean(fail))
 
 if __name__ == '__main__':
     lams = [float(x) for x in sys.argv[1:]] or [0.5, 1.0, 1.5]
@@ -167,7 +190,7 @@ if __name__ == '__main__':
     print(f"chip: {RAW_BITS/8e9:.1f} GB raw dual-rail working memory -> {USABLE_GB:.1f} GB usable after BCH; "
           f"refresh {E_REFRESH_NOM*1e18:.2f} aJ/bit (pessimistic 35), gate op {E_GATE*1e18:.2f} aJ")
     # decoder check
-    for p in (0.01, 0.02, 0.04):
+    for p in (0.30, 0.35, 0.40):          # high enough that the Monte Carlo sees ML failures
         print(f"  decoder check p_erasure={p}: analytic {word_fail(p + DISTURB, READ_ERR):.3e}  Monte Carlo {monte_carlo(p):.3e}")
     for lam in lams:
         dE = best_level(lam)

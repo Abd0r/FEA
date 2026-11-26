@@ -89,14 +89,14 @@ def chip_power(T, Tamb, lam, dE, wname, e_scale, adaptive):
             for s in (1, 3):
                 Tr_s, f_s, k_s = pick(Tq, lam, dE, float(f'{reads_live:.2g}'), s, occ/G)
                 fr = -math.expm1(-reads_live*Tr_s)                     # fraction refreshed by program traffic
-                cost = (B.WORDS*occ/G)*92*(1 - fr)*SENSE[s][1]/Tr_s
+                cost = (B.WORDS*occ/G)*B.CODE_N*(1 - fr)*SENSE[s][1]/Tr_s
                 if k_s and (best is None or cost < best[0]): best = (cost, Tr_s, f_s, k_s, s, fr)
             if best is None:
                 Tr, f, k = pick(Tq, lam, dE, float(f'{reads_live:.2g}'), 3, occ/G); s, fresh = 3, 0.0
             else:
                 _, Tr, f, k, s, fresh = best
             words = B.WORDS*occ/G; e_bit = SENSE[s][1]; senses.append(s)
-        P_ref += words*92*(1 - fresh)*e_bit*e_scale/Tr
+        P_ref += words*B.CODE_N*(1 - fresh)*e_bit*e_scale/Tr
         fails += f
         ok &= k; info.append(Tr)
     sense_reads = 1 if (not adaptive or all(x == 1 for x in senses)) else 3
