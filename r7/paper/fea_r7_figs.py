@@ -92,7 +92,7 @@ def fig2():
         ax[2].plot(T - 273.15, np.sqrt(lo*hi), color=QC[q], label=QL[q])
     ax[2].set_yscale('log'); ax[2].axvline(27, color=GREY, lw=0.6, ls=':')
     ax[2].set_xlabel('temperature (°C)'); ax[2].set_ylabel('mean time per DB site to one hop (years)')
-    ax[2].set_title('Pattern stability (band: $10^{10.3\\pm0.5}$ Hz; dashed: $10^{13}$ Hz)'); ax[2].legend(frameon=False)
+    ax[2].set_title('Pattern stability'); ax[2].legend(frameon=False)
     tag(ax[2], 'c')
     fig.tight_layout(); fig.savefig(f'{OUT}/r7_fig2_dft.pdf'); plt.close(fig)
 
@@ -123,7 +123,7 @@ def fig3():
     if 'lambda_eV' in N:
         v = N['lambda_eV']['minus']
         ax[1].axvline(v, color=RED, ls='--', lw=1.0); ax[1].annotate(f'DFT: {v:.2f} eV', xy=(v, 3e-3), xytext=(v + 0.12, 3e0), fontsize=7, color=RED, arrowprops=dict(arrowstyle='->', color=RED, lw=0.7))
-        ax[1].axvspan(1.0, 1.5, color=GREEN, alpha=0.08); ax[1].text(1.03, 1e2, 'needed:\nlaptop | phone', fontsize=6.5, color=GREEN)
+        ax[1].axvspan(1.0, 1.5, color=GREEN, alpha=0.08); ax[1].text(1.03, 1e2, 'low-refresh\nregime', fontsize=6.5, color=GREEN)
     ax[1].set_yscale('log'); ax[1].set_xlabel(r'relaxation energy $\lambda$ (eV)'); ax[1].set_ylabel('bit lifetime (s)')
     ax[1].legend(frameon=False); ax[1].set_title('All optimisations: lifetime vs $\\lambda$'); tag(ax[1], 'b')
     t = N['tilt']; eps = np.linspace(4, 12, 50); COUL = 1.43996
@@ -157,7 +157,7 @@ def fig4():
                   label=f'{mode}, $\\lambda$={lab}')
     b.axhline(25, color=GREY, ls=':', lw=0.8); b.text(2.45, 26, 'room', fontsize=6.5, color=GREY)
     b.set_xticks(range(3)); b.set_xticklabels(machines); b.set_ylabel('highest ambient while gaming (°C)')
-    b.legend(frameon=False, fontsize=6, ncol=3, loc='upper center', bbox_to_anchor=(0.5, -0.12)); b.set_title('Adaptive refresh: thermal margin'); tag(b, 'b')
+    b.legend(frameon=False, fontsize=6, ncol=3, loc='upper center', bbox_to_anchor=(0.5, -0.14), borderaxespad=0.2); b.set_title('Adaptive refresh: thermal margin'); tag(b, 'b')
     c = ax[2]; lamTF = [2.0, 5.0, 10.0]
     per = [N[f'raw_GB_lam{l}']*64/92 for l in lamTF]
     layers = np.array([1, 2, 4, 8, 16])

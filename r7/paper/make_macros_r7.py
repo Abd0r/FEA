@@ -37,6 +37,12 @@ if os.path.exists(_lr):
     _rl = json.load(open(_lr))['rows']; _by = {}
     for r in _rl: _by.setdefault(r['name'][:2], r)
     M['AmbPhoneBC'] = f(_rl[0]['phone'], 0); M['AmbPhoneEOne'] = f(_by['E1']['phone'], 0); M['AmbPhoneETwo'] = f(_by['E2']['phone'], 0)
+    M['AmbLaptopEOne'] = f(_by['E1']['laptop'], 0); M['AmbDesktopEOne'] = f(_by['E1']['desktop'], 0)   # = lines at the 0.34 eV/V fallback
+_wb = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'dft', 'runs', 'wire_band.json')
+if os.path.exists(_wb):   # bare-dimer wire (DFT, PBE): buckling, pi-pi* gap, pi* hopping
+    _w = json.load(open(_wb)); _rb = [b for b in _w['bands'] if b['w_row'] > 0.4]
+    M['WireGap'] = f(min(b['e'] for b in _rb if b['e'] > 0) - max(b['e'] for b in _rb if b['e'] < 0), 2)
+    M['WireTpistar'] = f(_w['t_pistar_eV']*1e3, 0); M['WireBuckle'] = f(max(abs(x) for x in _w['buckling']), 2)
 M['UsableNinetyTwo'] = f(N['usable_GB_code92'], 1)
 M['Kappa'] = f(N['crit_meV'], 1)
 # DFT

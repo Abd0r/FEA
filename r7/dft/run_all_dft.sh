@@ -72,3 +72,11 @@ for q in 0 -1; do for t in up down; do tag=hop_$([ $q = 0 ] && echo q0 || echo q
   $G hop.py neb $q $t 3 > runs/${tag}.stdout 2>&1
 done; done
 step "done (R7 additions)"
+
+step "16. DB- barrier, second path variant: bridged intermediate, CI-NEB on the mirrored right half, old saddle on the same jellium"
+$G dbm_half.py > runs/dbm_half.stdout 2>&1
+
+step "17. convergence of the intra-dimer barrier: 2x2x1 k-points, jellium window, plane waves 400 eV"
+$G conv.py lcao kpt jell > runs/conv.stdout 2>&1
+$G conv.py pw > runs/conv_pw.stdout 2>&1
+step "done (R7 checks)"
