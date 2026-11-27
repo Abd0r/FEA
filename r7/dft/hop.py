@@ -42,9 +42,15 @@ def zjell(at):
 
 def magmoms(at, q, t):
     m = np.zeros(len(at))
+    rec, don, _ = HOP[t]
+    other = K if rec == I else I                     # the two DBs left after the hop: donor Si and the other dimer atom
     if q != 0:
-        rec, don, _ = HOP[t]
-        m[don] = 0.5; m[K if rec == I else I] = 0.5      # the two DBs left after the hop
+        m[don] = 0.5; m[other] = 0.5
+    else:
+        # neutral: two singly occupied DBs. Seed a broken-symmetry singlet (+-1), continuous with the closed-shell
+        # bare dimer at the start; a zero seed stays on the closed-shell surface, 0.34 eV above (found 27 Nov).
+        # The triplet (what the final-state relax fell into) is recorded separately from hop_*_final.json.
+        m[don] = 1.0; m[other] = -1.0
     return m
 
 
@@ -93,23 +99,44 @@ def neb(q, t, n):
                 os.rename(tr, tr.replace('.traj', f'_part{int(time.time())}.traj'))
                 print(tag, 'restarted from', tr, flush=True)
             world.barrier()
-    for j, im in enumerate(imgs):
-        im.set_initial_magnetic_moments(magmoms(im, q, t) if j else
-                                        (np.where(np.isin(np.arange(len(im)), [I, K]), 0.5, 0.0) if q else np.zeros(len(im))))
-        im.calc = make_calc(im, 'dzp', q, txt=f'runs/{tag}_img{j}.txt', zjell=zj, mixer=MIX, maxiter=500)
-    E_end = [imgs[0].get_potential_energy(), imgs[-1].get_potential_energy()]   # same jellium window for both
+    def mm(j, im):
+        return magmoms(im, q, t) if j else (np.where(np.isin(np.arange(len(im)), [I, K]), 0.5, 0.0) if q else np.zeros(len(im)))
+    # endpoints: on all ranks, one at a time, then freed (cached so a restart skips them)
+    ends = f'runs/{tag}_ends.json'
+    if os.path.exists(ends):
+        E_end = json.load(open(ends))
+    else:
+        E_end = []
+        for j in (0, n + 1):
+            x = imgs[j].copy(); x.set_initial_magnetic_moments(mm(j, x))
+            x.calc = make_calc(x, 'dzp', q, txt=f'runs/{tag}_img{j}.txt', zjell=zj, mixer=MIX, maxiter=500)
+            E_end.append(float(x.get_potential_energy())); del x
+        world.barrier()
+        if world.rank == 0:
+            json.dump(E_end, open(ends, 'w'))
+    E_triplet_final = json.load(open(f'runs/{tag}_final.json'))['energy_eV'] if q == 0 else None
     from ase.calculators.singlepoint import SinglePointCalculator
     for j, e in ((0, E_end[0]), (n + 1, E_end[1])):
         imgs[j].calc = SinglePointCalculator(imgs[j], energy=e, forces=0*imgs[j].positions)
+    # moving images in parallel: world.size/n ranks per image, each rank holds ONE image (memory / n)
+    assert world.size % n == 0, f'use a multiple of {n} MPI ranks'
+    per = world.size // n; mine = world.rank // per
+    comm = world.new_communicator(list(range(mine*per, (mine + 1)*per)))
+    for j in range(1, n + 1):
+        imgs[j].set_initial_magnetic_moments(mm(j, imgs[j]))
+        if j - 1 == mine:
+            imgs[j].calc = make_calc(imgs[j], 'dzp', q, txt=f'runs/{tag}_img{j}.txt', zjell=zj, mixer=MIX,
+                                     maxiter=500, communicator=comm)
+    band = NEB(imgs, climb=True, k=0.5, method='improvedtangent', parallel=True)
     t0 = time.time()
     opt = FIRE(band, trajectory=f'runs/{tag}.traj', logfile=f'runs/{tag}.log', maxstep=0.1)
     opt.run(fmax=0.05, steps=int(os.environ.get('NEB_STEPS', 200)))
-    E = [im.get_potential_energy() for im in imgs]
     conv = bool(opt.converged(band.get_forces()))
+    E = [float(e) for e in band.energies]
     write(f'runs/{tag}_band.extxyz', imgs)
     if world.rank == 0:
         json.dump(dict(charge=q, target=t, n_images=n, energies=E, Ea_fwd=max(E) - E[0], Ea_bwd=max(E) - E[-1],
-                       dE=E[-1] - E[0], steps=opt.nsteps, converged=conv, wall_s=time.time() - t0, jellium=list(zj),
+                       dE=E[-1] - E[0], E_final_relax=E_triplet_final, steps=opt.nsteps, converged=conv, wall_s=time.time() - t0, jellium=list(zj),
                        hop=dict(zip(('receiver', 'donor', 'H'), HOP[t]))),
                   open(f'runs/{tag}.json', 'w'), indent=1)
         print(tag, 'Ea_fwd', max(E) - E[0], 'Ea_bwd', max(E) - E[-1], 'converged', conv)
