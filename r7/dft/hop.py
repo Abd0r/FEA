@@ -10,7 +10,7 @@ from Si92. The other two neighbours (Si90, Si94) are mirror images along the row
 Usage: gpaw python hop.py relax CHARGE(0|-1) TARGET(up|down)   -> runs/hop_{q}_{t}_final.extxyz
        gpaw python hop.py neb   CHARGE(0|-1) TARGET(up|down) [nimg]  -> runs/hop_{q}_{t}.json
 """
-import sys, os, json, time
+import sys, os, json, time, gc
 import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ase.io import read, write
@@ -110,7 +110,7 @@ def neb(q, t, n):
         for j in (0, n + 1):
             x = imgs[j].copy(); x.set_initial_magnetic_moments(mm(j, x))
             x.calc = make_calc(x, 'dzp', q, txt=f'runs/{tag}_img{j}.txt', zjell=zj, mixer=MIX, maxiter=500)
-            E_end.append(float(x.get_potential_energy())); del x
+            E_end.append(float(x.get_potential_energy())); x.calc = None; del x; gc.collect()
         world.barrier()
         if world.rank == 0:
             json.dump(E_end, open(ends, 'w'))
