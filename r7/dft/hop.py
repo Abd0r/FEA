@@ -82,6 +82,17 @@ def neb(q, t, n):
     imgs = [a] + [a.copy() for _ in range(n)] + [b]
     band = NEB(imgs, climb=True, k=0.5, method='improvedtangent')
     band.interpolate('idpp', mic=True, apply_constraint=True)
+    tr = f'runs/{tag}.traj'
+    if os.path.exists(tr) and os.path.getsize(tr) > 0:              # restart from the last saved band (crash / disk full)
+        last = read(tr, index=f'-{n + 2}:')
+        if len(last) == n + 2:
+            for im, old in zip(imgs[1:-1], last[1:-1]):
+                im.positions = old.positions
+            world.barrier()
+            if world.rank == 0:
+                os.rename(tr, tr.replace('.traj', f'_part{int(time.time())}.traj'))
+                print(tag, 'restarted from', tr, flush=True)
+            world.barrier()
     for j, im in enumerate(imgs):
         im.set_initial_magnetic_moments(magmoms(im, q, t) if j else
                                         (np.where(np.isin(np.arange(len(im)), [I, K]), 0.5, 0.0) if q else np.zeros(len(im))))
