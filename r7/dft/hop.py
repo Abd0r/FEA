@@ -28,9 +28,37 @@ HOP = {'up': (I, 88, 104), 'down': (K, 92, 105)}      # (receiving Si, donor Si,
 H_ON_I = 106                                          # index of the H on Si89 in slab_4x4x6_L
 
 
+# GPAW (old calculator) asserts a single Fermi level when it prints the work functions of a dipole-corrected slab;
+# with a fixed total moment there are two (one per spin) and the run aborts after converging. The work function is
+# only reported, never used, so report NaN instead.
+from gpaw.old.hamiltonian import Hamiltonian as _Ham
+_wf0 = _Ham.get_workfunctions
+def _wf(self, wfs):
+    try:
+        return _wf0(self, wfs)
+    except AssertionError:
+        return np.array([np.nan, np.nan])
+_Ham.get_workfunctions = _wf
+from gpaw.new.calculation import DFT as _DFT    # same report in the new calculator (neutral-cell path)
+_wfn0 = _DFT.workfunctions
+def _wfn(self, *a, **k):
+    try:
+        return _wfn0(self, *a, **k)
+    except AssertionError:
+        return np.nan, np.nan
+_DFT.workfunctions = _wfn
+
+
 def extra(q):
     """Fixed total moment (fixmagmom) crashes this GPAW with the dipole layer (two Fermi levels, 28 Nov): free moment."""
-    return dict(mixer=MIX, maxiter=500)
+    # Charged runs: the 'sum' mixer leaves the spin density undamped and the moment flips between +1 and -1
+    # (0.2 eV swings, 150+ iterations, 28 Nov); 'difference' mixes the magnetisation density too.
+    # Charged runs (one odd electron): 'difference' alone converges but to a smeared M = 0 state (28 Nov), while the
+    # charged bare dimer is a clean doublet (M = 0.999). Fix M = 1 and mix the spin density.
+    if q == 0:
+        return dict(mixer=MIX, maxiter=500)
+    return dict(mixer=dict(MIX, method='difference'), maxiter=500,
+                occupations={'name': 'fermi-dirac', 'width': 0.05, 'fixmagmom': True})
 
 
 def tags(q, t):
@@ -50,7 +78,10 @@ def magmoms(at, q, t):
     rec, don, _ = HOP[t]
     other = K if rec == I else I                     # the two DBs left after the hop: donor Si and the other dimer atom
     if q != 0:
-        m[don] = 0.5; m[other] = 0.5
+        # DB- + DB0 after the hop: the extra electron stays on the dimer's remaining DB (paired, m = 0) and the
+        # donor DB carries the unpaired spin. A symmetric 0.5/0.5 seed lets the electron slosh between the two DBs
+        # and the SCF never converges (335 iterations, 28 Nov).
+        m[don] = 1.0; m[other] = 0.0
     else:
         # neutral: two singly occupied DBs. Seed a broken-symmetry singlet (+-1), continuous with the closed-shell
         # bare dimer at the start; a zero seed stays on the closed-shell surface, 0.34 eV above (found 27 Nov).
