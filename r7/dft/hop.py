@@ -24,8 +24,11 @@ REF = read(os.path.join(HERE, 'slab_4x4x6_L.extxyz'))
 I, K = (int(x) for x in REF.info['target_dimer'])
 AX = int(REF.info['dim_axis'])
 MIX = {'backend': 'pulay', 'method': 'sum', 'beta': 0.02, 'nmaxold': 8, 'weight': 50}
-HOP = {'up': (I, 88, 104), 'down': (K, 92, 105)}      # (receiving Si, donor Si, moving H)
-H_ON_I = 106                                          # index of the H on Si89 in slab_4x4x6_L
+
+
+def extra(q):
+    """Fixed total moment (fixmagmom) crashes this GPAW with the dipole layer (two Fermi levels, 28 Nov): free moment."""
+    return dict(mixer=MIX, maxiter=500)
 
 
 def tags(q, t):
@@ -69,9 +72,19 @@ def guess_final(a, t):
 def relax_final(q, t):
     a = initial(q); zj = zjell(a)
     b = guess_final(a, t)
-    b.set_initial_magnetic_moments(magmoms(b, q, t))
     tag = tags(q, t)
-    b.calc = make_calc(b, 'dzp', q, txt=f'runs/{tag}_final.txt', zjell=zj, mixer=MIX, maxiter=500)
+    nf = f"runs/{tags(0, t)}_final.extxyz"
+    if q != 0 and os.path.exists(nf):                              # charged: start from the relaxed neutral final state
+        b.positions = read(nf).positions
+    tr = f'runs/{tag}_final.traj'
+    if os.path.exists(tr) and os.path.getsize(tr) > 0:              # restart from the last relaxed geometry
+        b.positions = read(tr, index=-1).positions
+        world.barrier()
+        if world.rank == 0:
+            os.rename(tr, tr.replace('.traj', f'_part{int(time.time())}.traj')); print(tag, 'relax restarted', flush=True)
+        world.barrier()
+    b.set_initial_magnetic_moments(magmoms(b, q, t))
+    b.calc = make_calc(b, 'dzp', q, txt=f'runs/{tag}_final.txt', zjell=zj, **extra(q))
     opt = BFGS(b, trajectory=f'runs/{tag}_final.traj', logfile=f'runs/{tag}_final.log')
     opt.run(fmax=0.03, steps=300)
     e = b.get_potential_energy(); f = b.get_forces()
@@ -109,7 +122,7 @@ def neb(q, t, n):
         E_end = []
         for j in (0, n + 1):
             x = imgs[j].copy(); x.set_initial_magnetic_moments(mm(j, x))
-            x.calc = make_calc(x, 'dzp', q, txt=f'runs/{tag}_img{j}.txt', zjell=zj, mixer=MIX, maxiter=500)
+            x.calc = make_calc(x, 'dzp', q, txt=f'runs/{tag}_img{j}.txt', zjell=zj, **extra(q))
             E_end.append(float(x.get_potential_energy())); x.calc = None; del x; gc.collect()
         world.barrier()
         if world.rank == 0:
@@ -125,8 +138,8 @@ def neb(q, t, n):
     for j in range(1, n + 1):
         imgs[j].set_initial_magnetic_moments(mm(j, imgs[j]))
         if j - 1 == mine:
-            imgs[j].calc = make_calc(imgs[j], 'dzp', q, txt=f'runs/{tag}_img{j}.txt', zjell=zj, mixer=MIX,
-                                     maxiter=500, communicator=comm)
+            imgs[j].calc = make_calc(imgs[j], 'dzp', q, txt=f'runs/{tag}_img{j}.txt', zjell=zj,
+                                     communicator=comm, **extra(q))
     band = NEB(imgs, climb=True, k=0.5, method='improvedtangent', parallel=True)
     t0 = time.time()
     opt = FIRE(band, trajectory=f'runs/{tag}.traj', logfile=f'runs/{tag}.log', maxstep=0.1)
