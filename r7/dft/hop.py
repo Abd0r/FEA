@@ -24,6 +24,8 @@ REF = read(os.path.join(HERE, 'slab_4x4x6_L.extxyz'))
 I, K = (int(x) for x in REF.info['target_dimer'])
 AX = int(REF.info['dim_axis'])
 MIX = {'backend': 'pulay', 'method': 'sum', 'beta': 0.02, 'nmaxold': 8, 'weight': 50}
+HOP = {'up': (I, 88, 104), 'down': (K, 92, 105)}      # (receiving Si, donor Si, moving H)
+H_ON_I = 106                                          # index of the H on Si89 in slab_4x4x6_L
 
 
 def extra(q):
