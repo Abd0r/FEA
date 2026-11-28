@@ -12,7 +12,7 @@ The jellium is pinned to one z window for every image, as in htst.py, so energie
 Usage: gpaw python flip.py charges            -> runs/flip_charges.json
        gpaw python flip.py neb CHARGE(0|-1) [nimg]  -> runs/flip_neb_{q0|qm}.json
 """
-import sys, os, json, time
+import sys, os, json, time, gc
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -43,6 +43,9 @@ def magmoms(at, q):
     m = np.zeros(len(at))
     if q != 0:
         m[I] = m[K] = 0.5
+    else:
+        m[I], m[K] = 0.5, -0.5     # broken-symmetry seed: lets the symmetric (saddle) dimer go open-shell if lower;
+                                   # a buckled closed-shell image collapses to M = 0 (zero seeds trapped the H hop, 27 Nov)
     return m
 
 
@@ -117,21 +120,50 @@ def neb(q, n):
     imgs = [a] + [a.copy() for _ in range(n)] + [b]
     band = NEB(imgs, climb=True, k=0.5)
     band.interpolate('idpp', mic=True, apply_constraint=True)
-    for j, im in enumerate(imgs):
-        im.set_initial_magnetic_moments(magmoms(im, q))
-        im.calc = make_calc(im, 'dzp', q, txt=f'runs/{tag}_img{j}.txt', zjell=zj, mixer=MIX, maxiter=500)
-    E_end = [imgs[0].get_potential_energy(), imgs[-1].get_potential_energy()]
+    tr = f'runs/{tag}.traj'
+    if os.path.exists(tr) and os.path.getsize(tr) > 0:              # restart from the last saved band
+        last = read(tr, index=f'-{n + 2}:')
+        if len(last) == n + 2:
+            for im, old in zip(imgs[1:-1], last[1:-1]):
+                im.positions = old.positions
+            world.barrier()
+            if world.rank == 0:
+                os.rename(tr, tr.replace('.traj', f'_part{int(time.time())}.traj')); print(tag, 'restarted', flush=True)
+            world.barrier()
+    # endpoints one at a time on all ranks, then freed; cached for restarts (28 Nov: five resident calculators
+    # needed ~15-22 GB on the 16 GB machine)
+    ends = f'runs/{tag}_ends.json'
+    if os.path.exists(ends):
+        E_end = json.load(open(ends))
+    else:
+        E_end = []
+        for j in (0, n + 1):
+            x = imgs[j].copy(); x.set_initial_magnetic_moments(magmoms(x, q))
+            x.calc = make_calc(x, 'dzp', q, txt=f'runs/{tag}_img{j}.txt', zjell=zj, mixer=MIX, maxiter=500)
+            E_end.append(float(x.get_potential_energy())); x.calc = None; del x; gc.collect()
+        world.barrier()
+        if world.rank == 0:
+            json.dump(E_end, open(ends, 'w'))
     if world.rank == 0:
         print('endpoint energies', E_end, 'difference (symmetry check)', E_end[1] - E_end[0], flush=True)
-    # endpoints are minima: stop recomputing them
     from ase.calculators.singlepoint import SinglePointCalculator
     for j in (0, n + 1):
         imgs[j].calc = SinglePointCalculator(imgs[j], energy=E_end[0 if j == 0 else 1], forces=0*imgs[j].positions)
+    # moving images in parallel: world.size/n ranks per image
+    assert world.size % n == 0, f'use a multiple of {n} MPI ranks'
+    per = world.size // n; mine = world.rank // per
+    comm = world.new_communicator(list(range(mine*per, (mine + 1)*per)))
+    for j in range(1, n + 1):
+        imgs[j].set_initial_magnetic_moments(magmoms(imgs[j], q))
+        if j - 1 == mine:
+            imgs[j].calc = make_calc(imgs[j], 'dzp', q, txt=f'runs/{tag}_img{j}.txt', zjell=zj, mixer=MIX,
+                                     maxiter=500, communicator=comm)
+    band = NEB(imgs, climb=True, k=0.5, parallel=True)
     t = time.time()
     opt = FIRE(band, trajectory=f'runs/{tag}.traj', logfile=f'runs/{tag}.log', maxstep=0.1)
     opt.run(fmax=0.05, steps=int(os.environ.get('NEB_STEPS', 200)))
-    E = [im.get_potential_energy() for im in imgs]
     conv = bool(opt.converged(band.get_forces()))
+    E = [float(e) for e in band.energies]
     dz = [float(im.positions[I, 2] - im.positions[K, 2]) for im in imgs]
     write(f'runs/{tag}_band.extxyz', imgs)
     if world.rank == 0:
